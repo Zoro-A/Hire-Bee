@@ -1,0 +1,122 @@
+# ══════════════════════════════════════════════════════
+#  HireBee — .gitignore
+# ══════════════════════════════════════════════════════
+
+# ── Secrets & Environment ──────────────────────────────
+.env
+.env.local
+.env.production
+.env.staging
+
+# Keep the example template — it SHOULD be committed
+!.env.example
+
+# ── Python: Bytecode & Cache ───────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# ── Python: Virtual Environments ──────────────────────
+.venv/
+venv/
+env/
+ENV/
+.virtualenv/
+
+# ── Python: Packaging & Distribution ──────────────────
+dist/
+build/
+*.egg-info/
+*.egg
+.eggs/
+MANIFEST
+
+# ── Python: Testing & Coverage ────────────────────────
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+nosetests.xml
+test-results/
+
+# ── Python: Type Checkers & Linters ───────────────────
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+
+# ── Jupyter Notebooks ──────────────────────────────────
+.ipynb_checkpoints/
+
+# ── AI / ML: HuggingFace Model Cache ──────────────────
+# The BGE model (~130 MB) is downloaded at runtime
+.cache/
+backend/.cache/
+*.safetensors
+*.onnx
+
+# ── Local File Storage (user uploads) ─────────────────
+# Track the folders but NOT the uploaded files inside them
+backend/storage/resumes/*
+backend/storage/cvs/*
+!backend/storage/resumes/.gitkeep
+!backend/storage/cvs/.gitkeep
+
+# ── Docker: Local Data Volumes ─────────────────────────
+postgres_data/
+qdrant_storage/
+
+# ── Node.js / Next.js ──────────────────────────────────
+node_modules/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+.next/
+out/
+.turbo/
+.vercel/
+
+# ── npm / yarn / pnpm Logs ─────────────────────────────
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# ── IDEs & Editors ─────────────────────────────────────
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ── OS Generated Files ─────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ── Logs ───────────────────────────────────────────────
+*.log
+*.log.*
+logs/
+
+# ── Temporary Files ────────────────────────────────────
+*.tmp
+*.temp
+*.bak
+*.orig
+tmp/
