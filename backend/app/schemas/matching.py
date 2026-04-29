@@ -8,5 +8,7 @@ class MatchedJobResponse(BaseModel):
     salary: float | None
     recruiter_email: str
     match_percentage: float
+    exact_match_percentage: float
+    semantic_relevance_score: float
     matched_skills: list[str]
     missing_skills: list[str]

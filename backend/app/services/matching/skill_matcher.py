@@ -40,6 +40,7 @@ class SkillMatcherService:
         candidate_skill_set = set(candidate_skills)
         shortlisted_job_ids: set[int] = set()
         semantic_hits_by_job: dict[int, set[str]] = defaultdict(set)
+        semantic_scores_by_job: dict[int, list[float]] = defaultdict(list)
         for candidate_skill, vector in zip(candidate_skills, vectors, strict=True):
             points = self.skill_store.search_jobs_by_skill(
                 vector=vector,
@@ -53,6 +54,7 @@ class SkillMatcherService:
                 if isinstance(job_id, int) and isinstance(required_skill, str):
                     shortlisted_job_ids.add(job_id)
                     semantic_hits_by_job[job_id].add(required_skill)
+                    semantic_scores_by_job[job_id].append(float(point.score))
                     if required_skill == candidate_skill:
                         semantic_hits_by_job[job_id].add(candidate_skill)
 
@@ -68,7 +70,9 @@ class SkillMatcherService:
             # Final match score is strict overlap against extracted skills.
             matched_required = sorted(required.intersection(candidate_skill_set))
             missing = sorted(required.difference(matched_required))
-            match_percentage = round((len(matched_required) / len(required)) * 100, 2)
+            exact_match_percentage = round((len(matched_required) / len(required)) * 100, 2)
+            scores = semantic_scores_by_job.get(job_id, [])
+            semantic_relevance_score = round((sum(scores) / len(scores)) * 100, 2) if scores else 0.0
 
             job = db.query(Job).filter(Job.id == job_id).first()
             if not job:
@@ -80,7 +84,9 @@ class SkillMatcherService:
                     "location": job.location,
                     "salary": job.salary,
                     "recruiter_email": job.recruiter_email,
-                    "match_percentage": match_percentage,
+                    "match_percentage": exact_match_percentage,
+                    "exact_match_percentage": exact_match_percentage,
+                    "semantic_relevance_score": semantic_relevance_score,
                     "matched_skills": matched_required,
                     "missing_skills": missing,
                 }
