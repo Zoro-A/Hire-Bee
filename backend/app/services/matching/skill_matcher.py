@@ -37,8 +37,10 @@ class SkillMatcherService:
             return []
         self.skill_store.ensure_collection(vector_size=len(vectors[0]))
 
-        matched_by_job: dict[int, set[str]] = defaultdict(set)
-        for vector in vectors:
+        candidate_skill_set = set(candidate_skills)
+        shortlisted_job_ids: set[int] = set()
+        semantic_hits_by_job: dict[int, set[str]] = defaultdict(set)
+        for candidate_skill, vector in zip(candidate_skills, vectors, strict=True):
             points = self.skill_store.search_jobs_by_skill(
                 vector=vector,
                 top_k=self.settings.matching_top_k,
@@ -49,10 +51,13 @@ class SkillMatcherService:
                 job_id = payload.get("job_id")
                 required_skill = payload.get("skill_name")
                 if isinstance(job_id, int) and isinstance(required_skill, str):
-                    matched_by_job[job_id].add(required_skill)
+                    shortlisted_job_ids.add(job_id)
+                    semantic_hits_by_job[job_id].add(required_skill)
+                    if required_skill == candidate_skill:
+                        semantic_hits_by_job[job_id].add(candidate_skill)
 
         ranked: list[dict] = []
-        for job_id, matched_skills in matched_by_job.items():
+        for job_id in shortlisted_job_ids:
             required = {
                 item.normalized_skill
                 for item in db.query(JobSkill).filter(JobSkill.job_id == job_id).all()
@@ -60,7 +65,8 @@ class SkillMatcherService:
             }
             if not required:
                 continue
-            matched_required = sorted(required.intersection(matched_skills))
+            # Final match score is strict overlap against extracted skills.
+            matched_required = sorted(required.intersection(candidate_skill_set))
             missing = sorted(required.difference(matched_required))
             match_percentage = round((len(matched_required) / len(required)) * 100, 2)
 
