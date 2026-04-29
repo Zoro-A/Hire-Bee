@@ -24,6 +24,14 @@ class Settings(BaseSettings):
     parsing_confidence_threshold: float = 0.55
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
+    qdrant_url: str = "http://localhost:6333"
+    qdrant_api_key: str | None = None
+    qdrant_collection_name: str = "job_skills"
+    embedding_model_name: str = "BAAI/bge-small-en-v1.5"
+    embedding_vector_size: int = 384
+    matching_score_threshold: float = 0.45
+    matching_top_k: int = 8
+    qdrant_safe_upsert: bool = True
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=False, extra="ignore")
 

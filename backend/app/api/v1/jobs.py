@@ -5,8 +5,11 @@ from app.api.deps import require_roles
 from app.db.database import get_db
 from app.models.entities import Job, JobSkill, Recruiter, User, UserRole
 from app.schemas.jobs import JobCreate
+from app.services.matching.skill_matcher import SkillMatcherService
+from app.services.resume_parser.skills import normalize_skill
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
+matcher_service = SkillMatcherService()
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
@@ -29,13 +32,23 @@ def create_job(
     )
     db.add(job)
     db.flush()
+    normalized_skills: list[str] = []
     for skill in payload.required_skills:
-        normalized = skill.strip().lower()
+        normalized = normalize_skill(skill)
         if not normalized:
             continue
+        normalized_skills.append(normalized)
         db.add(JobSkill(job_id=job.id, skill_name=skill.strip(), normalized_skill=normalized))
     db.commit()
     db.refresh(job)
+    if normalized_skills:
+        try:
+            matcher_service.index_job_skills(job_id=job.id, normalized_skills=normalized_skills)
+        except Exception as exc:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Job created but skill indexing failed: {exc}",
+            ) from exc
     return {"id": job.id, "title": job.title}
 
 

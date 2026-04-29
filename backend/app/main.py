@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1 import admin, auth, health, jobs, recruiters, resumes
+from app.api.v1 import admin, auth, health, jobs, matching, recruiters, resumes
 from app.core.config import get_settings
 from app.db.init_db import init_db
+from app.services.vector_store.bootstrap import init_vector_store
 
 settings = get_settings()
 app = FastAPI(title=settings.app_name)
@@ -20,6 +21,7 @@ app.add_middleware(
 @app.on_event("startup")
 def on_startup() -> None:
     init_db()
+    init_vector_store()
 
 
 app.include_router(health.router, prefix=settings.api_v1_prefix)
@@ -28,3 +30,4 @@ app.include_router(admin.router, prefix=settings.api_v1_prefix)
 app.include_router(recruiters.router, prefix=settings.api_v1_prefix)
 app.include_router(jobs.router, prefix=settings.api_v1_prefix)
 app.include_router(resumes.router, prefix=settings.api_v1_prefix)
+app.include_router(matching.router, prefix=settings.api_v1_prefix)

@@ -11,3 +11,6 @@ PyMuPDF
 python-docx
 spacy
 openai
+qdrant-client
+sentence-transformers
+numpy
