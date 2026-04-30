@@ -31,6 +31,10 @@ def build_empty_template(title: str = "ATS Resume") -> dict:
             "github": "",
         },
         "section_order": deepcopy(DEFAULT_SECTION_ORDER),
+        "section_descriptions": {
+            "projects": "Highlight impact, stack, and measurable outcomes.",
+            "extracurricular": "Mention leadership roles and responsibilities.",
+        },
         "sections": {
             "summary": "",
             "experience": [],
@@ -69,6 +73,7 @@ def ensure_template_shape(cv_json: dict) -> dict:
     normalized.setdefault("header", {})
     normalized.setdefault("sections", {})
     normalized.setdefault("section_order", deepcopy(DEFAULT_SECTION_ORDER))
+    normalized.setdefault("section_descriptions", {})
 
     for section in DEFAULT_SECTION_ORDER:
         normalized["sections"].setdefault(section, [] if section != "summary" else "")
