@@ -66,8 +66,10 @@ backend/.cache/
 # Track the folders but NOT the uploaded files inside them
 backend/storage/resumes/*
 backend/storage/cvs/*
+backend/storage/generated/*
 !backend/storage/resumes/.gitkeep
 !backend/storage/cvs/.gitkeep
+!backend/storage/generated/.gitkeep
 
 # ── Docker: Local Data Volumes ─────────────────────────
 postgres_data/

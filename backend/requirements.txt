@@ -14,3 +14,6 @@ openai
 qdrant-client
 sentence-transformers
 numpy
+langchain
+langchain-openai
+reportlab

@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     matching_score_threshold: float = 0.45
     matching_top_k: int = 8
     qdrant_safe_upsert: bool = True
+    generated_assets_dir: str = "storage/generated"
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=False, extra="ignore")
 

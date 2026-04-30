@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1 import admin, auth, health, jobs, matching, recruiters, resumes
+from app.api.v1 import admin, auth, cover_letters, cv, health, jobs, matching, recruiters, resumes
 from app.core.config import get_settings
 from app.db.init_db import init_db
 from app.services.vector_store.bootstrap import init_vector_store
@@ -31,3 +31,5 @@ app.include_router(recruiters.router, prefix=settings.api_v1_prefix)
 app.include_router(jobs.router, prefix=settings.api_v1_prefix)
 app.include_router(resumes.router, prefix=settings.api_v1_prefix)
 app.include_router(matching.router, prefix=settings.api_v1_prefix)
+app.include_router(cv.router, prefix=settings.api_v1_prefix)
+app.include_router(cover_letters.router, prefix=settings.api_v1_prefix)

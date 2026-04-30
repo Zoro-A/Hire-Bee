@@ -22,4 +22,14 @@
   - Recruiter job creation indexes required skills in Qdrant.
   - Candidate matching endpoint: `GET /api/v1/matching/jobs-for-me`.
   - `QDRANT_SAFE_UPSERT=true` keeps existing vectors safe and uses deterministic point IDs per `job_id+skill`.
+- CV endpoints:
+  - Template metadata for FlowCV-style frontend builder: `GET /api/v1/cvs/templates`
+  - Manual builder save/update/list: `/api/v1/cvs`
+  - Reorder sections: `PATCH /api/v1/cvs/{cv_id}/section-order`
+  - Add/update custom sections (e.g., extracurricular): `PATCH /api/v1/cvs/{cv_id}/sections`
+  - Conversational generation: `POST /api/v1/cvs/conversation/generate`
+  - Export: `POST /api/v1/cvs/{cv_id}/export?export_format=pdf|docx`
+- Cover letter endpoints:
+  - Generate: `POST /api/v1/cover-letters/generate`
+  - List: `GET /api/v1/cover-letters`
 - Swagger docs are available at `/docs`.
