@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     db_user: str | None = None
     db_password: str | None = None
     auto_create_database: bool = True
-    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
+    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173"
     resume_storage_dir: str = "storage/resumes"
     parsing_confidence_threshold: float = 0.55
     openai_api_key: str | None = None
