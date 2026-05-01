@@ -32,4 +32,13 @@
 - Cover letter endpoints:
   - Generate: `POST /api/v1/cover-letters/generate`
   - List: `GET /api/v1/cover-letters`
+- Applications & recruiter ops:
+  - Candidate apply: `POST /api/v1/applications`
+  - Candidate applications: `GET /api/v1/applications/me`
+  - Recruiter applicant list: `GET /api/v1/applications/recruiter`
+  - Application status update: `PATCH /api/v1/applications/{application_id}/status`
+  - Interview scheduling: `POST /api/v1/interviews/schedule`
+- Email automation:
+  - Uses platform SMTP sender credentials (`SMTP_*`) for application/interview emails.
+  - Email logs endpoint: `GET /api/v1/emails/logs` (admin/recruiter).
 - Swagger docs are available at `/docs`.

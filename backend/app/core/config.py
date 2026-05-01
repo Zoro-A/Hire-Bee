@@ -33,6 +33,12 @@ class Settings(BaseSettings):
     matching_top_k: int = 8
     qdrant_safe_upsert: bool = True
     generated_assets_dir: str = "storage/generated"
+    smtp_host: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_from_email: str | None = None
+    smtp_use_tls: bool = True
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=False, extra="ignore")
 
