@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     resume_storage_dir: str = "storage/resumes"
     parsing_confidence_threshold: float = 0.55
     openai_api_key: str | None = None
-    openai_model: str = "gpt-4o-mini"
+    openai_model: str = "gpt-4.1-mini"
     qdrant_url: str = "http://localhost:6333"
     qdrant_api_key: str | None = None
     qdrant_collection_name: str = "job_skills"
