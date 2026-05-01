@@ -88,14 +88,38 @@ class CVExportService:
                 continue
 
             if isinstance(content, dict):
-                self._append_structured_item(content, story, item_heading_style, item_meta_style, body_style, bullet_style, Table, TableStyle, colors)
+                self._append_structured_item(
+                    content,
+                    story,
+                    item_heading_style,
+                    item_meta_style,
+                    body_style,
+                    bullet_style,
+                    Paragraph,
+                    Spacer,
+                    Table,
+                    TableStyle,
+                    colors,
+                )
                 story.append(Spacer(1, 6))
                 continue
 
             if isinstance(content, list):
                 for item in content:
                     if isinstance(item, dict):
-                        self._append_structured_item(item, story, item_heading_style, item_meta_style, body_style, bullet_style, Table, TableStyle, colors)
+                        self._append_structured_item(
+                            item,
+                            story,
+                            item_heading_style,
+                            item_meta_style,
+                            body_style,
+                            bullet_style,
+                            Paragraph,
+                            Spacer,
+                            Table,
+                            TableStyle,
+                            colors,
+                        )
                     else:
                         story.append(Paragraph(self._escape(str(item)), bullet_style, bulletText="\u2022"))
                 story.append(Spacer(1, 6))
@@ -178,6 +202,8 @@ class CVExportService:
         item_meta_style,
         body_style,
         bullet_style,
+        paragraph_cls,
+        spacer_cls,
         table_cls,
         table_style_cls,
         colors,
@@ -186,7 +212,10 @@ class CVExportService:
         right_meta = str(item.get("date") or item.get("duration") or "").strip()
         if heading or right_meta:
             row = [
-                [Paragraph(self._escape(heading), item_heading_style), Paragraph(self._escape(right_meta), item_meta_style)]
+                [
+                    paragraph_cls(self._escape(heading), item_heading_style),
+                    paragraph_cls(self._escape(right_meta), item_meta_style),
+                ]
             ]
             table = table_cls(row, colWidths=["73%", "27%"])
             table.setStyle(
@@ -209,15 +238,15 @@ class CVExportService:
         ]
         secondary_line = " | ".join([part for part in secondary_parts if part])
         if secondary_line:
-            story.append(Paragraph(self._escape(secondary_line), item_meta_style))
+            story.append(paragraph_cls(self._escape(secondary_line), item_meta_style))
 
         description = item.get("description")
         if description:
-            story.append(Paragraph(self._escape(str(description)), body_style))
+            story.append(paragraph_cls(self._escape(str(description)), body_style))
 
         highlights = item.get("highlights", [])
         if isinstance(highlights, list):
             for hl in highlights:
-                story.append(Paragraph(self._escape(str(hl)), bullet_style, bulletText="\u2022"))
+                story.append(paragraph_cls(self._escape(str(hl)), bullet_style, bulletText="\u2022"))
 
-        story.append(Spacer(1, 3))
+        story.append(spacer_cls(1, 3))
