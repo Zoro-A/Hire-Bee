@@ -1,0 +1,33 @@
+export const designAudit = [
+  "Linear",
+  "Notion",
+  "Stripe",
+  "Ashby",
+  "Greenhouse",
+  "Lever",
+  "Wellfound",
+  "Workable",
+  "Rippling",
+  "Remote",
+  "Deel",
+  "Webflow",
+  "Framer",
+  "Figma",
+  "Vercel",
+  "Pitch",
+  "Revolut Careers",
+  "Shopify Careers",
+  "Intercom",
+  "Slack",
+]
+
+export const designPrinciples = [
+  "Strong editorial typography with constrained line lengths",
+  "Muted canvas colors with one energetic accent color",
+  "Rounded cards and soft borders for hierarchy without noise",
+  "Clear section rhythm using vertical spacing over heavy dividers",
+  "Data cards that feel product-like rather than marketing-only",
+  "Trust indicators (logos, metrics, and social proof) near hero",
+  "Action-first CTAs with concise copy and visible outcome",
+  "Consistent component geometry for forms, chips, and buttons",
+]
