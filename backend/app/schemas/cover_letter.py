@@ -8,6 +8,10 @@ class CoverLetterGenerateRequest(BaseModel):
     tone: str = Field(default="professional", max_length=50)
 
 
+class CoverLetterUpdateRequest(BaseModel):
+    content: str = Field(min_length=20, max_length=12000)
+
+
 class CoverLetterResponse(BaseModel):
     id: int
     job_id: int | None
