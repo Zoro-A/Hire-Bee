@@ -12,11 +12,14 @@ from app.models.entities import GeneratedCV, User, UserRole
 from app.schemas.cv import (
     CVResponse,
     CVTemplateResponse,
+    ConversationalChatRequest,
+    ConversationalChatResponse,
     ConversationalCVRequest,
     ManualCVUpsertRequest,
     SectionOrderUpdateRequest,
     SectionUpsertRequest,
 )
+from app.services.cv.conversation_llm import conversation_reply
 from app.services.cv.exporter import CVExportService
 from app.services.cv.generator import ConversationalCVGenerator
 from app.services.cv.template import ATS_SECTION_LIBRARY, ATS_TEMPLATE_ID, build_empty_template, ensure_template_shape
@@ -82,13 +85,36 @@ def list_cvs(
     )
 
 
+@router.post("/conversation/chat", response_model=ConversationalChatResponse)
+def conversational_chat(
+    payload: ConversationalChatRequest,
+    _current_user: User = Depends(require_roles(UserRole.JOB_SEEKER)),
+) -> ConversationalChatResponse:
+    try:
+        reply = conversation_reply([m.model_dump() for m in payload.messages])
+    except RuntimeError as exc:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)) from exc
+    if not reply:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Empty model response")
+    return ConversationalChatResponse(reply=reply)
+
+
 @router.post("/conversation/generate", response_model=CVResponse, status_code=status.HTTP_201_CREATED)
 def generate_conversational_cv(
     payload: ConversationalCVRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles(UserRole.JOB_SEEKER)),
 ) -> GeneratedCV:
-    generated_json = cv_generator.generate(payload.answers)
+    if payload.messages:
+        user_turns = sum(1 for m in payload.messages if m.role.lower() == "user")
+        if user_turns < 2:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Have at least two user messages in the conversation before generating a CV.",
+            )
+        generated_json = cv_generator.generate_from_transcript([m.model_dump() for m in payload.messages])
+    else:
+        generated_json = cv_generator.generate(payload.answers or {})
     cv = GeneratedCV(user_id=current_user.id, title=payload.title, cv_json=generated_json)
     db.add(cv)
     db.commit()
