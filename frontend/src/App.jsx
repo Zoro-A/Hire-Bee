@@ -1665,36 +1665,82 @@ function JobSeekerDashboard({ token, user }) {
 
 function StatusBadge({ status }) {
   const styles = {
-    applied: "bg-amber-100 text-amber-700",
-    shortlisted: "bg-blue-100 text-blue-700",
-    interview: "bg-emerald-100 text-emerald-700",
-    hired: "bg-green-100 text-green-700",
-    rejected: "bg-rose-100 text-rose-700",
+    applied: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200",
+    shortlisted: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200",
+    interview: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200",
+    hired: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200",
+    rejected: "bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-200",
   }
-  return <span className={`rounded px-2 py-1 text-xs font-semibold ${styles[status] || "bg-slate-100 text-slate-700"}`}>{status}</span>
+  return (
+    <span className={`rounded-md px-2 py-0.5 text-xs font-semibold capitalize ${styles[status] || "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"}`}>
+      {status}
+    </span>
+  )
 }
 
-function RecruiterDashboard({ token }) {
+const RECRUITER_STATUS_OPTIONS = ["applied", "shortlisted", "interview", "hired", "rejected"]
+
+function RecruiterDashboard({ token, user }) {
+  const { isDark } = useTheme()
+  const navItems = [
+    { key: "overview", label: "Overview" },
+    { key: "jobs", label: "Jobs" },
+    { key: "applicants", label: "Applicants" },
+    { key: "interviews", label: "Interviews" },
+    { key: "emails", label: "Email logs" },
+    { key: "profile", label: "Company" },
+  ]
+  const [activePage, setActivePage] = useState("overview")
   const [jobs, setJobs] = useState([])
   const [apps, setApps] = useState([])
   const [interviews, setInterviews] = useState([])
   const [logs, setLogs] = useState([])
-  const [form, setForm] = useState({ title: "", description: "", location: "", salary: "", recruiter_email: "", required_skills: "python,fastapi" })
-  const [statusForm, setStatusForm] = useState({ application_id: "", status: "shortlisted" })
+  const [recruiterMeta, setRecruiterMeta] = useState(null)
+  const [message, setMessage] = useState("")
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState({ refresh: false, profile: false, job: false, interview: false, status: {} })
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    location: "",
+    salary: "",
+    recruiter_email: user?.email ?? "",
+    required_skills: "python, fastapi, postgresql",
+  })
   const [interviewForm, setInterviewForm] = useState({ application_id: "", interview_date: "", meeting_link: "", notes: "" })
-  const [profile, setProfile] = useState({ company_name: "", recruiter_email: "" })
+  const [profile, setProfile] = useState({ company_name: "", recruiter_email: user?.email ?? "" })
+
+  const myJobs = useMemo(() => {
+    const email = (recruiterMeta?.recruiter_email || user?.email || "").toLowerCase()
+    if (!email) return jobs
+    return jobs.filter((j) => (j.recruiter_email || "").toLowerCase() === email)
+  }, [jobs, recruiterMeta, user])
 
   const refresh = useMemo(() => async () => {
-    const [jobList, appList, interviewList, emailList] = await Promise.all([
-      apiRequest("/jobs", {}, token),
-      apiRequest("/applications/recruiter", {}, token).catch(() => []),
-      apiRequest("/interviews/recruiter", {}, token).catch(() => []),
-      apiRequest("/emails/logs", {}, token).catch(() => []),
-    ])
-    setJobs(jobList)
-    setApps(appList)
-    setInterviews(interviewList)
-    setLogs(emailList)
+    setLoading((p) => ({ ...p, refresh: true }))
+    setError("")
+    try {
+      const [jobList, appList, interviewList, emailList, profileRes] = await Promise.all([
+        apiRequest("/jobs", {}, token),
+        apiRequest("/applications/recruiter", {}, token).catch(() => []),
+        apiRequest("/interviews/recruiter", {}, token).catch(() => []),
+        apiRequest("/emails/logs", {}, token).catch(() => []),
+        apiRequest("/recruiters/profile", {}, token).catch(() => null),
+      ])
+      setJobs(jobList)
+      setApps(appList)
+      setInterviews(interviewList)
+      setLogs(emailList)
+      setRecruiterMeta(profileRes)
+      if (profileRes) {
+        setProfile({ company_name: profileRes.company_name || "", recruiter_email: profileRes.recruiter_email || "" })
+        setForm((f) => ({ ...f, recruiter_email: profileRes.recruiter_email || f.recruiter_email }))
+      }
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading((p) => ({ ...p, refresh: false }))
+    }
   }, [token])
 
   useEffect(() => {
@@ -1704,103 +1750,366 @@ function RecruiterDashboard({ token }) {
 
   async function saveProfile(e) {
     e.preventDefault()
-    await apiRequest("/recruiters/profile", { method: "POST", body: JSON.stringify(profile) }, token)
+    setLoading((p) => ({ ...p, profile: true }))
+    setError("")
+    setMessage("")
+    try {
+      await apiRequest("/recruiters/profile", { method: "POST", body: JSON.stringify(profile) }, token)
+      setMessage("Company profile saved.")
+      await refresh()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading((p) => ({ ...p, profile: false }))
+    }
   }
 
   async function postJob(e) {
     e.preventDefault()
-    await apiRequest("/jobs", {
-      method: "POST",
-      body: JSON.stringify({
-        ...form,
-        salary: form.salary ? Number(form.salary) : null,
-        required_skills: form.required_skills.split(",").map((s) => s.trim()).filter(Boolean),
-      }),
-    }, token)
-    await refresh()
+    setLoading((p) => ({ ...p, job: true }))
+    setError("")
+    setMessage("")
+    try {
+      await apiRequest("/jobs", {
+        method: "POST",
+        body: JSON.stringify({
+          ...form,
+          salary: form.salary ? Number(form.salary) : null,
+          required_skills: form.required_skills.split(",").map((s) => s.trim()).filter(Boolean),
+        }),
+      }, token)
+      setMessage("Job published and skills indexed for matching.")
+      setForm((f) => ({ ...f, title: "", description: "", location: "", salary: "" }))
+      await refresh()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading((p) => ({ ...p, job: false }))
+    }
   }
 
-  async function updateStatus(e) {
-    e.preventDefault()
-    await apiRequest(`/applications/${statusForm.application_id}/status`, {
-      method: "PATCH",
-      body: JSON.stringify({ status: statusForm.status }),
-    }, token)
-    await refresh()
+  async function updateApplicationStatus(applicationId, status) {
+    setLoading((p) => ({ ...p, status: { ...p.status, [applicationId]: true } }))
+    setError("")
+    setMessage("")
+    try {
+      await apiRequest(`/applications/${applicationId}/status`, { method: "PATCH", body: JSON.stringify({ status }) }, token)
+      setMessage("Application status updated.")
+      await refresh()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading((p) => ({ ...p, status: { ...p.status, [applicationId]: false } }))
+    }
   }
 
   async function scheduleInterview(e) {
     e.preventDefault()
-    await apiRequest("/interviews/schedule", {
-      method: "POST",
-      body: JSON.stringify(interviewForm),
-    }, token)
-    await refresh()
+    setLoading((p) => ({ ...p, interview: true }))
+    setError("")
+    setMessage("")
+    const aid = Number(interviewForm.application_id)
+    if (!aid || Number.isNaN(aid)) {
+      setError("Choose an application from the list.")
+      setLoading((p) => ({ ...p, interview: false }))
+      return
+    }
+    if (!interviewForm.interview_date || !interviewForm.meeting_link?.trim()) {
+      setError("Set interview date/time and meeting link.")
+      setLoading((p) => ({ ...p, interview: false }))
+      return
+    }
+    try {
+      await apiRequest("/interviews/schedule", {
+        method: "POST",
+        body: JSON.stringify({
+          application_id: aid,
+          interview_date: new Date(interviewForm.interview_date).toISOString(),
+          meeting_link: interviewForm.meeting_link.trim(),
+          notes: interviewForm.notes?.trim() || null,
+        }),
+      }, token)
+      setMessage("Interview scheduled and candidate notified (if SMTP is configured).")
+      setInterviewForm({ application_id: "", interview_date: "", meeting_link: "", notes: "" })
+      await refresh()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading((p) => ({ ...p, interview: false }))
+    }
   }
 
+  const interviewAppLabel = (a) => `#${a.application_id} · ${a.candidate_name} · ${a.job_title}`
+
   return (
-    <section className="grid gap-6">
-      <h2 className="text-2xl font-semibold">Recruiter Dashboard</h2>
-      <div className="grid gap-6 lg:grid-cols-2">
-        <article className={cardClass}>
-          <h3 className="mb-2 font-semibold">Recruiter Profile</h3>
-          <form onSubmit={saveProfile} className="space-y-2">
-            <input className={inputClass} placeholder="Company name" value={profile.company_name} onChange={(e) => setProfile({ ...profile, company_name: e.target.value })} />
-            <input className={inputClass} placeholder="Recruiter email" value={profile.recruiter_email} onChange={(e) => setProfile({ ...profile, recruiter_email: e.target.value })} />
-            <button className={buttonClass} type="submit">Save Profile</button>
-          </form>
-        </article>
-        <article className={cardClass}>
-          <h3 className="mb-2 font-semibold">Post Job</h3>
-          <form onSubmit={postJob} className="space-y-2">
-            <input className={inputClass} placeholder="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-            <textarea className={inputClass} placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-            <input className={inputClass} placeholder="Location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
-            <input className={inputClass} placeholder="Salary" value={form.salary} onChange={(e) => setForm({ ...form, salary: e.target.value })} />
-            <input className={inputClass} placeholder="Recruiter email" value={form.recruiter_email} onChange={(e) => setForm({ ...form, recruiter_email: e.target.value })} />
-            <input className={inputClass} placeholder="skills comma separated" value={form.required_skills} onChange={(e) => setForm({ ...form, required_skills: e.target.value })} />
-            <button className={buttonClass} type="submit">Publish Job</button>
-          </form>
-        </article>
+    <section className="grid min-h-[calc(100vh-120px)] gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
+      <aside className="rounded-2xl border border-[#182742] bg-[#0f1d35] p-4 text-white dark:border-[#1f2d4d]">
+        <div className="border-b border-[#223559] pb-4">
+          <p className="text-xs uppercase tracking-wider text-[#9db6df]">HireBee</p>
+          <p className="mt-1 text-lg font-semibold">Recruiter</p>
+          <p className="mt-1 truncate text-xs text-[#8ca8d8]">{recruiterMeta?.company_name || "Your workspace"}</p>
+        </div>
+        <nav className="mt-4 grid gap-1">
+          {navItems.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => setActivePage(item.key)}
+              className={`rounded-lg px-3 py-2 text-left text-sm transition ${activePage === item.key ? "bg-[#1f6feb] text-white" : "text-[#d2ddf5] hover:bg-[#152848]"}`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+        <div className="mt-8 border-t border-[#223559] pt-3 text-xs text-[#8ca8d8]">
+          Theme: {isDark ? "Dark" : "Light"}
+        </div>
+      </aside>
+
+      <div className="grid gap-4">
+        {message && <p className="rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">{message}</p>}
+        {error && <p className="rounded-xl border border-rose-300 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">{error}</p>}
+
+        {activePage === "overview" && (
+          <section className="grid gap-4">
+            <div className="rounded-2xl border border-[#d8dcef] bg-gradient-to-br from-[#f8f9ff] to-white p-6 dark:border-[#2d355c] dark:from-[#121831] dark:to-[#0f1428]">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#5f67a4] dark:text-[#94a3b8]">Welcome back</p>
+              <h2 className="mt-1 text-2xl font-semibold text-[#1a1f3c] dark:text-white">{user?.full_name || "Recruiter"}</h2>
+              <p className="mt-2 max-w-2xl text-sm text-[#4a5070] dark:text-[#aeb7df]">
+                Review applicants, move pipelines forward, and publish roles. Matches the HireBee recruiter workspace layout (sidebar + cards).
+              </p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-4">
+              <Metric label="Open roles" value={myJobs.length} />
+              <Metric label="Applicants" value={apps.length} />
+              <Metric label="Interviews" value={interviews.length} />
+              <Metric label="Emails logged" value={logs.length} />
+            </div>
+            <article className={cardClass}>
+              <h3 className="mb-3 font-semibold">Quick actions</h3>
+              <div className="grid gap-3 md:grid-cols-3">
+                <button type="button" onClick={() => setActivePage("jobs")} className="rounded-xl border border-[#dbe2f7] p-4 text-left transition hover:bg-[#f2f5ff] dark:border-[#283056] dark:hover:bg-[#151f3a]">
+                  <p className="font-semibold text-[#1a1f3c] dark:text-white">Post a job</p>
+                  <p className="text-xs text-[#65709a]">Title, description, required skills</p>
+                </button>
+                <button type="button" onClick={() => setActivePage("applicants")} className="rounded-xl border border-[#dbe2f7] p-4 text-left transition hover:bg-[#f2f5ff] dark:border-[#283056] dark:hover:bg-[#151f3a]">
+                  <p className="font-semibold text-[#1a1f3c] dark:text-white">Review applicants</p>
+                  <p className="text-xs text-[#65709a]">Status and skill match</p>
+                </button>
+                <button type="button" onClick={() => setActivePage("interviews")} className="rounded-xl border border-[#dbe2f7] p-4 text-left transition hover:bg-[#f2f5ff] dark:border-[#283056] dark:hover:bg-[#151f3a]">
+                  <p className="font-semibold text-[#1a1f3c] dark:text-white">Schedule interviews</p>
+                  <p className="text-xs text-[#65709a]">Link candidates to calendar</p>
+                </button>
+              </div>
+            </article>
+          </section>
+        )}
+
+        {activePage === "jobs" && (
+          <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+            <article className={cardClass}>
+              <h3 className="mb-1 font-semibold">Your listings</h3>
+              <p className="mb-4 text-xs text-[#65709a]">Filtered by recruiter email on the job record.</p>
+              <div className="max-h-[28rem] space-y-2 overflow-auto">
+                {myJobs.length === 0 && <p className="text-sm text-[#65709a]">No jobs yet — create your recruiter profile (Company) then publish a role.</p>}
+                {myJobs.map((job) => (
+                  <div key={job.id} className="rounded-xl border border-[#e2e6f6] p-3 text-sm dark:border-[#283056]">
+                    <p className="font-semibold text-[#1a1f3c] dark:text-white">{job.title}</p>
+                    <p className="text-xs text-[#65709a]">{job.location || "Remote"} · {job.salary != null ? `$${Number(job.salary).toLocaleString()}` : "Salary TBD"}</p>
+                    {job.required_skills?.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {job.required_skills.map((s) => (
+                          <span key={s} className="rounded bg-[#e8edff] px-2 py-0.5 text-xs text-[#24408f] dark:bg-[#1e3a5f] dark:text-[#93c5fd]">
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </article>
+            <article className={cardClass}>
+              <h3 className="mb-1 font-semibold">Publish new role</h3>
+              <p className="mb-4 text-xs text-[#65709a]">Required skills are normalized for ATS matching and Qdrant indexing.</p>
+              <form onSubmit={postJob} className="grid gap-3">
+                <input className={inputClass} placeholder="Job title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
+                <textarea className={`${inputClass} min-h-[100px]`} placeholder="Role description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <input className={inputClass} placeholder="Location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+                  <input className={inputClass} placeholder="Annual salary (number)" value={form.salary} onChange={(e) => setForm({ ...form, salary: e.target.value })} />
+                </div>
+                <input className={inputClass} placeholder="Contact email on listing" value={form.recruiter_email} onChange={(e) => setForm({ ...form, recruiter_email: e.target.value })} required />
+                <input className={inputClass} placeholder="Required skills (comma separated)" value={form.required_skills} onChange={(e) => setForm({ ...form, required_skills: e.target.value })} />
+                <button className={buttonClass} type="submit" disabled={loading.job}>
+                  {loading.job ? "Publishing…" : "Publish job"}
+                </button>
+              </form>
+            </article>
+          </section>
+        )}
+
+        {activePage === "applicants" && (
+          <article className={cardClass}>
+            <h3 className="mb-1 font-semibold">Applicants</h3>
+            <p className="mb-4 text-xs text-[#65709a]">Update pipeline stage per application.</p>
+            <div className="space-y-3">
+              {apps.length === 0 && <p className="text-sm text-[#65709a]">No applications to your jobs yet.</p>}
+              {apps.map((app) => (
+                <div key={app.application_id} className="rounded-xl border border-[#e2e6f6] p-4 dark:border-[#283056]">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-[#1a1f3c] dark:text-white">{app.candidate_name}</p>
+                      <p className="text-xs text-[#65709a]">{app.candidate_email}</p>
+                      <p className="mt-1 text-sm text-[#374151] dark:text-[#cbd5e1]">{app.job_title}</p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <StatusBadge status={app.status} />
+                        {app.match_percentage != null && Number.isFinite(app.match_percentage) && (
+                          <span className="rounded-md bg-[#eef2ff] px-2 py-0.5 text-xs font-medium text-[#3730a3] dark:bg-[#312e81] dark:text-[#c7d2fe]">
+                            {Math.round(app.match_percentage)}% skills match
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-end gap-2">
+                      <select
+                        className={inputClass}
+                        value={app.status}
+                        onChange={(e) => updateApplicationStatus(app.application_id, e.target.value)}
+                        disabled={loading.status[app.application_id]}
+                      >
+                        {RECRUITER_STATUS_OPTIONS.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  {(app.matched_skills?.length > 0 || app.missing_skills?.length > 0) && (
+                    <div className="mt-3 flex flex-wrap gap-4 border-t border-[#eef2ff] pt-3 text-xs dark:border-[#283056]">
+                      {app.matched_skills?.length > 0 && (
+                        <div>
+                          <span className="font-semibold text-emerald-700 dark:text-emerald-400">Matched</span>
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {app.matched_skills.map((s) => (
+                              <span key={s} className="rounded bg-emerald-50 px-2 py-0.5 text-emerald-900 dark:bg-emerald-900/30 dark:text-emerald-200">
+                                {s}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {app.missing_skills?.length > 0 && (
+                        <div>
+                          <span className="font-semibold text-rose-700 dark:text-rose-400">Missing</span>
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {app.missing_skills.map((s) => (
+                              <span key={s} className="rounded bg-rose-50 px-2 py-0.5 text-rose-900 dark:bg-rose-900/30 dark:text-rose-200">
+                                {s}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </article>
+        )}
+
+        {activePage === "interviews" && (
+          <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <article className={cardClass}>
+              <h3 className="mb-1 font-semibold">Upcoming</h3>
+              <p className="mb-4 text-xs text-[#65709a]">Scheduled interviews for your roles.</p>
+              <div className="max-h-[24rem] space-y-2 overflow-auto text-sm">
+                {interviews.length === 0 && <p className="text-[#65709a]">No interviews scheduled.</p>}
+                {interviews.map((inv) => (
+                  <div key={inv.id} className="rounded-xl border border-[#e2e6f6] p-3 dark:border-[#283056]">
+                    <p className="font-medium text-[#1a1f3c] dark:text-white">{new Date(inv.interview_date).toLocaleString()}</p>
+                    <p className="mt-1 break-all text-xs text-[#2563eb] dark:text-[#93c5fd]">{inv.meeting_link}</p>
+                    {inv.notes && <p className="mt-1 text-xs text-[#65709a]">{inv.notes}</p>}
+                    <p className="mt-1 text-xs text-[#94a3b8]">Application #{inv.application_id}</p>
+                  </div>
+                ))}
+              </div>
+            </article>
+            <article className={cardClass}>
+              <h3 className="mb-1 font-semibold">Schedule interview</h3>
+              <p className="mb-4 text-xs text-[#65709a]">Sets application status to interview and emails the candidate when SMTP is configured.</p>
+              <form onSubmit={scheduleInterview} className="grid gap-3">
+                <label className="text-xs font-medium text-[#5f67a4] dark:text-[#94a3b8]">Application</label>
+                <select
+                  className={inputClass}
+                  value={interviewForm.application_id}
+                  onChange={(e) => setInterviewForm({ ...interviewForm, application_id: e.target.value })}
+                >
+                  <option value="">Select application…</option>
+                  {apps.map((a) => (
+                    <option key={a.application_id} value={a.application_id}>
+                      {interviewAppLabel(a)}
+                    </option>
+                  ))}
+                </select>
+                <label className="text-xs font-medium text-[#5f67a4] dark:text-[#94a3b8]">Date & time</label>
+                <input className={inputClass} type="datetime-local" value={interviewForm.interview_date} onChange={(e) => setInterviewForm({ ...interviewForm, interview_date: e.target.value })} />
+                <input className={inputClass} placeholder="Meeting link (Zoom, Meet, …)" value={interviewForm.meeting_link} onChange={(e) => setInterviewForm({ ...interviewForm, meeting_link: e.target.value })} />
+                <input className={inputClass} placeholder="Notes (optional)" value={interviewForm.notes} onChange={(e) => setInterviewForm({ ...interviewForm, notes: e.target.value })} />
+                <button className={buttonClass} type="submit" disabled={loading.interview}>
+                  {loading.interview ? "Scheduling…" : "Schedule interview"}
+                </button>
+              </form>
+            </article>
+          </section>
+        )}
+
+        {activePage === "emails" && (
+          <article className={cardClass}>
+            <h3 className="mb-1 font-semibold">Email automation</h3>
+            <p className="mb-4 text-xs text-[#65709a]">Recent platform sends (applications, interviews, password reset).</p>
+            <div className="overflow-x-auto rounded-xl border border-[#e2e6f6] dark:border-[#283056]">
+              <table className="w-full min-w-[640px] text-left text-sm">
+                <thead className="border-b border-[#e2e6f6] bg-[#f8f9ff] text-xs font-semibold uppercase text-[#5f67a4] dark:border-[#283056] dark:bg-[#151f3a] dark:text-[#94a3b8]">
+                  <tr>
+                    <th className="px-3 py-2">Status</th>
+                    <th className="px-3 py-2">Recipient</th>
+                    <th className="px-3 py-2">Subject</th>
+                    <th className="px-3 py-2">When</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {logs.slice(0, 40).map((log) => (
+                    <tr key={log.id} className="border-b border-[#f1f4fc] last:border-0 dark:border-[#1e293b]">
+                      <td className="px-3 py-2 font-medium">{log.status}</td>
+                      <td className="px-3 py-2 text-[#65709a]">{log.recipient}</td>
+                      <td className="px-3 py-2">{log.subject}</td>
+                      <td className="px-3 py-2 text-xs text-[#65709a]">{log.created_at ? new Date(log.created_at).toLocaleString() : "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {logs.length === 0 && <p className="p-4 text-sm text-[#65709a]">No email rows yet.</p>}
+            </div>
+          </article>
+        )}
+
+        {activePage === "profile" && (
+          <article className={`${cardClass} max-w-xl`}>
+            <h3 className="mb-1 font-semibold">Company profile</h3>
+            <p className="mb-4 text-xs text-[#65709a]">Create once via API; if you already have a profile, saving again may return an error — use the same email as on your job posts.</p>
+            <form onSubmit={saveProfile} className="grid gap-3">
+              <input className={inputClass} placeholder="Company name" value={profile.company_name} onChange={(e) => setProfile({ ...profile, company_name: e.target.value })} required />
+              <input className={inputClass} placeholder="Recruiting contact email" value={profile.recruiter_email} onChange={(e) => setProfile({ ...profile, recruiter_email: e.target.value })} required />
+              <button className={buttonClass} type="submit" disabled={loading.profile}>
+                {loading.profile ? "Saving…" : recruiterMeta ? "Update (re-create if blocked)" : "Create profile"}
+              </button>
+            </form>
+          </article>
+        )}
       </div>
-      <article className={cardClass}>
-        <h3 className="mb-2 font-semibold">Applicants</h3>
-        <div className="mb-4 grid gap-2 text-sm">
-          {apps.map((app) => <div key={app.application_id} className="rounded-lg border border-[#e2e6f6] p-2 dark:border-[#283056]">{app.candidate_name} - {app.job_title} - {app.status}</div>)}
-        </div>
-        <form onSubmit={updateStatus} className="grid gap-2 md:grid-cols-3">
-          <input className={inputClass} placeholder="Application ID" value={statusForm.application_id} onChange={(e) => setStatusForm({ ...statusForm, application_id: e.target.value })} />
-          <select className={inputClass} value={statusForm.status} onChange={(e) => setStatusForm({ ...statusForm, status: e.target.value })}>
-            {["applied", "shortlisted", "interview", "hired", "rejected"].map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <button className={buttonClass}>Update Status</button>
-        </form>
-      </article>
-      <article className={cardClass}>
-        <h3 className="mb-2 font-semibold">Schedule Interview</h3>
-        <form onSubmit={scheduleInterview} className="grid gap-2 md:grid-cols-4">
-          <input className={inputClass} placeholder="Application ID" value={interviewForm.application_id} onChange={(e) => setInterviewForm({ ...interviewForm, application_id: e.target.value })} />
-          <input className={inputClass} type="datetime-local" value={interviewForm.interview_date} onChange={(e) => setInterviewForm({ ...interviewForm, interview_date: e.target.value })} />
-          <input className={inputClass} placeholder="Meeting link" value={interviewForm.meeting_link} onChange={(e) => setInterviewForm({ ...interviewForm, meeting_link: e.target.value })} />
-          <input className={inputClass} placeholder="Notes" value={interviewForm.notes} onChange={(e) => setInterviewForm({ ...interviewForm, notes: e.target.value })} />
-          <button className={buttonClass} type="submit">Schedule</button>
-        </form>
-        <div className="mt-4 space-y-1 text-sm">
-          {interviews.map((i) => <div key={i.id}>Interview #{i.id} - {new Date(i.interview_date).toLocaleString()}</div>)}
-        </div>
-      </article>
-      <article className={cardClass}>
-        <h3 className="mb-2 font-semibold">Email Automation Logs</h3>
-        <div className="space-y-1 text-xs">
-          {logs.slice(0, 20).map((log) => <div key={log.id}>{log.status} | {log.recipient} | {log.subject}</div>)}
-        </div>
-      </article>
-      <article className={cardClass}>
-        <h3 className="mb-2 font-semibold">Published Jobs</h3>
-        <div className="space-y-1 text-sm">
-          {jobs.map((job) => <div key={job.id}>{job.title} - {job.location || "N/A"}</div>)}
-        </div>
-      </article>
     </section>
   )
 }
