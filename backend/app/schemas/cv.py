@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class ManualCVUpsertRequest(BaseModel):
@@ -6,9 +6,31 @@ class ManualCVUpsertRequest(BaseModel):
     cv_json: dict
 
 
+class TranscriptMessage(BaseModel):
+    role: str = Field(min_length=1, max_length=20)
+    content: str = Field(min_length=1, max_length=16000)
+
+
+class ConversationalChatRequest(BaseModel):
+    messages: list[TranscriptMessage] = Field(min_length=1, max_length=80)
+
+
+class ConversationalChatResponse(BaseModel):
+    reply: str
+
+
 class ConversationalCVRequest(BaseModel):
     title: str = Field(default="AI Generated CV", min_length=2, max_length=255)
-    answers: dict
+    answers: dict | None = None
+    messages: list[TranscriptMessage] | None = None
+
+    @model_validator(mode="after")
+    def require_source(self) -> "ConversationalCVRequest":
+        if self.messages and len(self.messages) > 0:
+            return self
+        if self.answers is not None and len(self.answers) > 0:
+            return self
+        raise ValueError("Provide `messages` (conversation transcript) or legacy non-empty `answers`.")
 
 
 class SectionOrderUpdateRequest(BaseModel):
