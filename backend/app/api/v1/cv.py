@@ -1,5 +1,10 @@
+from pathlib import Path
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
+
+from app.core.config import get_settings
 
 from app.api.deps import require_roles
 from app.db.database import get_db
@@ -158,3 +163,43 @@ def export_cv(
     db.commit()
     db.refresh(cv)
     return cv
+
+
+@router.get("/{cv_id}/download")
+def download_cv_export(
+    cv_id: int,
+    export_format: str = Query(..., pattern="^(pdf|docx)$"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.JOB_SEEKER)),
+) -> FileResponse:
+    """Serve the generated export for the CV owner. Path is derived server-side from user id and cv id."""
+    settings = get_settings()
+    cv = db.query(GeneratedCV).filter(GeneratedCV.id == cv_id, GeneratedCV.user_id == current_user.id).first()
+    if not cv:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="CV not found")
+
+    ext = "pdf" if export_format == "pdf" else "docx"
+    folder = "pdf" if export_format == "pdf" else "docx"
+    base = Path(settings.generated_assets_dir).resolve()
+    file_path = (Path(settings.generated_assets_dir) / folder / str(current_user.id) / f"cv_{cv_id}.{ext}").resolve()
+
+    try:
+        file_path.relative_to(base)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Invalid export path") from exc
+
+    if not file_path.is_file():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No {ext.upper()} file yet. Export this CV first.",
+        )
+
+    raw_title = (cv.title or "cv").strip() or "cv"
+    safe_name = "".join(ch for ch in raw_title if ch.isalnum() or ch in " -_")[:80] or "cv"
+    filename = f"{safe_name}_{cv_id}.{ext}"
+    media = (
+        "application/pdf"
+        if ext == "pdf"
+        else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
+    return FileResponse(path=file_path, filename=filename, media_type=media)
