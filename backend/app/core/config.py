@@ -24,6 +24,12 @@ class Settings(BaseSettings):
     parsing_confidence_threshold: float = 0.55
     openai_api_key: str | None = None
     openai_model: str = "gpt-4.1-mini"
+    # Chat for conversational CV: "openai" (uses OPENAI_*) or "ollama" (local OSS, uses OLLAMA_*).
+    conversation_llm_provider: str = "openai"
+    ollama_base_url: str = "http://127.0.0.1:11434"
+    ollama_chat_model: str = "llama3.2"
+    # CV JSON from transcript: "openai" now; later wire "qwen_local" to your fine-tuned endpoint.
+    cv_json_llm_provider: str = "openai"
     qdrant_url: str = "http://localhost:6333"
     qdrant_api_key: str | None = None
     qdrant_collection_name: str = "job_skills"
@@ -39,6 +45,8 @@ class Settings(BaseSettings):
     smtp_password: str | None = None
     smtp_from_email: str | None = None
     smtp_use_tls: bool = True
+    google_client_id: str | None = None
+    frontend_base_url: str = "http://localhost:5173"
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=False, extra="ignore")
 
