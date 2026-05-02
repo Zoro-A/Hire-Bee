@@ -3,6 +3,8 @@ from pydantic import BaseModel, Field
 
 class CoverLetterGenerateRequest(BaseModel):
     job_id: int
+    resume_id: int | None = None
+    generated_cv_id: int | None = None
     tone: str = Field(default="professional", max_length=50)
 
 
