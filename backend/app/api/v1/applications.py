@@ -35,6 +35,16 @@ def create_application(
     job = db.query(Job).filter(Job.id == payload.job_id).first()
     if not job:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found")
+    existing = (
+        db.query(Application)
+        .filter(Application.user_id == current_user.id, Application.job_id == payload.job_id)
+        .first()
+    )
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="You have already applied to this job.",
+        )
 
     recruiter = db.query(Recruiter).filter(Recruiter.id == job.recruiter_id).first()
     if not recruiter:
@@ -90,7 +100,7 @@ def create_application(
     if generated_cv and generated_cv.docx_path:
         attachment_paths.append(generated_cv.docx_path)
 
-    cover_letter_text = cover_letter.content if cover_letter else "Not provided."
+    cover_letter_text = cover_letter.content.strip() if cover_letter and cover_letter.content else "Not provided."
     email_body = (
         f"New application received for '{job.title}'.\n\n"
         f"Candidate: {current_user.full_name} ({current_user.email})\n"
