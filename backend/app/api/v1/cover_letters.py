@@ -93,7 +93,7 @@ def update_cover_letter(
     if not letter:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cover letter not found")
 
-    letter.content = payload.content.strip()
+    letter.content = payload.content
     db.commit()
     db.refresh(letter)
     return letter
