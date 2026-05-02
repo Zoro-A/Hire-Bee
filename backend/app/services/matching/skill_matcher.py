@@ -1,9 +1,9 @@
 from collections import defaultdict
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.core.config import get_settings
-from app.models.entities import CandidateSkill, Job, JobSkill
+from app.models.entities import CandidateSkill, Job
 from app.services.vector_store.embedding import get_embedding_service
 from app.services.vector_store.qdrant_store import QdrantSkillStore
 
@@ -32,51 +32,57 @@ class SkillMatcherService:
         if not candidate_skills:
             return []
 
-        vectors = self.embedding_service.encode(candidate_skills)
-        if not vectors:
-            return []
-        self.skill_store.ensure_collection(vector_size=len(vectors[0]))
-
         candidate_skill_set = set(candidate_skills)
-        shortlisted_job_ids: set[int] = set()
-        semantic_hits_by_job: dict[int, set[str]] = defaultdict(set)
         semantic_scores_by_job: dict[int, list[float]] = defaultdict(list)
-        for candidate_skill, vector in zip(candidate_skills, vectors, strict=True):
-            points = self.skill_store.search_jobs_by_skill(
-                vector=vector,
-                top_k=self.settings.matching_top_k,
-                score_threshold=self.settings.matching_score_threshold,
-            )
-            for point in points:
-                payload = point.payload or {}
-                job_id = payload.get("job_id")
-                required_skill = payload.get("skill_name")
-                if isinstance(job_id, int) and isinstance(required_skill, str):
-                    shortlisted_job_ids.add(job_id)
-                    semantic_hits_by_job[job_id].add(required_skill)
-                    semantic_scores_by_job[job_id].append(float(point.score))
-                    if required_skill == candidate_skill:
-                        semantic_hits_by_job[job_id].add(candidate_skill)
 
+        try:
+            vectors = self.embedding_service.encode(candidate_skills)
+            if vectors:
+                self.skill_store.ensure_collection(vector_size=len(vectors[0]))
+                for candidate_skill, vector in zip(candidate_skills, vectors, strict=True):
+                    points = self.skill_store.search_jobs_by_skill(
+                        vector=vector,
+                        top_k=self.settings.matching_top_k,
+                        score_threshold=self.settings.matching_score_threshold,
+                    )
+                    for point in points:
+                        payload = point.payload or {}
+                        job_id = payload.get("job_id")
+                        if isinstance(job_id, int):
+                            semantic_scores_by_job[job_id].append(float(point.score))
+        except Exception:
+            # Skill overlap still works without vector search (e.g. Qdrant down).
+            pass
+
+        jobs = db.query(Job).options(joinedload(Job.skills)).order_by(Job.id).all()
         ranked: list[dict] = []
-        for job_id in shortlisted_job_ids:
-            required = {
-                item.normalized_skill
-                for item in db.query(JobSkill).filter(JobSkill.job_id == job_id).all()
-                if item.normalized_skill
-            }
+        for job in jobs:
+            required = {s.normalized_skill for s in job.skills if s.normalized_skill}
             if not required:
                 continue
-            # Final match score is strict overlap against extracted skills.
+
             matched_required = sorted(required.intersection(candidate_skill_set))
             missing = sorted(required.difference(matched_required))
             exact_match_percentage = round((len(matched_required) / len(required)) * 100, 2)
-            scores = semantic_scores_by_job.get(job_id, [])
-            semantic_relevance_score = round((sum(scores) / len(scores)) * 100, 2) if scores else 0.0
 
-            job = db.query(Job).filter(Job.id == job_id).first()
-            if not job:
-                continue
+            scores = semantic_scores_by_job.get(job.id, [])
+            # Qdrant cosine-style scores are typically in [0, 1]; scale for display blend.
+            semantic_raw = (sum(scores) / len(scores)) if scores else 0.0
+            semantic_relevance_score = round(min(100.0, semantic_raw * 100.0), 2)
+
+            if scores and semantic_relevance_score > 0:
+                if exact_match_percentage > 0:
+                    # Blend strict overlap with semantic similarity.
+                    match_percentage = min(
+                        100.0,
+                        round(0.58 * exact_match_percentage + 0.42 * semantic_relevance_score, 1),
+                    )
+                else:
+                    # No exact token overlap but embeddings suggest related stacks (still capped below strong exact matches).
+                    match_percentage = min(82.0, round(semantic_relevance_score * 0.68, 1))
+            else:
+                match_percentage = float(exact_match_percentage)
+
             ranked.append(
                 {
                     "job_id": job.id,
@@ -84,7 +90,7 @@ class SkillMatcherService:
                     "location": job.location,
                     "salary": job.salary,
                     "recruiter_email": job.recruiter_email,
-                    "match_percentage": exact_match_percentage,
+                    "match_percentage": match_percentage,
                     "exact_match_percentage": exact_match_percentage,
                     "semantic_relevance_score": semantic_relevance_score,
                     "matched_skills": matched_required,
@@ -92,5 +98,5 @@ class SkillMatcherService:
                 }
             )
 
-        ranked.sort(key=lambda item: item["match_percentage"], reverse=True)
+        ranked.sort(key=lambda item: (-item["match_percentage"], item["job_id"]))
         return ranked
