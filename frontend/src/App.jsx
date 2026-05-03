@@ -1,6 +1,6 @@
 import { GoogleLogin } from "@react-oauth/google"
 import { useEffect, useMemo, useState } from "react"
-import { Link, Navigate, Route, Routes, useLocation, useNavigate, useSearchParams } from "react-router-dom"
+import { Link, Navigate, Outlet, Route, Routes, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { useTheme } from "./themeContext.jsx"
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000/api/v1"
@@ -92,6 +92,40 @@ async function downloadCvExport(cvId, format, token) {
   URL.revokeObjectURL(url)
 }
 
+/** Generic binary download with Bearer token (recruiter application attachments, etc.). */
+async function downloadAuthenticatedBlob(path, token, fallbackFilename) {
+  const headers = new Headers()
+  if (token) headers.set("Authorization", `Bearer ${token}`)
+  const response = await fetch(`${API_BASE}${path}`, { headers })
+  if (!response.ok) {
+    let message = `Download failed (${response.status})`
+    try {
+      const data = await response.json()
+      const formatted = formatApiErrorDetail(data.detail)
+      if (formatted) message = formatted
+    } catch {
+      // no-op
+    }
+    throw new Error(message)
+  }
+  const blob = await response.blob()
+  const cd = response.headers.get("content-disposition")
+  let filename = fallbackFilename
+  const quoted = cd?.match(/filename="([^"]+)"/)
+  const plain = cd?.match(/filename=([^;\s]+)/)
+  if (quoted?.[1]) filename = quoted[1]
+  else if (plain?.[1]) filename = plain[1].replaceAll('"', "")
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = filename
+  a.rel = "noopener"
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
+
 const inputClass =
   "w-full rounded-xl border border-[#c9cce5] bg-white px-3 py-2 text-sm outline-none focus:border-[#5f5fff] dark:border-[#32395f] dark:bg-[#171c34]"
 const cardClass = "rounded-2xl border border-[#d8dcef] bg-white p-5 dark:border-[#2d355c] dark:bg-[#121831]"
@@ -143,6 +177,77 @@ function safeExternalUrl(raw) {
   return `https://${s}`
 }
 
+function RecruiterStructuredCvPreview({ cvJson }) {
+  if (!cvJson || typeof cvJson !== "object") {
+    return <p className="text-sm text-[#65709a]">No structured CV attached.</p>
+  }
+  const header = cvJson.header || cvJson.personal_information || {}
+  const name = header.name || header.full_name || "Candidate"
+  const line2 = [header.email, header.phone, header.location].filter(Boolean).join(" · ")
+  const sections = cvJson.sections || {}
+  const order = Array.isArray(cvJson.section_order)
+    ? cvJson.section_order
+    : ["summary", "education", "skills", "experience", "projects", "certifications"]
+
+  function sectionLabel(key) {
+    return getSectionDisplayLabel(key, cvJson.section_labels || {})
+  }
+
+  function renderSectionBody(key) {
+    const val = sections[key]
+    if (key === "skills") {
+      const list = Array.isArray(val) ? val : String(val || "").split(",").map((s) => s.trim()).filter(Boolean)
+      if (list.length === 0) return <p className="text-sm text-[#65709a]">—</p>
+      return (
+        <div className="mt-2 flex flex-wrap gap-2">
+          {list.map((skill) => (
+            <span key={skill} className="rounded bg-[#e8edff] px-2 py-1 text-xs text-[#24408f] dark:bg-[#1e3a5f] dark:text-[#93c5fd]">
+              {skill}
+            </span>
+          ))}
+        </div>
+      )
+    }
+    if (key === "summary") {
+      return <p className="mt-1 whitespace-pre-line text-sm">{String(val || "").trim() || "—"}</p>
+    }
+    if (Array.isArray(val)) {
+      if (val.length === 0) return <p className="text-sm text-[#65709a]">—</p>
+      return (
+        <ul className="mt-1 list-disc space-y-2 pl-4 text-sm">
+          {val.map((item, i) => (
+            <li key={i} className="whitespace-pre-line">
+              {typeof item === "string" ? item : JSON.stringify(item)}
+            </li>
+          ))}
+        </ul>
+      )
+    }
+    if (val && typeof val === "object") {
+      return (
+        <pre className="mt-1 max-h-48 overflow-auto rounded border border-[#e2e6f6] p-2 text-xs dark:border-[#283056]">
+          {JSON.stringify(val, null, 2)}
+        </pre>
+      )
+    }
+    return <p className="mt-1 whitespace-pre-line text-sm">{String(val ?? "—")}</p>
+  }
+
+  return (
+    <div className="rounded-xl border border-[#dbe2f7] p-4 dark:border-[#283056]">
+      <h4 className="text-xl font-semibold text-[#1a1f3c] dark:text-white">{name}</h4>
+      {line2 ? <p className="mt-1 text-sm text-[#5f67a4] dark:text-[#94a3b8]">{line2}</p> : null}
+      <hr className="my-3 border-[#dbe2f7] dark:border-[#283056]" />
+      {order.map((key) => (
+        <div key={key} className="mt-3 border-t border-[#eef2ff] pt-3 first:mt-0 first:border-t-0 first:pt-0 dark:border-[#283056]">
+          <h5 className="text-sm font-semibold text-[#1a1f3c] dark:text-white">{sectionLabel(key)}</h5>
+          {renderSectionBody(key)}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function buildManualCvJson(manualCv, manualSectionOrder, sectionExtraLabels, user) {
   const header = {
     name: (manualCv.full_name || user.full_name || "").trim(),
@@ -184,48 +289,12 @@ function buildManualCvJson(manualCv, manualSectionOrder, sectionExtraLabels, use
 
 const AUTH_LAYOUT_PATHS = new Set(["/login", "/register", "/forgot-password", "/reset-password"])
 
-function App() {
+function MarketingLayout({ user, setToken }) {
   const location = useLocation()
-  const { isDark, toggleTheme } = useTheme()
-  const [token, setToken] = useState(
-    () => localStorage.getItem("hirebee-token") ?? sessionStorage.getItem("hirebee-token") ?? "",
-  )
-  const [user, setUser] = useState(null)
   const authLayout = AUTH_LAYOUT_PATHS.has(location.pathname)
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ""
-
-  useEffect(() => {
-    if (!token) {
-      localStorage.removeItem("hirebee-token")
-      sessionStorage.removeItem("hirebee-token")
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setUser(null)
-      return
-    }
-    const persist = localStorage.getItem("hirebee-persist") ?? "local"
-    if (persist === "session") {
-      sessionStorage.setItem("hirebee-token", token)
-      localStorage.removeItem("hirebee-token")
-    } else {
-      localStorage.setItem("hirebee-token", token)
-      sessionStorage.removeItem("hirebee-token")
-    }
-    apiRequest("/auth/me", {}, token)
-      .then(setUser)
-      .catch(() => {
-        setToken("")
-        setUser(null)
-      })
-  }, [token])
-
+  const { isDark, toggleTheme } = useTheme()
   return (
-    <div
-      className={`min-h-screen transition-colors ${
-        authLayout
-          ? "bg-[#eef1f6] text-[#111827] dark:bg-[#0b1220] dark:text-[#e5e7eb]"
-          : "bg-[#f4f6fb] text-[#161a2f] dark:bg-[#0a1022] dark:text-[#e8edff]"
-      }`}
-    >
+    <>
       <header
         className={`mx-auto flex w-full items-center justify-between px-6 py-4 ${
           authLayout ? "max-w-lg" : "max-w-7xl"
@@ -268,17 +337,150 @@ function App() {
           )}
         </div>
       </header>
-
       <main className={authLayout ? "mx-auto w-full max-w-lg px-6 pb-12" : "mx-auto w-full max-w-7xl px-6 pb-12"}>
-        <Routes>
+        <Outlet />
+      </main>
+    </>
+  )
+}
+
+function AppSessionLoading() {
+  return (
+    <div className="flex h-[100dvh] flex-col items-center justify-center gap-2 bg-[#f4f6fb] text-[#161a2f] dark:bg-[#0a1022] dark:text-[#e8edff]">
+      <p className="text-sm font-medium text-[#374151] dark:text-[#cbd5e1]">Loading your session…</p>
+      <p className="text-xs text-[#65709a]">Please wait</p>
+    </div>
+  )
+}
+
+function AppWorkspace({ user, token, setToken }) {
+  const { isDark, toggleTheme } = useTheme()
+  return (
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-[#f4f6fb] text-[#161a2f] dark:bg-[#0a1022] dark:text-[#e8edff]">
+      <header className="flex shrink-0 items-center justify-between border-b border-[#d8dcef] bg-white/90 px-4 py-3 backdrop-blur-sm dark:border-[#1e293b] dark:bg-[#0f172a]/95 sm:px-6">
+        <Link to="/" className="flex items-center gap-2">
+          <img src="/hirebee-logo.svg" alt="" className="h-9 w-9 rounded-lg" />
+          <span className="text-lg font-bold text-[#1d4ed8] dark:text-[#60a5fa]">HireBee</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="rounded-lg border border-[#d1d5db] bg-white px-3 py-2 text-sm text-[#374151] hover:bg-[#f9fafb] dark:border-[#334155] dark:bg-[#1e293b] dark:text-[#e2e8f0] dark:hover:bg-[#334155]"
+            aria-label="Toggle theme"
+          >
+            {isDark ? "Light mode" : "Dark mode"}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              localStorage.removeItem("hirebee-persist")
+              setToken("")
+            }}
+            className="rounded-lg border border-[#c9cce5] px-3 py-2 text-sm dark:border-[#303a63]"
+          >
+            Logout
+          </button>
+        </div>
+      </header>
+      <div className="min-h-0 flex-1 overflow-hidden px-3 pb-3 pt-2 sm:px-4">
+        <RoleRouter user={user} token={token} />
+      </div>
+    </div>
+  )
+}
+
+function readStoredToken() {
+  return localStorage.getItem("hirebee-token") ?? sessionStorage.getItem("hirebee-token") ?? ""
+}
+
+function App() {
+  const location = useLocation()
+  const [token, setToken] = useState(readStoredToken)
+  const [user, setUser] = useState(null)
+  const [sessionLoading, setSessionLoading] = useState(() => Boolean(readStoredToken()))
+  const authLayout = AUTH_LAYOUT_PATHS.has(location.pathname)
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ""
+
+  useEffect(() => {
+    if (!token) {
+      localStorage.removeItem("hirebee-token")
+      sessionStorage.removeItem("hirebee-token")
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setUser(null)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSessionLoading(false)
+      return
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSessionLoading(true)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setUser(null)
+    const persist = localStorage.getItem("hirebee-persist") ?? "local"
+    if (persist === "session") {
+      sessionStorage.setItem("hirebee-token", token)
+      localStorage.removeItem("hirebee-token")
+    } else {
+      localStorage.setItem("hirebee-token", token)
+      sessionStorage.removeItem("hirebee-token")
+    }
+    let cancelled = false
+    apiRequest("/auth/me", {}, token)
+      .then((u) => {
+        if (!cancelled) {
+          setUser(u)
+          setSessionLoading(false)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setToken("")
+          setUser(null)
+          setSessionLoading(false)
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [token])
+
+  const isAppShell = location.pathname === "/app" && Boolean(token)
+
+  return (
+    <div
+      className={`transition-colors ${
+        isAppShell
+          ? "h-[100dvh] overflow-hidden bg-[#f4f6fb] text-[#161a2f] dark:bg-[#0a1022] dark:text-[#e8edff]"
+          : `min-h-screen ${
+              authLayout
+                ? "bg-[#eef1f6] text-[#111827] dark:bg-[#0b1220] dark:text-[#e5e7eb]"
+                : "bg-[#f4f6fb] text-[#161a2f] dark:bg-[#0a1022] dark:text-[#e8edff]"
+            }`
+      }`}
+    >
+      <Routes>
+        <Route
+          path="/app"
+          element={
+            !token ? (
+              <Navigate to="/login" replace />
+            ) : sessionLoading ? (
+              <AppSessionLoading />
+            ) : user ? (
+              <AppWorkspace user={user} token={token} setToken={setToken} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route element={<MarketingLayout user={user} setToken={setToken} />}>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<LoginPage setToken={setToken} googleClientId={googleClientId} />} />
           <Route path="/register" element={<RegisterPage setToken={setToken} googleClientId={googleClientId} />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/app" element={user ? <RoleRouter user={user} token={token} /> : <Navigate to="/login" replace />} />
-        </Routes>
-      </main>
+        </Route>
+      </Routes>
     </div>
   )
 }
@@ -1108,13 +1310,13 @@ function JobSeekerDashboard({ token, user }) {
   }
 
   return (
-    <section className="grid min-h-[calc(100vh-120px)] gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
-      <aside className="rounded-2xl border border-[#182742] bg-[#0f1d35] p-4 text-white dark:border-[#1f2d4d]">
+    <section className="flex h-full min-h-0 w-full flex-col gap-4 lg:flex-row lg:gap-4">
+      <aside className="flex max-h-[min(40vh,320px)] shrink-0 flex-col overflow-y-auto rounded-2xl border border-[#182742] bg-[#0f1d35] p-4 text-white dark:border-[#1f2d4d] lg:max-h-none lg:h-full lg:min-h-0 lg:w-[220px]">
         <div className="border-b border-[#223559] pb-4">
           <p className="text-xs uppercase tracking-wider text-[#9db6df]">HireBee</p>
           <p className="mt-1 text-lg font-semibold">Job Seeker</p>
         </div>
-        <div className="mt-4 grid gap-1">
+        <nav className="mt-4 grid gap-1">
           {navItems.map((item) => (
             <button
               key={item.key}
@@ -1125,15 +1327,18 @@ function JobSeekerDashboard({ token, user }) {
               {item.label}
             </button>
           ))}
-        </div>
+        </nav>
         <div className="mt-8 border-t border-[#223559] pt-3 text-xs text-[#8ca8d8]">
           Theme: {isDark ? "Dark" : "Light"}
         </div>
       </aside>
 
-      <div className="grid gap-4">
-        {message && <p className="rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{message}</p>}
-        {error && <p className="rounded-xl border border-rose-300 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>}
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <div
+          className={`flex min-h-0 flex-1 flex-col gap-4 pr-1 ${activePage === "cv" ? "overflow-hidden" : "overflow-y-auto"}`}
+        >
+        {message && <p className="shrink-0 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{message}</p>}
+        {error && <p className="shrink-0 rounded-xl border border-rose-300 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>}
 
         {activePage === "dashboard" && (
           <section className="grid gap-4 md:grid-cols-4">
@@ -1217,8 +1422,8 @@ function JobSeekerDashboard({ token, user }) {
         )}
 
         {activePage === "cv" && (
-          <section className="grid gap-6">
-          <article className={cardClass}>
+          <section className="flex min-h-0 flex-1 shrink-0 flex-col gap-4 overflow-hidden">
+          <article className={`${cardClass} shrink-0`}>
             <div className="flex flex-wrap gap-2">
               <button type="button" onClick={() => setCvMode("manual")} className={`rounded-xl px-3 py-2 text-sm ${cvMode === "manual" ? "bg-[#2a2354] text-white" : "border border-[#c9cce5] dark:border-[#303a63]"}`}>Manual CV Generator</button>
               <button type="button" onClick={() => setCvMode("conversational")} className={`rounded-xl px-3 py-2 text-sm ${cvMode === "conversational" ? "bg-[#2a2354] text-white" : "border border-[#c9cce5] dark:border-[#303a63]"}`}>Conversational CV Generator</button>
@@ -1226,8 +1431,9 @@ function JobSeekerDashboard({ token, user }) {
           </article>
 
           {cvMode === "manual" ? (
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
-              <article className={cardClass}>
+            <div className="grid min-h-0 flex-1 gap-4 overflow-hidden lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+              <article className={`${cardClass} flex min-h-0 flex-col overflow-hidden`}>
+                <div className="min-h-0 flex-1 overflow-y-auto pr-1">
                 <h3 className="mb-3 font-semibold">Input Sections</h3>
                 <div className="grid gap-3">
                   <input className={inputClass} placeholder="CV title" value={manualCv.title} onChange={(e) => setManualCv({ ...manualCv, title: e.target.value })} />
@@ -1365,9 +1571,10 @@ function JobSeekerDashboard({ token, user }) {
                     {loading.export ? "Exporting..." : "Export DOCX"}
                   </button>
                 </div>
+                </div>
               </article>
-              <article className={cardClass}>
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <article className={`${cardClass} flex min-h-0 flex-col overflow-hidden`}>
+                <div className="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2">
                   <h3 className="font-semibold">Live CV Preview</h3>
                   <div className="flex flex-wrap items-center justify-end gap-2">
                     <span className="rounded bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">ATS Score: 94%</span>
@@ -1389,6 +1596,7 @@ function JobSeekerDashboard({ token, user }) {
                     </button>
                   </div>
                 </div>
+                <div className="min-h-0 flex-1 overflow-y-auto pr-1">
                 <div className="rounded-xl border border-[#dbe2f7] p-5 dark:border-[#283056]">
                   <h4 className="text-2xl font-semibold">{manualCv.full_name || "Your Name"}</h4>
                   <p className="mt-1 text-sm text-[#5f67a4] dark:text-[#94a3b8]">
@@ -1438,15 +1646,17 @@ function JobSeekerDashboard({ token, user }) {
                     )
                   })}
                 </div>
+                </div>
               </article>
             </div>
           ) : (
-            <article className={cardClass}>
+            <article className={`${cardClass} flex min-h-0 flex-1 flex-col overflow-hidden`}>
+              <div className="flex min-h-0 flex-1 flex-col space-y-3 overflow-y-auto pr-1">
               <h3 className="mb-3 font-semibold">Conversational CV Generator</h3>
               <p className="mb-2 text-sm text-[#65709a]">
                 Chat naturally with the coach, then generate your CV. PDF is exported to your device after generation (same as manual flow).
               </p>
-              <div className="max-h-72 space-y-2 overflow-auto rounded-xl border border-[#d9deef] bg-[#f8f9ff] p-3 dark:border-[#2f3862] dark:bg-[#10162d]">
+              <div className="min-h-[12rem] flex-1 space-y-2 overflow-y-auto rounded-xl border border-[#d9deef] bg-[#f8f9ff] p-3 dark:border-[#2f3862] dark:bg-[#10162d]">
                 {convoMessages.map((msg, idx) => (
                   <div
                     key={`${msg.role}-${idx}`}
@@ -1495,6 +1705,7 @@ function JobSeekerDashboard({ token, user }) {
                 >
                   {loading.export ? "Exporting..." : "Export DOCX"}
                 </button>
+              </div>
               </div>
             </article>
           )}
@@ -1658,6 +1869,7 @@ function JobSeekerDashboard({ token, user }) {
             </article>
           </section>
         )}
+        </div>
       </div>
     </section>
   )
@@ -1709,6 +1921,10 @@ function RecruiterDashboard({ token, user }) {
   })
   const [interviewForm, setInterviewForm] = useState({ application_id: "", interview_date: "", meeting_link: "", notes: "" })
   const [profile, setProfile] = useState({ company_name: "", recruiter_email: user?.email ?? "" })
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [detailId, setDetailId] = useState(null)
+  const [appDetail, setAppDetail] = useState(null)
+  const [detailLoading, setDetailLoading] = useState(false)
 
   const myJobs = useMemo(() => {
     const email = (recruiterMeta?.recruiter_email || user?.email || "").toLowerCase()
@@ -1796,6 +2012,10 @@ function RecruiterDashboard({ token, user }) {
       await apiRequest(`/applications/${applicationId}/status`, { method: "PATCH", body: JSON.stringify({ status }) }, token)
       setMessage("Application status updated.")
       await refresh()
+      if (detailOpen && detailId === applicationId) {
+        const d = await apiRequest(`/applications/recruiter/${applicationId}/detail`, {}, token)
+        setAppDetail(d)
+      }
     } catch (err) {
       setError(err.message)
     } finally {
@@ -1841,9 +2061,34 @@ function RecruiterDashboard({ token, user }) {
 
   const interviewAppLabel = (a) => `#${a.application_id} · ${a.candidate_name} · ${a.job_title}`
 
+  function closeApplicantDetail() {
+    setDetailOpen(false)
+    setDetailId(null)
+    setAppDetail(null)
+    setDetailLoading(false)
+  }
+
+  async function openApplicantDetail(applicationId) {
+    setDetailId(applicationId)
+    setDetailOpen(true)
+    setDetailLoading(true)
+    setAppDetail(null)
+    setError("")
+    try {
+      const d = await apiRequest(`/applications/recruiter/${applicationId}/detail`, {}, token)
+      setAppDetail(d)
+    } catch (err) {
+      setError(err.message)
+      closeApplicantDetail()
+    } finally {
+      setDetailLoading(false)
+    }
+  }
+
   return (
-    <section className="grid min-h-[calc(100vh-120px)] gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
-      <aside className="rounded-2xl border border-[#182742] bg-[#0f1d35] p-4 text-white dark:border-[#1f2d4d]">
+    <>
+    <section className="flex h-full min-h-0 w-full flex-col gap-4 lg:flex-row lg:gap-4">
+      <aside className="flex max-h-[min(40vh,320px)] shrink-0 flex-col overflow-y-auto rounded-2xl border border-[#182742] bg-[#0f1d35] p-4 text-white dark:border-[#1f2d4d] lg:max-h-none lg:h-full lg:min-h-0 lg:w-[220px]">
         <div className="border-b border-[#223559] pb-4">
           <p className="text-xs uppercase tracking-wider text-[#9db6df]">HireBee</p>
           <p className="mt-1 text-lg font-semibold">Recruiter</p>
@@ -1866,9 +2111,10 @@ function RecruiterDashboard({ token, user }) {
         </div>
       </aside>
 
-      <div className="grid gap-4">
-        {message && <p className="rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">{message}</p>}
-        {error && <p className="rounded-xl border border-rose-300 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">{error}</p>}
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pr-1">
+        {message && <p className="shrink-0 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">{message}</p>}
+        {error && <p className="shrink-0 rounded-xl border border-rose-300 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">{error}</p>}
 
         {activePage === "overview" && (
           <section className="grid gap-4">
@@ -1952,13 +2198,25 @@ function RecruiterDashboard({ token, user }) {
         {activePage === "applicants" && (
           <article className={cardClass}>
             <h3 className="mb-1 font-semibold">Applicants</h3>
-            <p className="mb-4 text-xs text-[#65709a]">Update pipeline stage per application.</p>
+            <p className="mb-4 text-xs text-[#65709a]">Click a candidate to open cover letter and CV. Use the status menu without clicking the card body.</p>
             <div className="space-y-3">
               {apps.length === 0 && <p className="text-sm text-[#65709a]">No applications to your jobs yet.</p>}
               {apps.map((app) => (
-                <div key={app.application_id} className="rounded-xl border border-[#e2e6f6] p-4 dark:border-[#283056]">
+                <div
+                  key={app.application_id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => openApplicantDetail(app.application_id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault()
+                      openApplicantDetail(app.application_id)
+                    }
+                  }}
+                  className="cursor-pointer rounded-xl border border-[#e2e6f6] p-4 transition hover:border-[#93b4ff] hover:bg-[#f8f9ff] dark:border-[#283056] dark:hover:border-[#3b4f8a] dark:hover:bg-[#151f3a]"
+                >
                   <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <p className="font-semibold text-[#1a1f3c] dark:text-white">{app.candidate_name}</p>
                       <p className="text-xs text-[#65709a]">{app.candidate_email}</p>
                       <p className="mt-1 text-sm text-[#374151] dark:text-[#cbd5e1]">{app.job_title}</p>
@@ -1971,7 +2229,7 @@ function RecruiterDashboard({ token, user }) {
                         )}
                       </div>
                     </div>
-                    <div className="flex flex-wrap items-end gap-2">
+                    <div className="flex flex-wrap items-end gap-2" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
                       <select
                         className={inputClass}
                         value={app.status}
@@ -2109,8 +2367,139 @@ function RecruiterDashboard({ token, user }) {
             </form>
           </article>
         )}
+        </div>
       </div>
     </section>
+
+    {detailOpen && (
+      <div
+        className="fixed inset-0 z-50 flex justify-end bg-black/45 p-0 sm:p-4"
+        role="presentation"
+        onClick={closeApplicantDetail}
+      >
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="applicant-detail-title"
+          className="flex h-full w-full max-w-lg flex-col border-l border-[#d8dcef] bg-white shadow-2xl dark:border-[#2d355c] dark:bg-[#121831] sm:max-w-xl sm:rounded-l-2xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[#e2e6f6] px-4 py-3 dark:border-[#283056]">
+            <h3 id="applicant-detail-title" className="text-lg font-semibold text-[#1a1f3c] dark:text-white">
+              {detailId != null ? `Application #${detailId}` : "Application"}
+            </h3>
+            <button
+              type="button"
+              className="rounded-lg border border-[#c9cce5] px-3 py-1.5 text-sm dark:border-[#303a63]"
+              onClick={closeApplicantDetail}
+            >
+              Close
+            </button>
+          </div>
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
+            {detailLoading && <p className="text-sm text-[#65709a]">Loading application…</p>}
+            {!detailLoading && appDetail && (
+              <>
+                <div>
+                  <p className="text-sm font-semibold text-[#1a1f3c] dark:text-white">{appDetail.candidate_name}</p>
+                  <p className="text-xs text-[#65709a]">{appDetail.candidate_email}</p>
+                  <p className="mt-2 text-sm text-[#374151] dark:text-[#cbd5e1]">{appDetail.job_title}</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <StatusBadge status={appDetail.status} />
+                    <select
+                      className={`${inputClass} w-auto min-w-[9rem]`}
+                      value={appDetail.status}
+                      onChange={(e) => updateApplicationStatus(appDetail.application_id, e.target.value)}
+                      disabled={loading.status[appDetail.application_id]}
+                    >
+                      {RECRUITER_STATUS_OPTIONS.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 border-t border-[#eef2ff] pt-4 dark:border-[#283056]">
+                  {appDetail.resume?.id != null && (
+                    <button
+                      type="button"
+                      className="rounded-lg border border-[#2563eb] bg-white px-3 py-1.5 text-xs font-semibold text-[#2563eb] dark:border-[#60a5fa] dark:bg-[#1e293b] dark:text-[#93c5fd]"
+                      onClick={() =>
+                        downloadAuthenticatedBlob(
+                          `/applications/recruiter/${appDetail.application_id}/resume-file`,
+                          token,
+                          appDetail.resume?.file_name || "resume",
+                        ).catch((err) => setError(err.message))
+                      }
+                    >
+                      Download resume file
+                    </button>
+                  )}
+                  {appDetail.generated_cv?.has_pdf && (
+                    <button
+                      type="button"
+                      className="rounded-lg border border-[#2563eb] bg-white px-3 py-1.5 text-xs font-semibold text-[#2563eb] dark:border-[#60a5fa] dark:bg-[#1e293b] dark:text-[#93c5fd]"
+                      onClick={() =>
+                        downloadAuthenticatedBlob(
+                          `/applications/recruiter/${appDetail.application_id}/cv-download?export_format=pdf`,
+                          token,
+                          "cv.pdf",
+                        ).catch((err) => setError(err.message))
+                      }
+                    >
+                      Download CV (PDF)
+                    </button>
+                  )}
+                  {appDetail.generated_cv?.has_docx && (
+                    <button
+                      type="button"
+                      className="rounded-lg border border-[#2563eb] bg-white px-3 py-1.5 text-xs font-semibold text-[#2563eb] dark:border-[#60a5fa] dark:bg-[#1e293b] dark:text-[#93c5fd]"
+                      onClick={() =>
+                        downloadAuthenticatedBlob(
+                          `/applications/recruiter/${appDetail.application_id}/cv-download?export_format=docx`,
+                          token,
+                          "cv.docx",
+                        ).catch((err) => setError(err.message))
+                      }
+                    >
+                      Download CV (DOCX)
+                    </button>
+                  )}
+                </div>
+                {appDetail.cover_letter?.content != null && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-[#1a1f3c] dark:text-white">Cover letter</h4>
+                    <div className="mt-2 max-h-56 overflow-y-auto rounded-xl border border-[#e2e6f6] bg-[#f8f9ff] p-3 text-sm whitespace-pre-wrap dark:border-[#283056] dark:bg-[#10162d]">
+                      {appDetail.cover_letter.content}
+                    </div>
+                  </div>
+                )}
+                {appDetail.generated_cv?.cv_json && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-[#1a1f3c] dark:text-white">
+                      CV preview{appDetail.generated_cv.title ? ` — ${appDetail.generated_cv.title}` : ""}
+                    </h4>
+                    <div className="mt-2 max-h-[min(60vh,28rem)] overflow-y-auto">
+                      <RecruiterStructuredCvPreview cvJson={appDetail.generated_cv.cv_json} />
+                    </div>
+                  </div>
+                )}
+                {appDetail.resume?.parsed_data && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-[#1a1f3c] dark:text-white">Parsed resume snapshot</h4>
+                    <p className="mt-1 text-sm text-[#374151] dark:text-[#cbd5e1]">
+                      {appDetail.resume.parsed_data?.summary || appDetail.resume.parsed_data?.name || "Parsed fields available in export."}
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   )
 }
 
@@ -2135,7 +2524,8 @@ function AdminDashboard({ token }) {
   }, [token])
 
   return (
-    <section className="grid gap-6">
+    <section className="flex h-full min-h-0 flex-col overflow-hidden">
+      <div className="flex-1 space-y-6 overflow-y-auto pr-1">
       <h2 className="text-2xl font-semibold">Admin Dashboard</h2>
       <div className="grid gap-4 md:grid-cols-4">
         <Metric label="Users" value={users.length} />
@@ -2151,6 +2541,7 @@ function AdminDashboard({ token }) {
         <h3 className="mb-2 font-semibold">Recruiters</h3>
         <div className="space-y-1 text-sm">{recruiters.map((r) => <div key={r.id}>{r.company_name} - {r.recruiter_email}</div>)}</div>
       </article>
+      </div>
     </section>
   )
 }
