@@ -37,6 +37,121 @@ function formatJobMatchLabel(m) {
   return "—"
 }
 
+function getMatchBand(matchPercentage) {
+  const score = Number(matchPercentage)
+  if (!Number.isFinite(score)) {
+    return {
+      label: "Bad match",
+      dotClass: "bg-rose-500",
+      textClass: "text-rose-700 dark:text-rose-300",
+    }
+  }
+  if (score >= 70) {
+    return {
+      label: "Good match",
+      dotClass: "bg-emerald-500",
+      textClass: "text-emerald-700 dark:text-emerald-300",
+    }
+  }
+  if (score >= 40) {
+    return {
+      label: "Medium match",
+      dotClass: "bg-amber-500",
+      textClass: "text-amber-700 dark:text-amber-300",
+    }
+  }
+  return {
+    label: "Bad match",
+    dotClass: "bg-rose-500",
+    textClass: "text-rose-700 dark:text-rose-300",
+  }
+}
+
+function MiniBarChart({ items, valueKey, labelKey, color = "#2563eb", max = 1 }) {
+  if (!Array.isArray(items) || items.length === 0) {
+    return <p className="text-sm text-[#65709a]">No chart data yet.</p>
+  }
+  return (
+    <div className="space-y-2">
+      {items.map((item) => {
+        const v = Number(item[valueKey] ?? 0)
+        const pct = Math.max(0, Math.min(100, (v / max) * 100))
+        return (
+          <div key={String(item[labelKey])}>
+            <div className="mb-1 flex items-center justify-between text-xs">
+              <span className="truncate pr-2">{item[labelKey]}</span>
+              <span>{v.toFixed(3)}</span>
+            </div>
+            <div className="h-2 rounded bg-[#e8ecfb] dark:bg-[#1c2747]">
+              <div className="h-2 rounded" style={{ width: `${pct}%`, background: color }} />
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function ClusterScatter({ points, method }) {
+  const scoped = (Array.isArray(points) ? points : []).filter((p) => p.method === method)
+  if (scoped.length === 0) return <p className="text-sm text-[#65709a]">No chart data yet.</p>
+  const nonCandidate = scoped.filter((p) => !p.is_candidate)
+  const maxDist = Math.max(1e-6, ...nonCandidate.map((p) => Number(p.candidate_distance ?? 0)))
+  const palette = ["#2563eb", "#7c3aed", "#0d9488", "#d97706", "#dc2626", "#0891b2"]
+  const seedAngle = (id) => ((Number(id) * 137.508) % 360) * (Math.PI / 180)
+  return (
+    <div className="relative h-64 w-full rounded-xl border border-[#d8dcef] bg-[#fafcff] dark:border-[#2d355c] dark:bg-[#101933]">
+      {scoped.map((p, i) => {
+        const angle = seedAngle(p.job_id || i + 1)
+        const radius =
+          method === "cosine_similarity"
+            ? Math.max(0, 45 * (1 - Math.max(-1, Math.min(1, Number(p.candidate_cosine ?? 0)))))
+            : Math.max(0, 45 * (Number(p.candidate_distance ?? 0) / maxDist))
+        const left = p.is_candidate ? 50 : 50 + radius * Math.cos(angle)
+        const top = p.is_candidate ? 50 : 50 + radius * Math.sin(angle)
+        const color = p.is_candidate ? "#22c55e" : palette[Math.abs(Number(p.cluster_label || 0)) % palette.length]
+        const size = p.is_candidate ? 12 : 8
+        return (
+          <div
+            key={`${p.job_id}-${i}`}
+            title={p.title}
+            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full"
+            style={{ left: `${left}%`, top: `${top}%`, width: `${size}px`, height: `${size}px`, background: color }}
+          />
+        )
+      })}
+      <div className="absolute bottom-2 right-2 text-[10px] text-[#65709a]">
+        Green point = your skill vector ({method === "cosine_similarity" ? "higher cosine = closer" : "smaller distance = closer"})
+      </div>
+    </div>
+  )
+}
+
+function CvScoreCard({ cvEval }) {
+  if (!cvEval?.scores) return null
+  const s = cvEval.scores
+  const metrics = [
+    { label: "Faithfulness", value: s.faithfulness },
+    { label: "Relevance", value: s.relevance },
+    { label: "Professionalism", value: s.professionalism },
+    { label: "Completeness", value: s.completeness },
+    { label: "Impact", value: s.impact },
+  ]
+  return (
+    <div className="mt-3 rounded-xl border border-[#d8dcef] bg-[#f8faff] p-4 dark:border-[#2d355c] dark:bg-[#101933]">
+      <p className="text-xs uppercase tracking-wide text-[#65709a]">Gemini CV Evaluation</p>
+      <p className="mt-1 text-2xl font-semibold text-[#1a1f3c] dark:text-white">{Number(s.overall || 0).toFixed(1)} / 100</p>
+      <div className="mt-3 grid gap-2 md:grid-cols-2">
+        {metrics.map((m) => (
+          <div key={m.label} className="rounded-lg border border-[#d6dcf0] px-3 py-2 text-sm dark:border-[#2d355c]">
+            <span className="text-[#65709a]">{m.label}:</span> <span className="font-medium">{Number(m.value || 0).toFixed(1)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 async function apiRequest(path, options = {}, token) {
   const headers = new Headers(options.headers ?? {})
   if (!headers.has("Content-Type") && !(options.body instanceof FormData)) {
@@ -402,19 +517,16 @@ function App() {
   const authLayout = AUTH_LAYOUT_PATHS.has(location.pathname)
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ""
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!token) {
       localStorage.removeItem("hirebee-token")
       sessionStorage.removeItem("hirebee-token")
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUser(null)
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSessionLoading(false)
       return
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSessionLoading(true)
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setUser(null)
     const persist = localStorage.getItem("hirebee-persist") ?? "local"
     if (persist === "session") {
@@ -443,6 +555,7 @@ function App() {
       cancelled = true
     }
   }, [token])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const isAppShell = location.pathname === "/app" && Boolean(token)
 
@@ -867,6 +980,7 @@ function JobSeekerDashboard({ token, user }) {
     { key: "cv", label: "Generate CV" },
     { key: "jobs", label: "Jobs" },
     { key: "applications", label: "Applications" },
+    { key: "evaluation", label: "Evaluation" },
     { key: "profile", label: "Profile" },
   ]
   const [activePage, setActivePage] = useState("dashboard")
@@ -922,6 +1036,9 @@ function JobSeekerDashboard({ token, user }) {
     },
   ])
   const [convoInput, setConvoInput] = useState("")
+  const [evalData, setEvalData] = useState({ metrics: [], points: [] })
+  const [cvEval, setCvEval] = useState(null)
+  const [runningEval, setRunningEval] = useState(false)
   const [applyForm, setApplyForm] = useState({ job_id: "", generated_cv_id: "", cover_letter_id: "" })
   const [coverLetterDraft, setCoverLetterDraft] = useState("")
   const manualPreviewJson = useMemo(
@@ -957,18 +1074,20 @@ function JobSeekerDashboard({ token, user }) {
   })
 
   const refresh = useMemo(() => async () => {
-    const [jobList, matchList, appList, cvList, letterList] = await Promise.all([
+    const [jobList, matchList, appList, cvList, letterList, evalRes] = await Promise.all([
       apiRequest("/jobs", {}, token),
       apiRequest("/matching/jobs-for-me", {}, token).catch(() => []),
       apiRequest("/applications/me", {}, token),
       apiRequest("/cvs", {}, token),
       apiRequest("/cover-letters", {}, token),
+      apiRequest("/evaluation/jobs/for-me", {}, token).catch(() => ({ metrics: [], points: [] })),
     ])
     setJobs(jobList)
     setMatches(matchList)
     setApps(appList)
     setCvs(cvList)
     setLetters(letterList)
+    setEvalData(evalRes)
   }, [token])
 
   const selectedCv = useMemo(() => cvs.find((c) => String(c.id) === selectedCvId), [cvs, selectedCvId])
@@ -1040,8 +1159,8 @@ function JobSeekerDashboard({ token, user }) {
     })
   }
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh().catch((err) => setError(err.message))
   }, [refresh])
 
@@ -1056,6 +1175,7 @@ function JobSeekerDashboard({ token, user }) {
       setApplyForm((prev) => ({ ...prev, cover_letter_id: "" }))
     }
   }, [selectedJobId, letters])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   async function uploadResume(e) {
     e.preventDefault()
@@ -1193,6 +1313,12 @@ function JobSeekerDashboard({ token, user }) {
       const id = String(cv.id)
       setSelectedCvId(id)
       setApplyForm((prev) => ({ ...prev, generated_cv_id: id }))
+      if (cv.cv_quality_score != null) {
+        const latest = await apiRequest(`/evaluation/cv/latest/${id}`, {}, token).catch(() => null)
+        setCvEval(latest)
+      } else {
+        setCvEval(null)
+      }
       await refresh()
       await exportCv("pdf", id)
       setMessage("Conversational CV created and PDF export started (check your downloads).")
@@ -1230,6 +1356,22 @@ function JobSeekerDashboard({ token, user }) {
       setError(err.message)
     } finally {
       setLoading((prev) => ({ ...prev, coverLetter: false }))
+    }
+  }
+
+  async function runSeekerEvaluation() {
+    setRunningEval(true)
+    setError("")
+    setMessage("")
+    try {
+      await apiRequest("/evaluation/jobs/run", { method: "POST", body: JSON.stringify({ k: 4, top_k: 5, cosine_threshold: 0.75 }) }, token)
+      const next = await apiRequest("/evaluation/jobs/for-me", {}, token).catch(() => ({ metrics: [], points: [] }))
+      setEvalData(next)
+      setMessage("Evaluation rerun complete.")
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setRunningEval(false)
     }
   }
 
@@ -1706,6 +1848,7 @@ function JobSeekerDashboard({ token, user }) {
                   {loading.export ? "Exporting..." : "Export DOCX"}
                 </button>
               </div>
+              <CvScoreCard cvEval={cvEval} />
               </div>
             </article>
           )}
@@ -1842,6 +1985,52 @@ function JobSeekerDashboard({ token, user }) {
           </section>
         )}
 
+        {activePage === "evaluation" && (
+          <section className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+            <article className={cardClass}>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-2xl font-semibold">Recommendation Evaluation</h3>
+                <button className={buttonClass} type="button" onClick={runSeekerEvaluation} disabled={runningEval}>
+                  {runningEval ? "Running..." : "Run Evaluation"}
+                </button>
+              </div>
+              <p className="mt-1 text-sm text-[#65709a]">Latest stored clustering runs (embedding distance vs cosine similarity).</p>
+              {evalData.metrics.length === 0 ? (
+                <p className="mt-4 text-sm text-[#65709a]">No evaluation runs yet. Ask recruiter/admin to run an evaluation.</p>
+              ) : (
+                <div className="mt-4 grid gap-3">
+                  {evalData.metrics.map((m) => (
+                    <div key={m.run_id} className="rounded-xl border border-[#d8dcef] p-3 text-sm dark:border-[#2d355c]">
+                      <p className="font-semibold">{m.method === "embedding_distance" ? "Embedding Distance" : "Cosine Similarity"}</p>
+                      <p className="mt-1 text-[#65709a]">
+                        Precision@K {Number(m.precision_at_k || 0).toFixed(3)} · Recall@K {Number(m.recall_at_k || 0).toFixed(3)} · nDCG@K {Number(m.ndcg_at_k || 0).toFixed(3)} · MRR {Number(m.mrr || 0).toFixed(3)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </article>
+            <article className={cardClass}>
+              <h4 className="font-semibold">Run Comparison Graph</h4>
+              <div className="mt-3">
+                <MiniBarChart items={evalData.metrics} valueKey="ndcg_at_k" labelKey="method" max={1} />
+              </div>
+            </article>
+            <article className={cardClass}>
+              <h4 className="font-semibold">Cosine Similarity Graph (You vs Jobs)</h4>
+              <div className="mt-3">
+                <ClusterScatter points={evalData.points} method="cosine_similarity" />
+              </div>
+            </article>
+            <article className={cardClass}>
+              <h4 className="font-semibold">Embedding Distance Graph (You vs Jobs)</h4>
+              <div className="mt-3">
+                <ClusterScatter points={evalData.points} method="embedding_distance" />
+              </div>
+            </article>
+          </section>
+        )}
+
         {activePage === "profile" && (
           <section className="grid gap-4">
             <article className={cardClass}>
@@ -1898,6 +2087,7 @@ function RecruiterDashboard({ token, user }) {
     { key: "overview", label: "Overview" },
     { key: "jobs", label: "Jobs" },
     { key: "applicants", label: "Applicants" },
+    { key: "evaluation", label: "Evaluation" },
     { key: "interviews", label: "Interviews" },
     { key: "emails", label: "Email logs" },
     { key: "profile", label: "Company" },
@@ -1925,6 +2115,8 @@ function RecruiterDashboard({ token, user }) {
   const [detailId, setDetailId] = useState(null)
   const [appDetail, setAppDetail] = useState(null)
   const [detailLoading, setDetailLoading] = useState(false)
+  const [evalData, setEvalData] = useState({ metrics: [], points: [] })
+  const [runningEval, setRunningEval] = useState(false)
 
   const myJobs = useMemo(() => {
     const email = (recruiterMeta?.recruiter_email || user?.email || "").toLowerCase()
@@ -1936,18 +2128,20 @@ function RecruiterDashboard({ token, user }) {
     setLoading((p) => ({ ...p, refresh: true }))
     setError("")
     try {
-      const [jobList, appList, interviewList, emailList, profileRes] = await Promise.all([
+      const [jobList, appList, interviewList, emailList, profileRes, evalRes] = await Promise.all([
         apiRequest("/jobs", {}, token),
         apiRequest("/applications/recruiter", {}, token).catch(() => []),
         apiRequest("/interviews/recruiter", {}, token).catch(() => []),
         apiRequest("/emails/logs", {}, token).catch(() => []),
         apiRequest("/recruiters/profile", {}, token).catch(() => null),
+        apiRequest("/evaluation/jobs/latest", {}, token).catch(() => ({ metrics: [], points: [] })),
       ])
       setJobs(jobList)
       setApps(appList)
       setInterviews(interviewList)
       setLogs(emailList)
       setRecruiterMeta(profileRes)
+      setEvalData(evalRes)
       if (profileRes) {
         setProfile({ company_name: profileRes.company_name || "", recruiter_email: profileRes.recruiter_email || "" })
         setForm((f) => ({ ...f, recruiter_email: profileRes.recruiter_email || f.recruiter_email }))
@@ -2085,6 +2279,22 @@ function RecruiterDashboard({ token, user }) {
     }
   }
 
+  async function runEvaluation() {
+    setRunningEval(true)
+    setError("")
+    setMessage("")
+    try {
+      await apiRequest("/evaluation/jobs/run", { method: "POST", body: JSON.stringify({ k: 4, top_k: 5, cosine_threshold: 0.75 }) }, token)
+      setMessage("Evaluation runs completed and saved.")
+      await refresh()
+      setActivePage("evaluation")
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setRunningEval(false)
+    }
+  }
+
   return (
     <>
     <section className="flex h-full min-h-0 w-full flex-col gap-4 lg:flex-row lg:gap-4">
@@ -2215,6 +2425,15 @@ function RecruiterDashboard({ token, user }) {
                   }}
                   className="cursor-pointer rounded-xl border border-[#e2e6f6] p-4 transition hover:border-[#93b4ff] hover:bg-[#f8f9ff] dark:border-[#283056] dark:hover:border-[#3b4f8a] dark:hover:bg-[#151f3a]"
                 >
+                  {(() => {
+                    const badge = getMatchBand(app.match_percentage)
+                    return (
+                      <div className={`mb-2 flex items-center justify-end gap-2 text-xs font-semibold ${badge.textClass}`}>
+                        <span className={`inline-block h-2.5 w-2.5 rounded-full ${badge.dotClass}`} />
+                        <span>{badge.label}</span>
+                      </div>
+                    )
+                  })()}
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold text-[#1a1f3c] dark:text-white">{app.candidate_name}</p>
@@ -2320,6 +2539,37 @@ function RecruiterDashboard({ token, user }) {
                   {loading.interview ? "Scheduling…" : "Schedule interview"}
                 </button>
               </form>
+            </article>
+          </section>
+        )}
+
+        {activePage === "evaluation" && (
+          <section className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+            <article className={cardClass}>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-2xl font-semibold">Recommendation Evaluation</h3>
+                <button className={buttonClass} type="button" onClick={runEvaluation} disabled={runningEval}>
+                  {runningEval ? "Running..." : "Run Evaluation"}
+                </button>
+              </div>
+              <p className="mt-1 text-sm text-[#65709a]">Runs both clustering criteria and stores metrics in DB for report-ready graphs.</p>
+              <div className="mt-4 grid gap-3">
+                {evalData.metrics.length === 0 && <p className="text-sm text-[#65709a]">No runs available yet.</p>}
+                {evalData.metrics.map((m) => (
+                  <div key={m.run_id} className="rounded-xl border border-[#d8dcef] p-3 text-sm dark:border-[#2d355c]">
+                    <p className="font-semibold">{m.method === "embedding_distance" ? "Embedding Distance" : "Cosine Similarity"}</p>
+                    <p className="mt-1 text-[#65709a]">
+                      P@K {Number(m.precision_at_k || 0).toFixed(3)} · R@K {Number(m.recall_at_k || 0).toFixed(3)} · nDCG@K {Number(m.ndcg_at_k || 0).toFixed(3)} · MRR {Number(m.mrr || 0).toFixed(3)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </article>
+            <article className={cardClass}>
+              <h4 className="font-semibold">nDCG@K Comparison</h4>
+              <div className="mt-3">
+                <MiniBarChart items={evalData.metrics} valueKey="ndcg_at_k" labelKey="method" max={1} />
+              </div>
             </article>
           </section>
         )}
