@@ -8,7 +8,7 @@ from app.core.config import get_settings
 
 from app.api.deps import require_roles
 from app.db.database import get_db
-from app.models.entities import GeneratedCV, User, UserRole
+from app.models.entities import CVQualityEvaluation, GeneratedCV, User, UserRole
 from app.schemas.cv import (
     CVResponse,
     CVTemplateResponse,
@@ -23,6 +23,7 @@ from app.services.cv.conversation_llm import conversation_reply
 from app.services.cv.exporter import CVExportService
 from app.services.cv.generator import ConversationalCVGenerator
 from app.services.cv.template import ATS_SECTION_LIBRARY, ATS_TEMPLATE_ID, build_empty_template, ensure_template_shape
+from app.services.evaluation.cv_quality import evaluate_cv_with_gemini
 
 router = APIRouter(prefix="/cvs", tags=["cvs"])
 export_service = CVExportService()
@@ -77,12 +78,21 @@ def list_cvs(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_roles(UserRole.JOB_SEEKER)),
 ) -> list[GeneratedCV]:
-    return (
+    rows = (
         db.query(GeneratedCV)
         .filter(GeneratedCV.user_id == current_user.id)
         .order_by(GeneratedCV.created_at.desc())
         .all()
     )
+    for cv in rows:
+        latest = (
+            db.query(CVQualityEvaluation)
+            .filter(CVQualityEvaluation.cv_id == cv.id)
+            .order_by(CVQualityEvaluation.created_at.desc())
+            .first()
+        )
+        setattr(cv, "cv_quality_score", latest.overall_score if latest else None)
+    return rows
 
 
 @router.post("/conversation/chat", response_model=ConversationalChatResponse)
@@ -119,6 +129,35 @@ def generate_conversational_cv(
     db.add(cv)
     db.commit()
     db.refresh(cv)
+    if payload.messages:
+        try:
+            score_json, model_name = evaluate_cv_with_gemini(
+                messages=[m.model_dump() for m in payload.messages],
+                cv_json=generated_json,
+            )
+            db.add(
+                CVQualityEvaluation(
+                    cv_id=cv.id,
+                    user_id=current_user.id,
+                    evaluator="gemini",
+                    model_name=model_name,
+                    overall_score=float(score_json.get("overall", 0.0)),
+                    faithfulness_score=float(score_json.get("faithfulness", 0.0)),
+                    relevance_score=float(score_json.get("relevance", 0.0)),
+                    professionalism_score=float(score_json.get("professionalism", 0.0)),
+                    completeness_score=float(score_json.get("completeness", 0.0)),
+                    impact_score=float(score_json.get("impact", 0.0)),
+                    strengths=list(score_json.get("strengths", [])),
+                    weaknesses=list(score_json.get("weaknesses", [])),
+                    recommendations=list(score_json.get("recommendations", [])),
+                    transcript_json=[m.model_dump() for m in payload.messages],
+                )
+            )
+            db.commit()
+            setattr(cv, "cv_quality_score", float(score_json.get("overall", 0.0)))
+        except Exception:
+            # CV generation should remain available even if judge model is unavailable.
+            setattr(cv, "cv_quality_score", None)
     return cv
 
 

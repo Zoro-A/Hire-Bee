@@ -27,9 +27,16 @@ class Settings(BaseSettings):
     # Chat for conversational CV: "openai" (uses OPENAI_*) or "ollama" (local OSS, uses OLLAMA_*).
     conversation_llm_provider: str = "openai"
     ollama_base_url: str = "http://127.0.0.1:11434"
-    ollama_chat_model: str = "llama3.2"
+    ollama_chat_model: str = "llama3.2:1b"
+    # Passed to Ollama /api/chat "options". Smaller num_ctx lowers RAM/VRAM use (helps "runner terminated" on Windows).
+    ollama_chat_num_ctx: int = 4096
+    ollama_chat_num_predict: int = 512
+    # If set (e.g. 0), sent as num_gpu. Use 0 to force CPU when GPU drivers or VRAM cause the llama runner to crash.
+    ollama_chat_num_gpu: int | None = None
     # CV JSON from transcript: "openai" now; later wire "qwen_local" to your fine-tuned endpoint.
     cv_json_llm_provider: str = "openai"
+    gemini_api_key: str | None = None
+    gemini_model: str = "gemini-1.5-flash"
     qdrant_url: str = "http://localhost:6333"
     qdrant_api_key: str | None = None
     qdrant_collection_name: str = "job_skills"

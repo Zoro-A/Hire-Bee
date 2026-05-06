@@ -113,10 +113,21 @@ Alternatively set **`DATABASE_URL`** and leave the split `DB_*` fields unused.
 |----------|---------|
 | `CONVERSATION_LLM_PROVIDER` | `openai` (uses `OPENAI_*`) or `ollama` for local chat only. |
 | `OLLAMA_BASE_URL` | Ollama HTTP API base (default `http://127.0.0.1:11434`). |
-| `OLLAMA_CHAT_MODEL` | Model tag as shown by `ollama list` (example: `llama3.2`). |
+| `OLLAMA_CHAT_MODEL` | Exact tag from `ollama list` (example: `llama3.2:1b`). Must match what you pulled; mismatches cause 503. |
+| `OLLAMA_CHAT_NUM_CTX`, `OLLAMA_CHAT_NUM_PREDICT`, `OLLAMA_CHAT_NUM_GPU` | Optional. Sent to Ollama’s `/api/chat` to cap context and tokens; set `OLLAMA_CHAT_NUM_GPU=0` in **HireBee’s** `.env` to request CPU inference when the GPU runner crashes. |
 | `CV_JSON_LLM_PROVIDER` | `openai` today: structured CV JSON from the transcript. Future: e.g. `qwen_local` when wired in code. |
 
-With **`CONVERSATION_LLM_PROVIDER=ollama`**, install [Ollama](https://ollama.com), run `ollama pull <OLLAMA_CHAT_MODEL>`, and keep the daemon running. CV JSON generation still expects **`OPENAI_API_KEY`** unless you implement another `CV_JSON_LLM_PROVIDER`.
+With **`CONVERSATION_LLM_PROVIDER=ollama`**, install [Ollama](https://ollama.com), run `ollama pull <OLLAMA_CHAT_MODEL>`, and keep the daemon running. The API tries Ollama’s **`/api/chat`** first, then **`/v1/chat/completions`** if the first call fails (useful when the interactive `ollama run` session works but HTTP chat was flaky). Close long-running `ollama run` sessions before heavy browser use so the server is not starved. CV JSON generation still expects **`OPENAI_API_KEY`** unless you implement another `CV_JSON_LLM_PROVIDER`.
+
+**If `ollama run <model>` itself returns 500** (`llama runner process has terminated`), the problem is Ollama on your machine, not HireBee. Try in order: update Ollama and GPU drivers; `ollama pull llama3.2:1b` and `ollama run llama3.2:1b` (smaller weights); read `%LOCALAPPDATA%\Ollama\server.log` with debug on ([Ollama troubleshooting](https://docs.ollama.com/troubleshooting)). Quit Ollama from the tray, then start it from PowerShell with **`OLLAMA_LLM_LIBRARY=cpu_avx2`** (or `cpu`) to bypass broken GPU autodetection, for example:
+
+```powershell
+$env:OLLAMA_LLM_LIBRARY="cpu_avx2"
+$env:OLLAMA_DEBUG="1"
+& "$env:LOCALAPPDATA\Programs\Ollama\ollama app.exe"
+```
+
+Until Ollama runs successfully in a terminal, use **`CONVERSATION_LLM_PROVIDER=openai`** and an **`OPENAI_API_KEY`** for conversational chat.
 
 ### Qdrant and matching
 

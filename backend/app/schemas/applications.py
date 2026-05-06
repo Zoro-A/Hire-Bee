@@ -42,3 +42,18 @@ class RecruiterApplicationView(BaseModel):
     resume_id: int | None
     generated_cv_id: int | None
     cover_letter_id: int | None
+
+
+class RecruiterApplicationDetailResponse(BaseModel):
+    application_id: int
+    candidate_name: str
+    candidate_email: str
+    job_id: int
+    job_title: str
+    status: ApplicationStatus
+    match_percentage: float | None
+    matched_skills: list | None
+    missing_skills: list | None
+    resume: dict | None = None
+    cover_letter: dict | None = None
+    generated_cv: dict | None = None
