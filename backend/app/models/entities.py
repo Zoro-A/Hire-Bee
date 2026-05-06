@@ -21,6 +21,11 @@ class ApplicationStatus(str, Enum):
     REJECTED = "rejected"
 
 
+class ClusterMethod(str, Enum):
+    EMBEDDING_DISTANCE = "embedding_distance"
+    COSINE_SIMILARITY = "cosine_similarity"
+
+
 class TimestampMixin:
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -153,3 +158,60 @@ class InterviewSchedule(Base, TimestampMixin):
     interview_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     meeting_link: Mapped[str] = mapped_column(String(500), nullable=False)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class JobClusterRun(Base, TimestampMixin):
+    __tablename__ = "job_cluster_runs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    method: Mapped[ClusterMethod] = mapped_column(SqlEnum(ClusterMethod), nullable=False)
+    k: Mapped[int] = mapped_column(Integer, nullable=False)
+    total_jobs: Mapped[int] = mapped_column(Integer, nullable=False)
+    silhouette_score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    intra_cluster_distance: Mapped[float | None] = mapped_column(Float, nullable=True)
+    avg_cosine_similarity: Mapped[float | None] = mapped_column(Float, nullable=True)
+    metrics_json: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+
+
+class JobClusterAssignment(Base, TimestampMixin):
+    __tablename__ = "job_cluster_assignments"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    run_id: Mapped[int] = mapped_column(ForeignKey("job_cluster_runs.id"), nullable=False, index=True)
+    job_id: Mapped[int] = mapped_column(ForeignKey("jobs.id"), nullable=False, index=True)
+    cluster_label: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    distance_to_centroid: Mapped[float | None] = mapped_column(Float, nullable=True)
+    cosine_to_centroid: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+
+class JobRecommendationEvaluation(Base, TimestampMixin):
+    __tablename__ = "job_recommendation_evaluations"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    run_id: Mapped[int] = mapped_column(ForeignKey("job_cluster_runs.id"), nullable=False, index=True)
+    candidate_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    top_k: Mapped[int] = mapped_column(Integer, nullable=False, default=5)
+    precision_at_k: Mapped[float] = mapped_column(Float, nullable=False)
+    recall_at_k: Mapped[float] = mapped_column(Float, nullable=False)
+    ndcg_at_k: Mapped[float] = mapped_column(Float, nullable=False)
+    mrr: Mapped[float] = mapped_column(Float, nullable=False)
+
+
+class CVQualityEvaluation(Base, TimestampMixin):
+    __tablename__ = "cv_quality_evaluations"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    cv_id: Mapped[int] = mapped_column(ForeignKey("generated_cvs.id"), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    evaluator: Mapped[str] = mapped_column(String(50), nullable=False, default="gemini")
+    model_name: Mapped[str] = mapped_column(String(100), nullable=False, default="gemini-1.5-flash")
+    overall_score: Mapped[float] = mapped_column(Float, nullable=False)
+    faithfulness_score: Mapped[float] = mapped_column(Float, nullable=False)
+    relevance_score: Mapped[float] = mapped_column(Float, nullable=False)
+    professionalism_score: Mapped[float] = mapped_column(Float, nullable=False)
+    completeness_score: Mapped[float] = mapped_column(Float, nullable=False)
+    impact_score: Mapped[float] = mapped_column(Float, nullable=False)
+    strengths: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    weaknesses: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    recommendations: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    transcript_json: Mapped[list] = mapped_column(JSON, nullable=False, default=list)

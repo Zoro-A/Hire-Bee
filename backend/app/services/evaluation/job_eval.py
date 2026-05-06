@@ -46,28 +46,24 @@ def _kmeans(x: np.ndarray, k: int, iters: int = 20) -> tuple[np.ndarray, np.ndar
     return labels, centroids
 
 
-def _cosine_component_clusters(x: np.ndarray, threshold: float) -> np.ndarray:
-    n = x.shape[0]
-    sim = x @ x.T
-    seen = [False] * n
-    labels = np.full(n, -1, dtype=int)
-    cid = 0
-    for i in range(n):
-        if seen[i]:
-            continue
-        stack = [i]
-        seen[i] = True
-        labels[i] = cid
-        while stack:
-            cur = stack.pop()
-            neigh = np.where(sim[cur] >= threshold)[0]
-            for nxt in neigh:
-                if not seen[nxt]:
-                    seen[nxt] = True
-                    labels[nxt] = cid
-                    stack.append(int(nxt))
-        cid += 1
-    return labels
+def _spherical_kmeans(x_norm: np.ndarray, k: int, iters: int = 25) -> tuple[np.ndarray, np.ndarray]:
+    n = x_norm.shape[0]
+    idx = np.linspace(0, n - 1, num=k, dtype=int)
+    centroids = x_norm[idx].copy()
+    labels = np.zeros(n, dtype=int)
+    for _ in range(iters):
+        sim = x_norm @ centroids.T
+        next_labels = np.argmax(sim, axis=1)
+        if np.array_equal(labels, next_labels):
+            break
+        labels = next_labels
+        for ci in range(k):
+            members = x_norm[labels == ci]
+            if len(members) > 0:
+                c = members.mean(axis=0)
+                c_norm = np.linalg.norm(c)
+                centroids[ci] = c / (c_norm if c_norm > 0 else 1.0)
+    return labels, centroids
 
 
 def _dcg(rels: list[int], k: int) -> float:
@@ -90,12 +86,7 @@ def run_job_evaluation(db: Session, model_name: str, k: int, top_k: int, cosine_
     km_labels, km_centroids = _kmeans(vectors, k=k)
     outputs.append((ClusterMethod.EMBEDDING_DISTANCE, km_labels, km_centroids))
 
-    cos_labels = _cosine_component_clusters(norm, threshold=cosine_threshold)
-    cos_k = int(np.max(cos_labels)) + 1
-    cos_centroids = np.zeros((cos_k, vectors.shape[1]))
-    for ci in range(cos_k):
-        members = vectors[cos_labels == ci]
-        cos_centroids[ci] = members.mean(axis=0)
+    cos_labels, cos_centroids = _spherical_kmeans(norm, k=k)
     outputs.append((ClusterMethod.COSINE_SIMILARITY, cos_labels, cos_centroids))
 
     candidates = db.query(User).filter(User.role == UserRole.JOB_SEEKER).all()
@@ -113,7 +104,7 @@ def run_job_evaluation(db: Session, model_name: str, k: int, top_k: int, cosine_
             silhouette_score=None,
             intra_cluster_distance=None,
             avg_cosine_similarity=float(np.mean(norm @ norm.T)),
-            metrics_json={"top_k": top_k, "cosine_threshold": cosine_threshold},
+            metrics_json={"top_k": top_k, "cosine_threshold": cosine_threshold, "mode": "spherical_kmeans"},
         )
         db.add(run)
         db.flush()

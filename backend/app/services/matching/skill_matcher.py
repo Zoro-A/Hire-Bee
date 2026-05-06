@@ -1,4 +1,5 @@
 from collections import defaultdict
+from difflib import SequenceMatcher
 
 from sqlalchemy.orm import Session, joinedload
 
@@ -34,11 +35,13 @@ class SkillMatcherService:
 
         candidate_skill_set = set(candidate_skills)
         semantic_scores_by_job: dict[int, list[float]] = defaultdict(list)
+        semantic_search_available = False
 
         try:
             vectors = self.embedding_service.encode(candidate_skills)
             if vectors:
                 self.skill_store.ensure_collection(vector_size=len(vectors[0]))
+                semantic_search_available = True
                 for candidate_skill, vector in zip(candidate_skills, vectors, strict=True):
                     points = self.skill_store.search_jobs_by_skill(
                         vector=vector,
@@ -66,6 +69,22 @@ class SkillMatcherService:
             exact_match_percentage = round((len(matched_required) / len(required)) * 100, 2)
 
             scores = semantic_scores_by_job.get(job.id, [])
+            # Revert to per-skill aggregation fallback when vector search is unavailable.
+            if not scores and not semantic_search_available:
+                per_skill_best: list[float] = []
+                required_list = sorted(required)
+                for c in candidate_skills:
+                    best = 0.0
+                    for r in required_list:
+                        # Token-aware lexical proximity to approximate semantic relatedness offline.
+                        ratio = SequenceMatcher(None, c, r).ratio()
+                        if c in r or r in c:
+                            ratio = max(ratio, 0.72)
+                        best = max(best, ratio)
+                    per_skill_best.append(best)
+                if per_skill_best:
+                    fallback_sem = sum(per_skill_best) / len(per_skill_best)
+                    scores = [fallback_sem]
             # Qdrant cosine-style scores are typically in [0, 1]; scale for display blend.
             semantic_raw = (sum(scores) / len(scores)) if scores else 0.0
             semantic_relevance_score = round(min(100.0, semantic_raw * 100.0), 2)

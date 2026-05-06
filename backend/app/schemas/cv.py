@@ -57,5 +57,6 @@ class CVResponse(BaseModel):
     cv_json: dict
     pdf_path: str | None
     docx_path: str | None
+    cv_quality_score: float | None = None
 
     model_config = {"from_attributes": True}

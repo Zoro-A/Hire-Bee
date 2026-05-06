@@ -2,6 +2,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import FileResponse
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, require_roles
@@ -150,7 +151,7 @@ def recruiter_applications(
         .join(User, User.id == Application.user_id)
         .join(Job, Job.id == Application.job_id)
         .filter(Job.recruiter_id == recruiter.id)
-        .order_by(Application.created_at.desc())
+        .order_by(func.coalesce(Application.match_percentage, -1.0).desc(), Application.created_at.desc())
         .all()
     )
     return [

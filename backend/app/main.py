@@ -7,6 +7,7 @@ from app.api.v1 import (
     auth,
     cover_letters,
     cv,
+    evaluation,
     emails,
     health,
     interviews,
@@ -45,6 +46,7 @@ app.include_router(jobs.router, prefix=settings.api_v1_prefix)
 app.include_router(resumes.router, prefix=settings.api_v1_prefix)
 app.include_router(matching.router, prefix=settings.api_v1_prefix)
 app.include_router(cv.router, prefix=settings.api_v1_prefix)
+app.include_router(evaluation.router, prefix=settings.api_v1_prefix)
 app.include_router(cover_letters.router, prefix=settings.api_v1_prefix)
 app.include_router(applications.router, prefix=settings.api_v1_prefix)
 app.include_router(interviews.router, prefix=settings.api_v1_prefix)
