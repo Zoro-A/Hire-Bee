@@ -67,10 +67,31 @@ class SkillMatcherService:
             matched_required = sorted(required.intersection(candidate_skill_set))
             missing = sorted(required.difference(matched_required))
             exact_match_percentage = round((len(matched_required) / len(required)) * 100, 2)
+            # Literal (non-embedding) feasibility:
+            # For each required skill, take the best lexical/token-level match against candidate skills.
+            # This keeps the metric interpretable while avoiding harsh penalties from strict exact-only overlap.
+            lexical_cover_scores: list[float] = []
+            for req in sorted(required):
+                best = 0.0
+                for cand in candidate_skills:
+                    ratio = SequenceMatcher(None, cand, req).ratio()
+                    if cand in req or req in cand:
+                        ratio = max(ratio, 0.78)
+                    best = max(best, ratio)
+                lexical_cover_scores.append(best)
+            lexical_coverage_percentage = round(
+                (sum(lexical_cover_scores) / len(lexical_cover_scores) * 100.0) if lexical_cover_scores else 0.0,
+                2,
+            )
+            literal_feasibility_score = round(
+                min(100.0, 0.65 * lexical_coverage_percentage + 0.35 * exact_match_percentage),
+                2,
+            )
 
             scores = semantic_scores_by_job.get(job.id, [])
-            # Revert to per-skill aggregation fallback when vector search is unavailable.
-            if not scores and not semantic_search_available:
+            # If vector hits are empty (too strict threshold / sparse vectors),
+            # backfill with lexical semantics so cosine-style signal does not collapse to zero.
+            if not scores:
                 per_skill_best: list[float] = []
                 required_list = sorted(required)
                 for c in candidate_skills:
@@ -111,6 +132,7 @@ class SkillMatcherService:
                     "recruiter_email": job.recruiter_email,
                     "match_percentage": match_percentage,
                     "exact_match_percentage": exact_match_percentage,
+                    "literal_feasibility_score": literal_feasibility_score,
                     "semantic_relevance_score": semantic_relevance_score,
                     "matched_skills": matched_required,
                     "missing_skills": missing,

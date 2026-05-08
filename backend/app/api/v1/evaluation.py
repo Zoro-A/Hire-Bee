@@ -37,7 +37,7 @@ router = APIRouter(prefix="/evaluation", tags=["evaluation"])
 def run_job_eval(
     payload: JobEvaluationRunRequest,
     db: Session = Depends(get_db),
-    _current_user: User = Depends(require_roles(UserRole.ADMIN, UserRole.RECRUITER, UserRole.JOB_SEEKER)),
+    _current_user: User = Depends(require_roles(UserRole.JOB_SEEKER)),
 ) -> list[JobEvaluationMetric]:
     settings = get_settings()
     runs = run_job_evaluation(
@@ -81,7 +81,7 @@ def run_job_eval(
 @router.get("/jobs/latest", response_model=JobEvaluationLatestResponse)
 def latest_job_eval(
     db: Session = Depends(get_db),
-    _current_user: User = Depends(require_roles(UserRole.ADMIN, UserRole.RECRUITER, UserRole.JOB_SEEKER)),
+    _current_user: User = Depends(require_roles(UserRole.JOB_SEEKER)),
 ) -> JobEvaluationLatestResponse:
     runs = (
         db.query(JobClusterRun)
@@ -216,7 +216,13 @@ def seeker_job_eval_view(
         for i, (assign, job) in enumerate(run_points):
             semantic = by_job.get(int(job.id), {}).get("semantic_relevance_score")
             exact = by_job.get(int(job.id), {}).get("exact_match_percentage")
-            cos_candidate = float(semantic) / 100.0 if semantic is not None else (float(exact or 0.0) / 100.0)
+            literal = by_job.get(int(job.id), {}).get("literal_feasibility_score")
+            if run.method == ClusterMethod.COSINE_SIMILARITY:
+                base_score = float(semantic) if semantic is not None else float(exact or 0.0)
+            else:
+                # Non-cosine comparison: literal feasibility from concrete skill overlap.
+                base_score = float(literal) if literal is not None else float(exact or 0.0)
+            cos_candidate = base_score / 100.0
             dist_candidate = max(0.0, 1.0 - cos_candidate)
             points.append(
                 JobClusterPoint(
