@@ -67,6 +67,12 @@ function getMatchBand(matchPercentage) {
   }
 }
 
+function evalMethodLabel(method) {
+  if (method === "cosine_similarity") return "Cosine Similarity"
+  if (method === "embedding_distance") return "Skill Overlap"
+  return method
+}
+
 function MiniBarChart({ items, valueKey, labelKey, color = "#2563eb", max = 1 }) {
   if (!Array.isArray(items) || items.length === 0) {
     return <p className="text-sm text-[#65709a]">No chart data yet.</p>
@@ -96,17 +102,20 @@ function ClusterScatter({ points, method }) {
   const scoped = (Array.isArray(points) ? points : []).filter((p) => p.method === method)
   if (scoped.length === 0) return <p className="text-sm text-[#65709a]">No chart data yet.</p>
   const nonCandidate = scoped.filter((p) => !p.is_candidate)
-  const maxDist = Math.max(1e-6, ...nonCandidate.map((p) => Number(p.candidate_distance ?? 0)))
+  const similarities = nonCandidate.map((p) => Math.max(0, Math.min(1, Number(p.candidate_cosine ?? 0))))
+  const minSim = similarities.length ? Math.min(...similarities) : 0
+  const maxSim = similarities.length ? Math.max(...similarities) : 1
+  const span = Math.max(1e-6, maxSim - minSim)
   const palette = ["#2563eb", "#7c3aed", "#0d9488", "#d97706", "#dc2626", "#0891b2"]
   const seedAngle = (id) => ((Number(id) * 137.508) % 360) * (Math.PI / 180)
   return (
     <div className="relative h-64 w-full rounded-xl border border-[#d8dcef] bg-[#fafcff] dark:border-[#2d355c] dark:bg-[#101933]">
       {scoped.map((p, i) => {
         const angle = seedAngle(p.job_id || i + 1)
-        const radius =
-          method === "cosine_similarity"
-            ? Math.max(0, 45 * (1 - Math.max(-1, Math.min(1, Number(p.candidate_cosine ?? 0)))))
-            : Math.max(0, 45 * (Number(p.candidate_distance ?? 0) / maxDist))
+        const sim = Math.max(0, Math.min(1, Number(p.candidate_cosine ?? 0)))
+        const normalized = p.is_candidate ? 1 : (sim - minSim) / span
+        // Shared visual scale for both methods so graph comparison is fair.
+        const radius = Math.max(0, 42 * Math.pow(1 - normalized, 0.72))
         const left = p.is_candidate ? 50 : 50 + radius * Math.cos(angle)
         const top = p.is_candidate ? 50 : 50 + radius * Math.sin(angle)
         const color = p.is_candidate ? "#22c55e" : palette[Math.abs(Number(p.cluster_label || 0)) % palette.length]
@@ -121,7 +130,7 @@ function ClusterScatter({ points, method }) {
         )
       })}
       <div className="absolute bottom-2 right-2 text-[10px] text-[#65709a]">
-        Green point = your skill vector ({method === "cosine_similarity" ? "higher cosine = closer" : "smaller distance = closer"})
+        Green point = your skill vector ({method === "cosine_similarity" ? "higher cosine = closer" : "higher overlap = closer"})
       </div>
     </div>
   )
@@ -1994,17 +2003,24 @@ function JobSeekerDashboard({ token, user }) {
                   {runningEval ? "Running..." : "Run Evaluation"}
                 </button>
               </div>
-              <p className="mt-1 text-sm text-[#65709a]">Latest stored clustering runs (embedding distance vs cosine similarity).</p>
+              <p className="mt-1 text-sm text-[#65709a]">Latest runs comparing cosine semantic similarity vs literal skill-overlap similarity.</p>
               {evalData.metrics.length === 0 ? (
-                <p className="mt-4 text-sm text-[#65709a]">No evaluation runs yet. Ask recruiter/admin to run an evaluation.</p>
+                <p className="mt-4 text-sm text-[#65709a]">No evaluation runs yet. Click Run Evaluation to generate results.</p>
               ) : (
                 <div className="mt-4 grid gap-3">
                   {evalData.metrics.map((m) => (
                     <div key={m.run_id} className="rounded-xl border border-[#d8dcef] p-3 text-sm dark:border-[#2d355c]">
-                      <p className="font-semibold">{m.method === "embedding_distance" ? "Embedding Distance" : "Cosine Similarity"}</p>
-                      <p className="mt-1 text-[#65709a]">
-                        Precision@K {Number(m.precision_at_k || 0).toFixed(3)} · Recall@K {Number(m.recall_at_k || 0).toFixed(3)} · nDCG@K {Number(m.ndcg_at_k || 0).toFixed(3)} · MRR {Number(m.mrr || 0).toFixed(3)}
-                      </p>
+                      <p className="font-semibold">{evalMethodLabel(m.method)}</p>
+                      {(() => {
+                        const pts = (evalData.points || []).filter((p) => p.method === m.method && !p.is_candidate)
+                        const avg = pts.length ? pts.reduce((acc, p) => acc + Number(p.candidate_cosine || 0), 0) / pts.length : 0
+                        const high = pts.filter((p) => Number(p.candidate_cosine || 0) >= 0.6).length
+                        return (
+                          <p className="mt-1 text-[#65709a]">
+                            Avg similarity {(avg * 100).toFixed(1)}% · Jobs &gt;= 60%: {high}/{pts.length}
+                          </p>
+                        )
+                      })()}
                     </div>
                   ))}
                 </div>
@@ -2013,7 +2029,16 @@ function JobSeekerDashboard({ token, user }) {
             <article className={cardClass}>
               <h4 className="font-semibold">Run Comparison Graph</h4>
               <div className="mt-3">
-                <MiniBarChart items={evalData.metrics} valueKey="ndcg_at_k" labelKey="method" max={1} />
+                <MiniBarChart
+                  items={(evalData.metrics || []).map((m) => {
+                    const pts = (evalData.points || []).filter((p) => p.method === m.method && !p.is_candidate)
+                    const avg = pts.length ? pts.reduce((acc, p) => acc + Number(p.candidate_cosine || 0), 0) / pts.length : 0
+                    return { ...m, method_label: evalMethodLabel(m.method), avg_similarity: avg }
+                  })}
+                  valueKey="avg_similarity"
+                  labelKey="method_label"
+                  max={1}
+                />
               </div>
             </article>
             <article className={cardClass}>
@@ -2023,7 +2048,7 @@ function JobSeekerDashboard({ token, user }) {
               </div>
             </article>
             <article className={cardClass}>
-              <h4 className="font-semibold">Embedding Distance Graph (You vs Jobs)</h4>
+              <h4 className="font-semibold">Skill Overlap Graph (You vs Jobs)</h4>
               <div className="mt-3">
                 <ClusterScatter points={evalData.points} method="embedding_distance" />
               </div>
@@ -2087,7 +2112,6 @@ function RecruiterDashboard({ token, user }) {
     { key: "overview", label: "Overview" },
     { key: "jobs", label: "Jobs" },
     { key: "applicants", label: "Applicants" },
-    { key: "evaluation", label: "Evaluation" },
     { key: "interviews", label: "Interviews" },
     { key: "emails", label: "Email logs" },
     { key: "profile", label: "Company" },
@@ -2115,8 +2139,6 @@ function RecruiterDashboard({ token, user }) {
   const [detailId, setDetailId] = useState(null)
   const [appDetail, setAppDetail] = useState(null)
   const [detailLoading, setDetailLoading] = useState(false)
-  const [evalData, setEvalData] = useState({ metrics: [], points: [] })
-  const [runningEval, setRunningEval] = useState(false)
 
   const myJobs = useMemo(() => {
     const email = (recruiterMeta?.recruiter_email || user?.email || "").toLowerCase()
@@ -2128,20 +2150,18 @@ function RecruiterDashboard({ token, user }) {
     setLoading((p) => ({ ...p, refresh: true }))
     setError("")
     try {
-      const [jobList, appList, interviewList, emailList, profileRes, evalRes] = await Promise.all([
+      const [jobList, appList, interviewList, emailList, profileRes] = await Promise.all([
         apiRequest("/jobs", {}, token),
         apiRequest("/applications/recruiter", {}, token).catch(() => []),
         apiRequest("/interviews/recruiter", {}, token).catch(() => []),
         apiRequest("/emails/logs", {}, token).catch(() => []),
         apiRequest("/recruiters/profile", {}, token).catch(() => null),
-        apiRequest("/evaluation/jobs/latest", {}, token).catch(() => ({ metrics: [], points: [] })),
       ])
       setJobs(jobList)
       setApps(appList)
       setInterviews(interviewList)
       setLogs(emailList)
       setRecruiterMeta(profileRes)
-      setEvalData(evalRes)
       if (profileRes) {
         setProfile({ company_name: profileRes.company_name || "", recruiter_email: profileRes.recruiter_email || "" })
         setForm((f) => ({ ...f, recruiter_email: profileRes.recruiter_email || f.recruiter_email }))
@@ -2276,22 +2296,6 @@ function RecruiterDashboard({ token, user }) {
       closeApplicantDetail()
     } finally {
       setDetailLoading(false)
-    }
-  }
-
-  async function runEvaluation() {
-    setRunningEval(true)
-    setError("")
-    setMessage("")
-    try {
-      await apiRequest("/evaluation/jobs/run", { method: "POST", body: JSON.stringify({ k: 4, top_k: 5, cosine_threshold: 0.75 }) }, token)
-      setMessage("Evaluation runs completed and saved.")
-      await refresh()
-      setActivePage("evaluation")
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setRunningEval(false)
     }
   }
 
@@ -2539,37 +2543,6 @@ function RecruiterDashboard({ token, user }) {
                   {loading.interview ? "Scheduling…" : "Schedule interview"}
                 </button>
               </form>
-            </article>
-          </section>
-        )}
-
-        {activePage === "evaluation" && (
-          <section className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-            <article className={cardClass}>
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="text-2xl font-semibold">Recommendation Evaluation</h3>
-                <button className={buttonClass} type="button" onClick={runEvaluation} disabled={runningEval}>
-                  {runningEval ? "Running..." : "Run Evaluation"}
-                </button>
-              </div>
-              <p className="mt-1 text-sm text-[#65709a]">Runs both clustering criteria and stores metrics in DB for report-ready graphs.</p>
-              <div className="mt-4 grid gap-3">
-                {evalData.metrics.length === 0 && <p className="text-sm text-[#65709a]">No runs available yet.</p>}
-                {evalData.metrics.map((m) => (
-                  <div key={m.run_id} className="rounded-xl border border-[#d8dcef] p-3 text-sm dark:border-[#2d355c]">
-                    <p className="font-semibold">{m.method === "embedding_distance" ? "Embedding Distance" : "Cosine Similarity"}</p>
-                    <p className="mt-1 text-[#65709a]">
-                      P@K {Number(m.precision_at_k || 0).toFixed(3)} · R@K {Number(m.recall_at_k || 0).toFixed(3)} · nDCG@K {Number(m.ndcg_at_k || 0).toFixed(3)} · MRR {Number(m.mrr || 0).toFixed(3)}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </article>
-            <article className={cardClass}>
-              <h4 className="font-semibold">nDCG@K Comparison</h4>
-              <div className="mt-3">
-                <MiniBarChart items={evalData.metrics} valueKey="ndcg_at_k" labelKey="method" max={1} />
-              </div>
             </article>
           </section>
         )}
