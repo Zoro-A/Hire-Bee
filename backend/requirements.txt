@@ -19,3 +19,6 @@ langchain-core
 langchain-openai
 reportlab
 google-auth
+transformers
+peft
+torch
