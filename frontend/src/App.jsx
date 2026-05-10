@@ -1083,13 +1083,14 @@ function JobSeekerDashboard({ token, user }) {
   })
 
   const refresh = useMemo(() => async () => {
-    const [jobList, matchList, appList, cvList, letterList, evalRes] = await Promise.all([
+    const [jobList, matchList, appList, cvList, letterList, evalRes, convoHistory] = await Promise.all([
       apiRequest("/jobs", {}, token),
       apiRequest("/matching/jobs-for-me", {}, token).catch(() => []),
       apiRequest("/applications/me", {}, token),
       apiRequest("/cvs", {}, token),
       apiRequest("/cover-letters", {}, token),
       apiRequest("/evaluation/jobs/for-me", {}, token).catch(() => ({ metrics: [], points: [] })),
+      apiRequest("/cvs/conversation/history", {}, token).catch(() => null),
     ])
     setJobs(jobList)
     setMatches(matchList)
@@ -1097,6 +1098,10 @@ function JobSeekerDashboard({ token, user }) {
     setCvs(cvList)
     setLetters(letterList)
     setEvalData(evalRes)
+    if (convoHistory?.messages?.length) {
+      setConvoMessages(convoHistory.messages)
+    }
+    setCvEval(convoHistory?.latest_cv_evaluation || null)
   }, [token])
 
   const selectedCv = useMemo(() => cvs.find((c) => String(c.id) === selectedCvId), [cvs, selectedCvId])
@@ -1237,6 +1242,10 @@ function JobSeekerDashboard({ token, user }) {
   }
 
   async function exportCv(format, cvIdOverride) {
+    if (loading.convoCv) {
+      setError("Please wait for conversational CV generation to finish before exporting.")
+      return
+    }
     const cvId = cvIdOverride ?? selectedCvId
     if (!cvId) return setError("Select a CV first.")
     setLoading((prev) => ({ ...prev, export: true }))
@@ -1277,8 +1286,7 @@ function JobSeekerDashboard({ token, user }) {
     setError("")
     setMessage("")
     const userLine = { role: "user", content: trimmed }
-    const threadForRequest = [...convoMessages, userLine]
-    setConvoMessages(threadForRequest)
+    setConvoMessages((prev) => [...prev, userLine])
     setConvoInput("")
     setLoading((prev) => ({ ...prev, convoChat: true }))
     try {
@@ -1287,12 +1295,19 @@ function JobSeekerDashboard({ token, user }) {
         {
           method: "POST",
           body: JSON.stringify({
-            messages: threadForRequest.map((m) => ({ role: m.role, content: m.content })),
+            message: trimmed,
           }),
         },
         token,
       )
-      setConvoMessages((prev) => [...prev, { role: "assistant", content: data.reply || "" }])
+      if (data?.messages?.length) {
+        setConvoMessages(data.messages)
+      } else {
+        setConvoMessages((prev) => [...prev, { role: "assistant", content: data.reply || "" }])
+      }
+      if (data?.latest_cv_evaluation) {
+        setCvEval(data.latest_cv_evaluation)
+      }
     } catch (err) {
       setError(err.message)
     } finally {
@@ -1329,8 +1344,7 @@ function JobSeekerDashboard({ token, user }) {
         setCvEval(null)
       }
       await refresh()
-      await exportCv("pdf", id)
-      setMessage("Conversational CV created and PDF export started (check your downloads).")
+      setMessage("Conversational CV created. You can now export PDF or DOCX.")
       setActivePage("cv")
     } catch (err) {
       setError(err.message)
@@ -1715,10 +1729,10 @@ function JobSeekerDashboard({ token, user }) {
                   <button className={buttonClass} type="button" disabled={loading.manualCv} onClick={createManualCv}>
                     {loading.manualCv ? "Creating..." : "Create / Update CV"}
                   </button>
-                  <button className={buttonClass} type="button" disabled={loading.export} onClick={() => exportCv("pdf")}>
+                  <button className={buttonClass} type="button" disabled={loading.export || loading.convoCv} onClick={() => exportCv("pdf")}>
                     {loading.export ? "Exporting..." : "Export PDF"}
                   </button>
-                  <button className="rounded-xl border border-[#c9cce5] px-4 py-2 text-sm dark:border-[#303a63]" type="button" disabled={loading.export} onClick={() => exportCv("docx")}>
+                  <button className="rounded-xl border border-[#c9cce5] px-4 py-2 text-sm dark:border-[#303a63]" type="button" disabled={loading.export || loading.convoCv} onClick={() => exportCv("docx")}>
                     {loading.export ? "Exporting..." : "Export DOCX"}
                   </button>
                 </div>
@@ -1805,7 +1819,7 @@ function JobSeekerDashboard({ token, user }) {
               <div className="flex min-h-0 flex-1 flex-col space-y-3 overflow-y-auto pr-1">
               <h3 className="mb-3 font-semibold">Conversational CV Generator</h3>
               <p className="mb-2 text-sm text-[#65709a]">
-                Chat naturally with the coach, then generate your CV. PDF is exported to your device after generation (same as manual flow).
+                Chat naturally with the coach, then generate your CV. Export PDF or DOCX after generation.
               </p>
               <div className="min-h-[12rem] flex-1 space-y-2 overflow-y-auto rounded-xl border border-[#d9deef] bg-[#f8f9ff] p-3 dark:border-[#2f3862] dark:bg-[#10162d]">
                 {convoMessages.map((msg, idx) => (
@@ -1843,7 +1857,7 @@ function JobSeekerDashboard({ token, user }) {
                 <button
                   className={buttonClass}
                   type="button"
-                  disabled={loading.export || !selectedCvId}
+                  disabled={loading.export || loading.convoCv || !selectedCvId}
                   onClick={() => exportCv("pdf")}
                 >
                   {loading.export ? "Exporting..." : "Export PDF"}
@@ -1851,7 +1865,7 @@ function JobSeekerDashboard({ token, user }) {
                 <button
                   className="rounded-xl border border-[#c9cce5] px-4 py-2 text-sm dark:border-[#303a63]"
                   type="button"
-                  disabled={loading.export || !selectedCvId}
+                  disabled={loading.export || loading.convoCv || !selectedCvId}
                   onClick={() => exportCv("docx")}
                 >
                   {loading.export ? "Exporting..." : "Export DOCX"}
