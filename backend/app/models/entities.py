@@ -215,3 +215,12 @@ class CVQualityEvaluation(Base, TimestampMixin):
     weaknesses: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     recommendations: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     transcript_json: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+
+
+class CVConversationMessage(Base, TimestampMixin):
+    __tablename__ = "cv_conversation_messages"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    role: Mapped[str] = mapped_column(String(20), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
