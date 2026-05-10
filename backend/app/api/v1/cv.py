@@ -2,15 +2,19 @@ from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import FileResponse
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 
 from app.api.deps import require_roles
 from app.db.database import get_db
-from app.models.entities import CVQualityEvaluation, GeneratedCV, User, UserRole
+from app.models.entities import CVConversationMessage, CVQualityEvaluation, GeneratedCV, User, UserRole
 from app.schemas.cv import (
     CVResponse,
+    CVLatestEvaluationLite,
+    CVJudgeScoresLite,
+    ConversationHistoryResponse,
     CVTemplateResponse,
     ConversationalChatRequest,
     ConversationalChatResponse,
@@ -28,6 +32,68 @@ from app.services.evaluation.cv_quality import evaluate_cv_with_gemini
 router = APIRouter(prefix="/cvs", tags=["cvs"])
 export_service = CVExportService()
 cv_generator = ConversationalCVGenerator()
+CHAT_OPENING_LINE = (
+    "Hi! I'm here to help you build a strong CV. What roles are you targeting, and what's a quick overview of your background so far?"
+)
+
+
+def _latest_cv_eval_for_user(db: Session, user_id: int) -> CVLatestEvaluationLite | None:
+    row = (
+        db.query(CVQualityEvaluation)
+        .filter(CVQualityEvaluation.user_id == user_id)
+        .order_by(CVQualityEvaluation.created_at.desc())
+        .first()
+    )
+    if not row:
+        return None
+    return CVLatestEvaluationLite(
+        cv_id=row.cv_id,
+        model_name=row.model_name,
+        evaluator=row.evaluator,
+        created_at=row.created_at,
+        scores=CVJudgeScoresLite(
+            overall=row.overall_score,
+            faithfulness=row.faithfulness_score,
+            relevance=row.relevance_score,
+            professionalism=row.professionalism_score,
+            completeness=row.completeness_score,
+            impact=row.impact_score,
+            strengths=row.strengths or [],
+            weaknesses=row.weaknesses or [],
+            recommendations=row.recommendations or [],
+        ),
+    )
+
+
+def _fetch_history_messages(db: Session, user_id: int, limit: int) -> list[dict]:
+    rows = (
+        db.query(CVConversationMessage)
+        .filter(CVConversationMessage.user_id == user_id)
+        .order_by(desc(CVConversationMessage.id))
+        .limit(limit)
+        .all()
+    )
+    rows.reverse()
+    return [{"role": row.role, "content": row.content} for row in rows]
+
+
+def _trim_history_if_needed(db: Session, user_id: int, keep_latest: int) -> None:
+    total = db.query(CVConversationMessage).filter(CVConversationMessage.user_id == user_id).count()
+    overflow = total - keep_latest
+    if overflow <= 0:
+        return
+    stale_ids = (
+        db.query(CVConversationMessage.id)
+        .filter(CVConversationMessage.user_id == user_id)
+        .order_by(CVConversationMessage.id.asc())
+        .limit(overflow)
+        .all()
+    )
+    if not stale_ids:
+        return
+    ids = [row[0] for row in stale_ids]
+    db.query(CVConversationMessage).filter(CVConversationMessage.id.in_(ids)).delete(synchronize_session=False)
+    db.commit()
 
 
 @router.get("/templates", response_model=list[CVTemplateResponse])
@@ -95,18 +161,79 @@ def list_cvs(
     return rows
 
 
+@router.get("/conversation/history", response_model=ConversationHistoryResponse)
+def get_conversation_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.JOB_SEEKER)),
+) -> ConversationHistoryResponse:
+    settings = get_settings()
+    history = _fetch_history_messages(
+        db=db,
+        user_id=current_user.id,
+        limit=max(1, settings.conversation_history_limit),
+    )
+    if not history:
+        history = [{"role": "assistant", "content": CHAT_OPENING_LINE}]
+    return ConversationHistoryResponse(
+        messages=history,
+        latest_cv_evaluation=_latest_cv_eval_for_user(db=db, user_id=current_user.id),
+    )
+
+
 @router.post("/conversation/chat", response_model=ConversationalChatResponse)
 def conversational_chat(
     payload: ConversationalChatRequest,
-    _current_user: User = Depends(require_roles(UserRole.JOB_SEEKER)),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.JOB_SEEKER)),
 ) -> ConversationalChatResponse:
+    settings = get_settings()
+    if payload.messages:
+        transcript = [m.model_dump() for m in payload.messages if (m.content or "").strip()]
+        user_line = transcript[-1] if transcript else None
+        if not user_line or user_line.get("role", "").lower() != "user":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Last transcript message must be a user message.",
+            )
+    else:
+        history = _fetch_history_messages(
+            db=db,
+            user_id=current_user.id,
+            limit=max(1, settings.conversation_history_limit),
+        )
+        content = (payload.message or "").strip()
+        user_line = {"role": "user", "content": content}
+        transcript = [*history, user_line]
+
     try:
-        reply = conversation_reply([m.model_dump() for m in payload.messages])
+        reply = conversation_reply(transcript)
     except RuntimeError as exc:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)) from exc
     if not reply:
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Empty model response")
-    return ConversationalChatResponse(reply=reply)
+
+    user_content = (user_line.get("content") or "").strip() if user_line else ""
+    if user_content:
+        db.add(CVConversationMessage(user_id=current_user.id, role="user", content=user_content))
+    db.add(CVConversationMessage(user_id=current_user.id, role="assistant", content=reply.strip()))
+    db.commit()
+    _trim_history_if_needed(
+        db=db,
+        user_id=current_user.id,
+        keep_latest=max(1, settings.conversation_history_store_limit),
+    )
+    latest_history = _fetch_history_messages(
+        db=db,
+        user_id=current_user.id,
+        limit=max(1, settings.conversation_history_limit),
+    )
+    if not latest_history:
+        latest_history = [{"role": "assistant", "content": CHAT_OPENING_LINE}]
+    return ConversationalChatResponse(
+        reply=reply,
+        messages=latest_history,
+        latest_cv_evaluation=_latest_cv_eval_for_user(db=db, user_id=current_user.id),
+    )
 
 
 @router.post("/conversation/generate", response_model=CVResponse, status_code=status.HTTP_201_CREATED)
