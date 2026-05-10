@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field, model_validator
 
 
@@ -12,11 +14,47 @@ class TranscriptMessage(BaseModel):
 
 
 class ConversationalChatRequest(BaseModel):
-    messages: list[TranscriptMessage] = Field(min_length=1, max_length=80)
+    messages: list[TranscriptMessage] | None = Field(default=None, max_length=80)
+    message: str | None = Field(default=None, min_length=1, max_length=16000)
+
+    @model_validator(mode="after")
+    def require_message_source(self) -> "ConversationalChatRequest":
+        has_messages = bool(self.messages and len(self.messages) > 0)
+        has_single = bool((self.message or "").strip())
+        if has_messages or has_single:
+            return self
+        raise ValueError("Provide either `messages` or `message`.")
+
+
+class CVJudgeScoresLite(BaseModel):
+    overall: float = Field(ge=0, le=100)
+    faithfulness: float = Field(ge=0, le=100)
+    relevance: float = Field(ge=0, le=100)
+    professionalism: float = Field(ge=0, le=100)
+    completeness: float = Field(ge=0, le=100)
+    impact: float = Field(ge=0, le=100)
+    strengths: list[str] = Field(default_factory=list)
+    weaknesses: list[str] = Field(default_factory=list)
+    recommendations: list[str] = Field(default_factory=list)
+
+
+class CVLatestEvaluationLite(BaseModel):
+    cv_id: int
+    model_name: str
+    evaluator: str
+    created_at: datetime
+    scores: CVJudgeScoresLite
+
+
+class ConversationHistoryResponse(BaseModel):
+    messages: list[TranscriptMessage]
+    latest_cv_evaluation: CVLatestEvaluationLite | None = None
 
 
 class ConversationalChatResponse(BaseModel):
     reply: str
+    messages: list[TranscriptMessage] | None = None
+    latest_cv_evaluation: CVLatestEvaluationLite | None = None
 
 
 class ConversationalCVRequest(BaseModel):
