@@ -35,6 +35,13 @@ class Settings(BaseSettings):
     ollama_chat_num_gpu: int | None = None
     # CV JSON from transcript: "openai" now; later wire "qwen_local" to your fine-tuned endpoint.
     cv_json_llm_provider: str = "openai"
+    qwen_local_adapter_path: str | None = None
+    qwen_local_base_model: str = "Qwen/Qwen2.5-3B-Instruct"
+    qwen_local_device: str = "auto"
+    qwen_local_max_new_tokens: int = 1400
+    qwen_local_temperature: float = 0.15
+    conversation_history_limit: int = 80
+    conversation_history_store_limit: int = 300
     gemini_api_key: str | None = None
     gemini_model: str = "gemini-1.5-flash"
     qdrant_url: str = "http://localhost:6333"
