@@ -226,6 +226,22 @@ export function JobSeekerDashboard({ token, user }) {
       setApplyForm((prev) => ({ ...prev, cover_letter_id: "" }))
     }
   }, [selectedJobId, letters])
+
+  useEffect(() => {
+    if (!token || !selectedCvId) return;
+    let cancelled = false;
+    apiRequest("/cvs/conversation/history", {}, token)
+      .then((history) => {
+        if (cancelled) return;
+        if (history?.latest_cv_evaluation) {
+          setCvEval(history.latest_cv_evaluation);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [token, selectedCvId])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   async function uploadResume(e) {
