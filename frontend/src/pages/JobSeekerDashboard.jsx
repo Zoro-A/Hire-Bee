@@ -74,13 +74,29 @@ export function JobSeekerDashboard({ token, user }) {
   const [selectedCvId, setSelectedCvId] = useState("")
   const [jobQuery, setJobQuery] = useState("")
   const [selectedJobId, setSelectedJobId] = useState("")
-  const [convoMessages, setConvoMessages] = useState([
-    {
+  const chatStorageKey = useMemo(() => (user?.id ? `hirebee:cvChat:${user.id}` : null), [user?.id])
+  const defaultChatOpening = useMemo(
+    () => ({
       role: "assistant",
-      content:
-        "Hi! I'm here to help you build a strong CV. What roles are you targeting, and what's a quick overview of your background so far?",
-    },
-  ])
+      content: "Hi! I'm here to help you build a strong CV. What roles are you targeting, and what's a quick overview of your background so far?",
+    }),
+    [],
+  )
+  const [convoMessages, setConvoMessages] = useState(() => {
+    if (typeof window === "undefined") return [defaultChatOpening]
+    try {
+      const key = user?.id ? `hirebee:cvChat:${user.id}` : null
+      if (!key) return [defaultChatOpening]
+      const cached = window.localStorage.getItem(key)
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      }
+    } catch {
+      /* ignore */
+    }
+    return [defaultChatOpening]
+  })
   const [convoInput, setConvoInput] = useState("")
   const [evalData, setEvalData] = useState({ metrics: [], points: [] })
   const [cvEval, setCvEval] = useState(null)
@@ -136,7 +152,13 @@ export function JobSeekerDashboard({ token, user }) {
     setLetters(letterList)
     setEvalData(evalRes)
     if (convoHistory?.messages?.length) {
-      setConvoMessages(convoHistory.messages)
+      setConvoMessages((prev) => {
+        const incoming = convoHistory.messages
+        if (Array.isArray(prev) && prev.length > incoming.length) {
+          return prev
+        }
+        return incoming
+      })
     }
     setCvEval(convoHistory?.latest_cv_evaluation || null)
   }, [token])
@@ -214,6 +236,15 @@ export function JobSeekerDashboard({ token, user }) {
   useEffect(() => {
     refresh().catch((err) => setError(err.message))
   }, [refresh])
+
+  useEffect(() => {
+    if (!chatStorageKey || typeof window === "undefined") return
+    try {
+      window.localStorage.setItem(chatStorageKey, JSON.stringify(convoMessages))
+    } catch {
+      /* quota or serialization failure — ignore */
+    }
+  }, [chatStorageKey, convoMessages])
 
   useEffect(() => {
     if (!selectedJobId) return
