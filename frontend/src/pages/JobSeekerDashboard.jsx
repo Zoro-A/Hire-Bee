@@ -779,10 +779,13 @@ export function JobSeekerDashboard({ token, user }) {
                 <div className="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2">
                   <h3 className="font-semibold">Live CV Preview</h3>
                   <div className="flex flex-wrap items-center justify-end gap-2">
+                    {loading.convoCv && (
+                      <p className="text-xs text-[#5f5fff] dark:text-[#9aa3ff]">Generation in progress — downloads paused…</p>
+                    )}
                     <span className="rounded bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">ATS Score: 94%</span>
                     <button
                       type="button"
-                      disabled={loading.export || !selectedCvId || !selectedCv?.pdf_path}
+                      disabled={loading.export || loading.convoCv || !selectedCvId || !selectedCv?.pdf_path}
                       onClick={() => downloadCvOnly("pdf")}
                       className="rounded-lg border border-[#2563eb] bg-white px-3 py-1.5 text-xs font-semibold text-[#2563eb] hover:bg-[#eff6ff] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#60a5fa] dark:bg-[#1e293b] dark:text-[#93c5fd] dark:hover:bg-[#334155]"
                     >
@@ -790,7 +793,7 @@ export function JobSeekerDashboard({ token, user }) {
                     </button>
                     <button
                       type="button"
-                      disabled={loading.export || !selectedCvId || !selectedCv?.docx_path}
+                      disabled={loading.export || loading.convoCv || !selectedCvId || !selectedCv?.docx_path}
                       onClick={() => downloadCvOnly("docx")}
                       className="rounded-lg border border-[#2563eb] bg-white px-3 py-1.5 text-xs font-semibold text-[#2563eb] hover:bg-[#eff6ff] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#60a5fa] dark:bg-[#1e293b] dark:text-[#93c5fd] dark:hover:bg-[#334155]"
                     >
