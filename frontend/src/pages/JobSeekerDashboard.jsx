@@ -244,6 +244,28 @@ export function JobSeekerDashboard({ token, user }) {
   }, [token, selectedCvId])
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  const evalSummaryByRun = useMemo(() => {
+    const out = {}
+    const points = evalData.points || []
+    ;(evalData.metrics || []).forEach((m) => {
+      const pts = points.filter((p) => p.method === m.method && p.run_id === m.run_id && !p.is_candidate)
+      const avg = pts.length ? pts.reduce((s, p) => s + Number(p.candidate_cosine || 0), 0) / pts.length : 0
+      const high = pts.filter((p) => Number(p.candidate_cosine || 0) >= 0.6).length
+      out[m.run_id] = { avg, high, total: pts.length }
+    })
+    return out
+  }, [evalData.metrics, evalData.points])
+
+  const latestRunIdByMethod = useMemo(() => {
+    const seen = {}
+    ;[...(evalData.metrics || [])]
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+      .forEach((m) => {
+        if (!(m.method in seen)) seen[m.method] = m.run_id
+      })
+    return seen
+  }, [evalData.metrics])
+
   async function uploadResume(e) {
     e.preventDefault()
     setLoading((prev) => ({ ...prev, upload: true }))
@@ -1078,21 +1100,17 @@ export function JobSeekerDashboard({ token, user }) {
                 <p className="mt-4 text-sm text-[#65709a]">No evaluation runs yet. Click Run Evaluation to generate results.</p>
               ) : (
                 <div className="mt-4 grid gap-3">
-                  {evalData.metrics.map((m) => (
-                    <div key={m.run_id} className="rounded-xl border border-[#d8dcef] p-3 text-sm dark:border-[#2d355c]">
-                      <p className="font-semibold">{evalMethodLabel(m.method)}</p>
-                      {(() => {
-                        const pts = (evalData.points || []).filter((p) => p.method === m.method && !p.is_candidate)
-                        const avg = pts.length ? pts.reduce((acc, p) => acc + Number(p.candidate_cosine || 0), 0) / pts.length : 0
-                        const high = pts.filter((p) => Number(p.candidate_cosine || 0) >= 0.6).length
-                        return (
-                          <p className="mt-1 text-[#65709a]">
-                            Avg similarity {(avg * 100).toFixed(1)}% · Jobs &gt;= 60%: {high}/{pts.length}
-                          </p>
-                        )
-                      })()}
-                    </div>
-                  ))}
+                  {evalData.metrics.map((m) => {
+                    const s = evalSummaryByRun[m.run_id] || { avg: 0, high: 0, total: 0 }
+                    return (
+                      <div key={m.run_id} className="rounded-xl border border-[#d8dcef] p-3 text-sm dark:border-[#2d355c]">
+                        <p className="font-semibold">{evalMethodLabel(m.method)}</p>
+                        <p className="mt-1 text-[#65709a]">
+                          Avg similarity {(s.avg * 100).toFixed(1)}% · Jobs &gt;= 60%: {s.high}/{s.total}
+                        </p>
+                      </div>
+                    )
+                  })}
                 </div>
               )}
             </article>
@@ -1100,11 +1118,11 @@ export function JobSeekerDashboard({ token, user }) {
               <h4 className="font-semibold">Run Comparison Graph</h4>
               <div className="mt-3">
                 <MiniBarChart
-                  items={(evalData.metrics || []).map((m) => {
-                    const pts = (evalData.points || []).filter((p) => p.method === m.method && !p.is_candidate)
-                    const avg = pts.length ? pts.reduce((acc, p) => acc + Number(p.candidate_cosine || 0), 0) / pts.length : 0
-                    return { ...m, method_label: evalMethodLabel(m.method), avg_similarity: avg }
-                  })}
+                  items={(evalData.metrics || []).map((m) => ({
+                    ...m,
+                    method_label: evalMethodLabel(m.method),
+                    avg_similarity: (evalSummaryByRun[m.run_id] || { avg: 0 }).avg,
+                  }))}
                   valueKey="avg_similarity"
                   labelKey="method_label"
                   max={1}
@@ -1114,13 +1132,13 @@ export function JobSeekerDashboard({ token, user }) {
             <article className={cardClass}>
               <h4 className="font-semibold">Cosine Similarity Graph (You vs Jobs)</h4>
               <div className="mt-3">
-                <ClusterScatter points={evalData.points} method="cosine_similarity" />
+                <ClusterScatter points={evalData.points} method="cosine_similarity" runId={latestRunIdByMethod["cosine_similarity"]} />
               </div>
             </article>
             <article className={cardClass}>
               <h4 className="font-semibold">Skill Overlap Graph (You vs Jobs)</h4>
               <div className="mt-3">
-                <ClusterScatter points={evalData.points} method="embedding_distance" />
+                <ClusterScatter points={evalData.points} method="embedding_distance" runId={latestRunIdByMethod["embedding_distance"]} />
               </div>
             </article>
           </section>
