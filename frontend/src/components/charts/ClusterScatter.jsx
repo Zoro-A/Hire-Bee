@@ -1,11 +1,7 @@
-export function ClusterScatter({ points, method }) {
-  const scoped = (Array.isArray(points) ? points : []).filter((p) => p.method === method)
+export function ClusterScatter({ points, method, runId }) {
+  const all = Array.isArray(points) ? points : []
+  const scoped = all.filter((p) => p.method === method && (runId == null || p.run_id === runId))
   if (scoped.length === 0) return <p className="text-sm text-[#65709a]">No chart data yet.</p>
-  const nonCandidate = scoped.filter((p) => !p.is_candidate)
-  const similarities = nonCandidate.map((p) => Math.max(0, Math.min(1, Number(p.candidate_cosine ?? 0))))
-  const minSim = similarities.length ? Math.min(...similarities) : 0
-  const maxSim = similarities.length ? Math.max(...similarities) : 1
-  const span = Math.max(1e-6, maxSim - minSim)
   const palette = ["#2563eb", "#7c3aed", "#0d9488", "#d97706", "#dc2626", "#0891b2"]
   const seedAngle = (id) => ((Number(id) * 137.508) % 360) * (Math.PI / 180)
   return (
@@ -13,10 +9,9 @@ export function ClusterScatter({ points, method }) {
       {scoped.map((p, i) => {
         const angle = seedAngle(p.job_id || i + 1)
         const sim = Math.max(0, Math.min(1, Number(p.candidate_cosine ?? 0)))
-        const normalized = p.is_candidate ? 1 : (sim - minSim) / span
-        const radius = Math.max(0, 42 * Math.pow(1 - normalized, 0.72))
-        const left = p.is_candidate ? 50 : 50 + radius * Math.cos(angle)
-        const top = p.is_candidate ? 50 : 50 + radius * Math.sin(angle)
+        const radius = p.is_candidate ? 0 : 42 * Math.pow(1 - sim, 0.72)
+        const left = 50 + radius * Math.cos(angle)
+        const top = 50 + radius * Math.sin(angle)
         const color = p.is_candidate ? "#22c55e" : palette[Math.abs(Number(p.cluster_label || 0)) % palette.length]
         const size = p.is_candidate ? 12 : 8
         return (

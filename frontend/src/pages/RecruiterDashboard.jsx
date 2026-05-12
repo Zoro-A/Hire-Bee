@@ -48,6 +48,14 @@ export function RecruiterDashboard({ token, user }) {
     return jobs.filter((j) => (j.recruiter_email || "").toLowerCase() === email)
   }, [jobs, recruiterMeta, user])
 
+  const sortedApps = useMemo(() => {
+    return [...(apps || [])].sort((a, b) => {
+      const av = Number.isFinite(Number(a.match_percentage)) ? Number(a.match_percentage) : -1
+      const bv = Number.isFinite(Number(b.match_percentage)) ? Number(b.match_percentage) : -1
+      return bv - av
+    })
+  }, [apps])
+
   const refresh = useMemo(() => async () => {
     setLoading((p) => ({ ...p, refresh: true }))
     setError("")
@@ -316,8 +324,11 @@ export function RecruiterDashboard({ token, user }) {
             <h3 className="mb-1 font-semibold">Applicants</h3>
             <p className="mb-4 text-xs text-[#65709a]">Click a candidate to open cover letter and CV. Use the status menu without clicking the card body.</p>
             <div className="space-y-3">
-              {apps.length === 0 && <p className="text-sm text-[#65709a]">No applications to your jobs yet.</p>}
-              {apps.map((app) => (
+              {sortedApps.length === 0 && <p className="text-sm text-[#65709a]">No applications to your jobs yet.</p>}
+              {sortedApps.map((app) => {
+                const badge = getMatchBand(app.match_percentage)
+                const hasScore = app.match_percentage != null && Number.isFinite(Number(app.match_percentage))
+                return (
                 <div
                   key={app.application_id}
                   role="button"
@@ -329,29 +340,35 @@ export function RecruiterDashboard({ token, user }) {
                       openApplicantDetail(app.application_id)
                     }
                   }}
-                  className="cursor-pointer rounded-xl border border-[#e2e6f6] p-4 transition hover:border-[#93b4ff] hover:bg-[#f8f9ff] dark:border-[#283056] dark:hover:border-[#3b4f8a] dark:hover:bg-[#151f3a]"
+                  className={`cursor-pointer rounded-xl border border-[#e2e6f6] ${badge.borderClass} p-4 transition hover:border-[#93b4ff] hover:bg-[#f8f9ff] dark:border-[#283056] dark:hover:border-[#3b4f8a] dark:hover:bg-[#151f3a]`}
                 >
-                  {(() => {
-                    const badge = getMatchBand(app.match_percentage)
-                    return (
-                      <div className={`mb-2 flex items-center justify-end gap-2 text-xs font-semibold ${badge.textClass}`}>
-                        <span className={`inline-block h-2.5 w-2.5 rounded-full ${badge.dotClass}`} />
-                        <span>{badge.label}</span>
-                      </div>
-                    )
-                  })()}
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        {hasScore ? (
+                          <span className={`rounded-md px-2.5 py-1 text-sm font-bold ${badge.chipClass}`}>
+                            {Math.round(Number(app.match_percentage))}% match
+                          </span>
+                        ) : (
+                          <span className={`rounded-md px-2.5 py-1 text-xs font-semibold ${badge.chipClass}`}>
+                            Unscored
+                          </span>
+                        )}
+                        {badge.isTop && (
+                          <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                            ★ Top match
+                          </span>
+                        )}
+                        <span className={`inline-flex items-center gap-1 text-xs font-semibold ${badge.textClass}`}>
+                          <span className={`inline-block h-2 w-2 rounded-full ${badge.dotClass}`} />
+                          {badge.label}
+                        </span>
+                      </div>
                       <p className="font-semibold text-[#1a1f3c] dark:text-white">{app.candidate_name}</p>
                       <p className="text-xs text-[#65709a]">{app.candidate_email}</p>
                       <p className="mt-1 text-sm text-[#374151] dark:text-[#cbd5e1]">{app.job_title}</p>
                       <div className="mt-2 flex flex-wrap items-center gap-2">
                         <StatusBadge status={app.status} />
-                        {app.match_percentage != null && Number.isFinite(app.match_percentage) && (
-                          <span className="rounded-md bg-[#eef2ff] px-2 py-0.5 text-xs font-medium text-[#3730a3] dark:bg-[#312e81] dark:text-[#c7d2fe]">
-                            {Math.round(app.match_percentage)}% skills match
-                          </span>
-                        )}
                       </div>
                     </div>
                     <div className="flex flex-wrap items-end gap-2" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
@@ -398,7 +415,8 @@ export function RecruiterDashboard({ token, user }) {
                     </div>
                   )}
                 </div>
-              ))}
+                )
+              })}
             </div>
           </article>
         )}

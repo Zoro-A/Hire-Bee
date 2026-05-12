@@ -74,13 +74,29 @@ export function JobSeekerDashboard({ token, user }) {
   const [selectedCvId, setSelectedCvId] = useState("")
   const [jobQuery, setJobQuery] = useState("")
   const [selectedJobId, setSelectedJobId] = useState("")
-  const [convoMessages, setConvoMessages] = useState([
-    {
+  const chatStorageKey = useMemo(() => (user?.id ? `hirebee:cvChat:${user.id}` : null), [user?.id])
+  const defaultChatOpening = useMemo(
+    () => ({
       role: "assistant",
-      content:
-        "Hi! I'm here to help you build a strong CV. What roles are you targeting, and what's a quick overview of your background so far?",
-    },
-  ])
+      content: "Hi! I'm here to help you build a strong CV. What roles are you targeting, and what's a quick overview of your background so far?",
+    }),
+    [],
+  )
+  const [convoMessages, setConvoMessages] = useState(() => {
+    if (typeof window === "undefined") return [defaultChatOpening]
+    try {
+      const key = user?.id ? `hirebee:cvChat:${user.id}` : null
+      if (!key) return [defaultChatOpening]
+      const cached = window.localStorage.getItem(key)
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      }
+    } catch {
+      /* ignore */
+    }
+    return [defaultChatOpening]
+  })
   const [convoInput, setConvoInput] = useState("")
   const [evalData, setEvalData] = useState({ metrics: [], points: [] })
   const [cvEval, setCvEval] = useState(null)
@@ -136,7 +152,13 @@ export function JobSeekerDashboard({ token, user }) {
     setLetters(letterList)
     setEvalData(evalRes)
     if (convoHistory?.messages?.length) {
-      setConvoMessages(convoHistory.messages)
+      setConvoMessages((prev) => {
+        const incoming = convoHistory.messages
+        if (Array.isArray(prev) && prev.length > incoming.length) {
+          return prev
+        }
+        return incoming
+      })
     }
     setCvEval(convoHistory?.latest_cv_evaluation || null)
   }, [token])
@@ -216,6 +238,15 @@ export function JobSeekerDashboard({ token, user }) {
   }, [refresh])
 
   useEffect(() => {
+    if (!chatStorageKey || typeof window === "undefined") return
+    try {
+      window.localStorage.setItem(chatStorageKey, JSON.stringify(convoMessages))
+    } catch {
+      /* quota or serialization failure — ignore */
+    }
+  }, [chatStorageKey, convoMessages])
+
+  useEffect(() => {
     if (!selectedJobId) return
     const letter = letters.find((item) => String(item.job_id) === String(selectedJobId))
     if (letter) {
@@ -226,7 +257,45 @@ export function JobSeekerDashboard({ token, user }) {
       setApplyForm((prev) => ({ ...prev, cover_letter_id: "" }))
     }
   }, [selectedJobId, letters])
+
+  useEffect(() => {
+    if (!token || !selectedCvId) return;
+    let cancelled = false;
+    apiRequest("/cvs/conversation/history", {}, token)
+      .then((history) => {
+        if (cancelled) return;
+        if (history?.latest_cv_evaluation) {
+          setCvEval(history.latest_cv_evaluation);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [token, selectedCvId])
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  const evalSummaryByRun = useMemo(() => {
+    const out = {}
+    const points = evalData.points || []
+    ;(evalData.metrics || []).forEach((m) => {
+      const pts = points.filter((p) => p.method === m.method && p.run_id === m.run_id && !p.is_candidate)
+      const avg = pts.length ? pts.reduce((s, p) => s + Number(p.candidate_cosine || 0), 0) / pts.length : 0
+      const high = pts.filter((p) => Number(p.candidate_cosine || 0) >= 0.6).length
+      out[m.run_id] = { avg, high, total: pts.length }
+    })
+    return out
+  }, [evalData.metrics, evalData.points])
+
+  const latestRunIdByMethod = useMemo(() => {
+    const seen = {}
+    ;[...(evalData.metrics || [])]
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+      .forEach((m) => {
+        if (!(m.method in seen)) seen[m.method] = m.run_id
+      })
+    return seen
+  }, [evalData.metrics])
 
   async function uploadResume(e) {
     e.preventDefault()
@@ -779,10 +848,13 @@ export function JobSeekerDashboard({ token, user }) {
                 <div className="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2">
                   <h3 className="font-semibold">Live CV Preview</h3>
                   <div className="flex flex-wrap items-center justify-end gap-2">
+                    {loading.convoCv && (
+                      <p className="text-xs text-[#5f5fff] dark:text-[#9aa3ff]">Generation in progress — downloads paused…</p>
+                    )}
                     <span className="rounded bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">ATS Score: 94%</span>
                     <button
                       type="button"
-                      disabled={loading.export || !selectedCvId || !selectedCv?.pdf_path}
+                      disabled={loading.export || loading.convoCv || !selectedCvId || !selectedCv?.pdf_path}
                       onClick={() => downloadCvOnly("pdf")}
                       className="rounded-lg border border-[#2563eb] bg-white px-3 py-1.5 text-xs font-semibold text-[#2563eb] hover:bg-[#eff6ff] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#60a5fa] dark:bg-[#1e293b] dark:text-[#93c5fd] dark:hover:bg-[#334155]"
                     >
@@ -790,7 +862,7 @@ export function JobSeekerDashboard({ token, user }) {
                     </button>
                     <button
                       type="button"
-                      disabled={loading.export || !selectedCvId || !selectedCv?.docx_path}
+                      disabled={loading.export || loading.convoCv || !selectedCvId || !selectedCv?.docx_path}
                       onClick={() => downloadCvOnly("docx")}
                       className="rounded-lg border border-[#2563eb] bg-white px-3 py-1.5 text-xs font-semibold text-[#2563eb] hover:bg-[#eff6ff] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#60a5fa] dark:bg-[#1e293b] dark:text-[#93c5fd] dark:hover:bg-[#334155]"
                     >
@@ -1059,21 +1131,17 @@ export function JobSeekerDashboard({ token, user }) {
                 <p className="mt-4 text-sm text-[#65709a]">No evaluation runs yet. Click Run Evaluation to generate results.</p>
               ) : (
                 <div className="mt-4 grid gap-3">
-                  {evalData.metrics.map((m) => (
-                    <div key={m.run_id} className="rounded-xl border border-[#d8dcef] p-3 text-sm dark:border-[#2d355c]">
-                      <p className="font-semibold">{evalMethodLabel(m.method)}</p>
-                      {(() => {
-                        const pts = (evalData.points || []).filter((p) => p.method === m.method && !p.is_candidate)
-                        const avg = pts.length ? pts.reduce((acc, p) => acc + Number(p.candidate_cosine || 0), 0) / pts.length : 0
-                        const high = pts.filter((p) => Number(p.candidate_cosine || 0) >= 0.6).length
-                        return (
-                          <p className="mt-1 text-[#65709a]">
-                            Avg similarity {(avg * 100).toFixed(1)}% · Jobs &gt;= 60%: {high}/{pts.length}
-                          </p>
-                        )
-                      })()}
-                    </div>
-                  ))}
+                  {evalData.metrics.map((m) => {
+                    const s = evalSummaryByRun[m.run_id] || { avg: 0, high: 0, total: 0 }
+                    return (
+                      <div key={m.run_id} className="rounded-xl border border-[#d8dcef] p-3 text-sm dark:border-[#2d355c]">
+                        <p className="font-semibold">{evalMethodLabel(m.method)}</p>
+                        <p className="mt-1 text-[#65709a]">
+                          Avg similarity {(s.avg * 100).toFixed(1)}% · Jobs &gt;= 60%: {s.high}/{s.total}
+                        </p>
+                      </div>
+                    )
+                  })}
                 </div>
               )}
             </article>
@@ -1081,11 +1149,11 @@ export function JobSeekerDashboard({ token, user }) {
               <h4 className="font-semibold">Run Comparison Graph</h4>
               <div className="mt-3">
                 <MiniBarChart
-                  items={(evalData.metrics || []).map((m) => {
-                    const pts = (evalData.points || []).filter((p) => p.method === m.method && !p.is_candidate)
-                    const avg = pts.length ? pts.reduce((acc, p) => acc + Number(p.candidate_cosine || 0), 0) / pts.length : 0
-                    return { ...m, method_label: evalMethodLabel(m.method), avg_similarity: avg }
-                  })}
+                  items={(evalData.metrics || []).map((m) => ({
+                    ...m,
+                    method_label: evalMethodLabel(m.method),
+                    avg_similarity: (evalSummaryByRun[m.run_id] || { avg: 0 }).avg,
+                  }))}
                   valueKey="avg_similarity"
                   labelKey="method_label"
                   max={1}
@@ -1095,13 +1163,13 @@ export function JobSeekerDashboard({ token, user }) {
             <article className={cardClass}>
               <h4 className="font-semibold">Cosine Similarity Graph (You vs Jobs)</h4>
               <div className="mt-3">
-                <ClusterScatter points={evalData.points} method="cosine_similarity" />
+                <ClusterScatter points={evalData.points} method="cosine_similarity" runId={latestRunIdByMethod["cosine_similarity"]} />
               </div>
             </article>
             <article className={cardClass}>
               <h4 className="font-semibold">Skill Overlap Graph (You vs Jobs)</h4>
               <div className="mt-3">
-                <ClusterScatter points={evalData.points} method="embedding_distance" />
+                <ClusterScatter points={evalData.points} method="embedding_distance" runId={latestRunIdByMethod["embedding_distance"]} />
               </div>
             </article>
           </section>

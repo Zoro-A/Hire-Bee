@@ -28,6 +28,16 @@ export default function App() {
     if (!token) {
       localStorage.removeItem("hirebee-token")
       sessionStorage.removeItem("hirebee-token")
+      try {
+        const toRemove = []
+        for (let i = 0; i < window.localStorage.length; i += 1) {
+          const k = window.localStorage.key(i)
+          if (k && k.startsWith("hirebee:cvChat:")) toRemove.push(k)
+        }
+        toRemove.forEach((k) => window.localStorage.removeItem(k))
+      } catch {
+        /* ignore */
+      }
       setUser(null)
       setSessionLoading(false)
       return
