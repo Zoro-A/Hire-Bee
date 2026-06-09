@@ -9,13 +9,14 @@ export function CvScoreCard({ cvEval }) {
     { label: "Impact", value: s.impact },
   ]
   return (
-    <div className="mt-3 rounded-xl border border-[#d8dcef] bg-[#f8faff] p-4 dark:border-[#2d355c] dark:bg-[#101933]">
-      <p className="text-xs uppercase tracking-wide text-[#65709a]">Gemini CV Evaluation</p>
-      <p className="mt-1 text-2xl font-semibold text-[#1a1f3c] dark:text-white">{Number(s.overall || 0).toFixed(1)} / 100</p>
+    <div className="mt-3 rounded-xl border border-accent-muted bg-accent-light/50 p-4 dark:border-surface-dark-border dark:bg-surface-dark-subtle">
+      <p className="text-xs uppercase tracking-wide text-ink-muted dark:text-ink-dark-muted">Gemini CV Evaluation</p>
+      <p className="text-gradient mt-1 text-2xl font-bold">{Number(s.overall || 0).toFixed(1)} / 100</p>
       <div className="mt-3 grid gap-2 md:grid-cols-2">
         {metrics.map((m) => (
-          <div key={m.label} className="rounded-lg border border-[#d6dcf0] px-3 py-2 text-sm dark:border-[#2d355c]">
-            <span className="text-[#65709a]">{m.label}:</span> <span className="font-medium">{Number(m.value || 0).toFixed(1)}</span>
+          <div key={m.label} className="rounded-lg border border-surface-border bg-surface-raised px-3 py-2 text-sm dark:border-surface-dark-border dark:bg-surface-dark-raised">
+            <span className="text-ink-muted dark:text-ink-dark-muted">{m.label}:</span>{" "}
+            <span className="font-semibold text-ink dark:text-ink-dark">{Number(m.value || 0).toFixed(1)}</span>
           </div>
         ))}
       </div>

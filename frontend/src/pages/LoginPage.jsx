@@ -2,7 +2,7 @@ import { GoogleLogin } from "@react-oauth/google"
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { apiRequest } from "../lib/api.js"
-import { inputClass } from "../styles/uiClasses.js"
+import { inputClass, buttonClass } from "../styles/uiClasses.js"
 import { FieldShell } from "../components/auth/FieldShell.jsx"
 
 export function LoginPage({ setToken, googleClientId }) {
@@ -56,21 +56,21 @@ export function LoginPage({ setToken, googleClientId }) {
   }
 
   return (
-    <div className="rounded-2xl border border-[#e5e7eb] bg-white p-8 shadow-sm dark:border-[#1e293b] dark:bg-[#111827]">
+    <div className="rounded-2xl border border-surface-border bg-surface-raised p-8 shadow-card dark:border-surface-dark-border dark:bg-surface-dark-raised">
       <div className="mb-6 text-center">
         <div className="mx-auto mb-3 flex justify-center">
-          <img src="/hirebee-logo.svg" alt="" className="h-12 w-12" />
+          <img src="/hirebee-logo.svg" alt="" className="h-12 w-12 rounded-xl ring-2 ring-accent/20" />
         </div>
-        <h1 className="text-2xl font-semibold text-[#111827] dark:text-white">Sign in to your account</h1>
-        <p className="mt-1 text-sm text-[#6b7280] dark:text-[#9ca3af]">Welcome back! Please enter your details</p>
+        <h1 className="text-2xl font-semibold text-ink dark:text-ink-dark">Sign in to your account</h1>
+        <p className="mt-1 text-sm text-ink-muted dark:text-ink-dark-muted">Welcome back! Please enter your details</p>
       </div>
       <form onSubmit={submit} className="space-y-4">
         <div>
-          <label className="mb-1 block text-sm font-medium text-[#374151] dark:text-[#d1d5db]">Email</label>
+          <label className="mb-1 block text-sm font-medium text-ink dark:text-ink-dark">Email</label>
           <FieldShell>
-            <span className="text-[#9ca3af]" aria-hidden>✉</span>
+            <span className="text-ink-faint dark:text-ink-dark-faint" aria-hidden>✉</span>
             <input
-              className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none dark:text-white"
+              className="min-w-0 flex-1 border-0 bg-transparent text-sm text-ink outline-none dark:text-ink-dark"
               type="email"
               placeholder="Enter your email"
               value={form.email}
@@ -80,11 +80,11 @@ export function LoginPage({ setToken, googleClientId }) {
           </FieldShell>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-[#374151] dark:text-[#d1d5db]">Password</label>
+          <label className="mb-1 block text-sm font-medium text-ink dark:text-ink-dark">Password</label>
           <FieldShell>
-            <span className="text-[#9ca3af]" aria-hidden>🔒</span>
+            <span className="text-ink-faint dark:text-ink-dark-faint" aria-hidden>🔒</span>
             <input
-              className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none dark:text-white"
+              className="min-w-0 flex-1 border-0 bg-transparent text-sm text-ink outline-none dark:text-ink-dark"
               type="password"
               placeholder="••••••••"
               value={form.password}
@@ -94,19 +94,19 @@ export function LoginPage({ setToken, googleClientId }) {
           </FieldShell>
         </div>
         <div className="flex items-center justify-between text-sm">
-          <label className="flex cursor-pointer items-center gap-2 text-[#4b5563] dark:text-[#9ca3af]">
+          <label className="flex cursor-pointer items-center gap-2 text-ink-muted dark:text-ink-dark-muted">
             <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="rounded" />
             Remember me
           </label>
-          <Link to="/forgot-password" className="font-medium text-[#2563eb] hover:underline dark:text-[#60a5fa]">
+          <Link to="/forgot-password" className="font-medium text-accent hover:underline">
             Forgot password?
           </Link>
         </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-[#2563eb] py-3 text-sm font-semibold text-white transition hover:bg-[#1d4ed8] disabled:opacity-60"
+          className={`${buttonClass} w-full py-3`}
         >
           {loading ? "Signing in…" : "Sign in"}
         </button>
@@ -115,10 +115,10 @@ export function LoginPage({ setToken, googleClientId }) {
         <>
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#e5e7eb] dark:border-[#334155]" />
+              <div className="w-full border-t border-surface-border dark:border-surface-dark-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-[#6b7280] dark:bg-[#111827] dark:text-[#9ca3af]">Or continue with</span>
+              <span className="bg-surface-raised px-2 text-ink-muted dark:bg-surface-dark-raised dark:text-ink-dark-muted">Or continue with</span>
             </div>
           </div>
           <div className="flex justify-center [&>div]:w-full">
@@ -135,15 +135,15 @@ export function LoginPage({ setToken, googleClientId }) {
           </div>
         </>
       )}
-      <p className="mt-6 text-center text-sm text-[#6b7280] dark:text-[#9ca3af]">
+      <p className="mt-6 text-center text-sm text-ink-muted dark:text-ink-dark-muted">
         Don&apos;t have an account?{" "}
-        <Link to="/register" className="font-semibold text-[#2563eb] hover:underline dark:text-[#60a5fa]">
+        <Link to="/register" className="font-semibold text-accent hover:underline">
           Sign up
         </Link>
       </p>
-      <p className="mt-4 text-center text-xs text-[#9ca3af]">
-        By signing in, you agree to our <span className="text-[#2563eb] dark:text-[#60a5fa]">Terms</span> and{" "}
-        <span className="text-[#2563eb] dark:text-[#60a5fa]">Privacy Policy</span>.
+      <p className="mt-4 text-center text-xs text-ink-faint dark:text-ink-dark-faint">
+        By signing in, you agree to our <span className="text-accent">Terms</span> and{" "}
+        <span className="text-accent">Privacy Policy</span>.
       </p>
     </div>
   )

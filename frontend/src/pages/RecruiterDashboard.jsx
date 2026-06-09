@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useTheme } from "../context/ThemeContext.jsx"
 import { apiRequest, downloadAuthenticatedBlob } from "../lib/api.js"
 import { getMatchBand } from "../lib/matching.js"
-import { cardClass, inputClass, buttonClass } from "../styles/uiClasses.js"
+import { cardClass, inputClass, buttonClass, buttonGhostClass } from "../styles/uiClasses.js"
 import { Metric } from "../components/Metric.jsx"
 import { StatusBadge } from "../components/StatusBadge.jsx"
 import { RecruiterStructuredCvPreview } from "../components/cv/RecruiterStructuredCvPreview.jsx"
@@ -212,11 +212,11 @@ export function RecruiterDashboard({ token, user }) {
   return (
     <>
     <section className="flex h-full min-h-0 w-full flex-col gap-4 lg:flex-row lg:gap-4">
-      <aside className="flex max-h-[min(40vh,320px)] shrink-0 flex-col overflow-y-auto rounded-2xl border border-[#182742] bg-[#0f1d35] p-4 text-white dark:border-[#1f2d4d] lg:max-h-none lg:h-full lg:min-h-0 lg:w-[220px]">
-        <div className="border-b border-[#223559] pb-4">
-          <p className="text-xs uppercase tracking-wider text-[#9db6df]">HireBee</p>
-          <p className="mt-1 text-lg font-semibold">Recruiter</p>
-          <p className="mt-1 truncate text-xs text-[#8ca8d8]">{recruiterMeta?.company_name || "Your workspace"}</p>
+      <aside className="glass-panel flex max-h-[min(40vh,320px)] shrink-0 flex-col overflow-y-auto rounded-2xl p-4 lg:max-h-none lg:h-full lg:min-h-0 lg:w-55">
+        <div className="border-b border-surface-border pb-4 dark:border-surface-dark-border">
+          <p className="text-xs uppercase tracking-wider text-ink-muted dark:text-ink-dark-muted">HireBee</p>
+          <p className="mt-1 text-lg font-semibold text-ink dark:text-ink-dark">Recruiter</p>
+          <p className="mt-1 truncate text-xs text-ink-faint dark:text-ink-dark-faint">{recruiterMeta?.company_name || "Your workspace"}</p>
         </div>
         <nav className="mt-4 grid gap-1">
           {navItems.map((item) => (
@@ -224,28 +224,28 @@ export function RecruiterDashboard({ token, user }) {
               key={item.key}
               type="button"
               onClick={() => setActivePage(item.key)}
-              className={`rounded-lg px-3 py-2 text-left text-sm transition ${activePage === item.key ? "bg-[#1f6feb] text-white" : "text-[#d2ddf5] hover:bg-[#152848]"}`}
+              className={`rounded-lg px-3 py-2 text-left text-sm transition ${activePage === item.key ? "bg-accent text-white" : "text-ink-muted hover:bg-surface-subtle hover:text-ink dark:text-ink-dark-muted dark:hover:bg-surface-dark-subtle dark:hover:text-ink-dark"}`}
             >
               {item.label}
             </button>
           ))}
         </nav>
-        <div className="mt-8 border-t border-[#223559] pt-3 text-xs text-[#8ca8d8]">
+        <div className="mt-8 border-t border-surface-border pt-3 text-xs text-ink-faint dark:border-surface-dark-border dark:text-ink-dark-faint">
           Theme: {isDark ? "Dark" : "Light"}
         </div>
       </aside>
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pr-1">
-        {message && <p className="shrink-0 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">{message}</p>}
-        {error && <p className="shrink-0 rounded-xl border border-rose-300 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">{error}</p>}
+        {message && <p className="shrink-0 rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">{message}</p>}
+        {error && <p className="shrink-0 rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">{error}</p>}
 
         {activePage === "overview" && (
           <section className="grid gap-4">
-            <div className="rounded-2xl border border-[#d8dcef] bg-gradient-to-br from-[#f8f9ff] to-white p-6 dark:border-[#2d355c] dark:from-[#121831] dark:to-[#0f1428]">
-              <p className="text-xs font-semibold uppercase tracking-wide text-[#5f67a4] dark:text-[#94a3b8]">Welcome back</p>
-              <h2 className="mt-1 text-2xl font-semibold text-[#1a1f3c] dark:text-white">{user?.full_name || "Recruiter"}</h2>
-              <p className="mt-2 max-w-2xl text-sm text-[#4a5070] dark:text-[#aeb7df]">
+            <div className="rounded-2xl border border-accent-muted bg-gradient-to-br from-surface-raised to-accent-light/40 p-6 dark:border-surface-dark-border dark:from-surface-dark-raised dark:to-accent/8">
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted dark:text-ink-dark-muted">Welcome back</p>
+              <h2 className="mt-1 text-2xl font-semibold text-ink dark:text-ink-dark">{user?.full_name || "Recruiter"}</h2>
+              <p className="mt-2 max-w-2xl text-sm text-ink-muted dark:text-ink-dark-muted">
                 Review applicants, move pipelines forward, and publish roles. Matches the HireBee recruiter workspace layout (sidebar + cards).
               </p>
             </div>
@@ -258,17 +258,17 @@ export function RecruiterDashboard({ token, user }) {
             <article className={cardClass}>
               <h3 className="mb-3 font-semibold">Quick actions</h3>
               <div className="grid gap-3 md:grid-cols-3">
-                <button type="button" onClick={() => setActivePage("jobs")} className="rounded-xl border border-[#dbe2f7] p-4 text-left transition hover:bg-[#f2f5ff] dark:border-[#283056] dark:hover:bg-[#151f3a]">
-                  <p className="font-semibold text-[#1a1f3c] dark:text-white">Post a job</p>
-                  <p className="text-xs text-[#65709a]">Title, description, required skills</p>
+                <button type="button" onClick={() => setActivePage("jobs")} className="card-hover rounded-xl border border-surface-border p-4 text-left transition hover:border-accent dark:border-surface-dark-border">
+                  <p className="font-semibold text-ink dark:text-ink-dark">Post a job</p>
+                  <p className="text-xs text-ink-muted dark:text-ink-dark-muted">Title, description, required skills</p>
                 </button>
-                <button type="button" onClick={() => setActivePage("applicants")} className="rounded-xl border border-[#dbe2f7] p-4 text-left transition hover:bg-[#f2f5ff] dark:border-[#283056] dark:hover:bg-[#151f3a]">
-                  <p className="font-semibold text-[#1a1f3c] dark:text-white">Review applicants</p>
-                  <p className="text-xs text-[#65709a]">Status and skill match</p>
+                <button type="button" onClick={() => setActivePage("applicants")} className="card-hover rounded-xl border border-surface-border p-4 text-left transition hover:border-accent dark:border-surface-dark-border">
+                  <p className="font-semibold text-ink dark:text-ink-dark">Review applicants</p>
+                  <p className="text-xs text-ink-muted dark:text-ink-dark-muted">Status and skill match</p>
                 </button>
-                <button type="button" onClick={() => setActivePage("interviews")} className="rounded-xl border border-[#dbe2f7] p-4 text-left transition hover:bg-[#f2f5ff] dark:border-[#283056] dark:hover:bg-[#151f3a]">
-                  <p className="font-semibold text-[#1a1f3c] dark:text-white">Schedule interviews</p>
-                  <p className="text-xs text-[#65709a]">Link candidates to calendar</p>
+                <button type="button" onClick={() => setActivePage("interviews")} className="card-hover rounded-xl border border-surface-border p-4 text-left transition hover:border-accent dark:border-surface-dark-border">
+                  <p className="font-semibold text-ink dark:text-ink-dark">Schedule interviews</p>
+                  <p className="text-xs text-ink-muted dark:text-ink-dark-muted">Link candidates to calendar</p>
                 </button>
               </div>
             </article>
@@ -279,17 +279,17 @@ export function RecruiterDashboard({ token, user }) {
           <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
             <article className={cardClass}>
               <h3 className="mb-1 font-semibold">Your listings</h3>
-              <p className="mb-4 text-xs text-[#65709a]">Filtered by recruiter email on the job record.</p>
+              <p className="mb-4 text-xs text-ink-muted dark:text-ink-dark-muted">Filtered by recruiter email on the job record.</p>
               <div className="max-h-[28rem] space-y-2 overflow-auto">
-                {myJobs.length === 0 && <p className="text-sm text-[#65709a]">No jobs yet — create your recruiter profile (Company) then publish a role.</p>}
+                {myJobs.length === 0 && <p className="text-sm text-ink-muted dark:text-ink-dark-muted">No jobs yet — create your recruiter profile (Company) then publish a role.</p>}
                 {myJobs.map((job) => (
-                  <div key={job.id} className="rounded-xl border border-[#e2e6f6] p-3 text-sm dark:border-[#283056]">
-                    <p className="font-semibold text-[#1a1f3c] dark:text-white">{job.title}</p>
-                    <p className="text-xs text-[#65709a]">{job.location || "Remote"} · {job.salary != null ? `$${Number(job.salary).toLocaleString()}` : "Salary TBD"}</p>
+                  <div key={job.id} className="rounded-xl border border-surface-border p-3 text-sm dark:border-surface-dark-border">
+                    <p className="font-semibold text-ink dark:text-ink-dark">{job.title}</p>
+                    <p className="text-xs text-ink-muted dark:text-ink-dark-muted">{job.location || "Remote"} · {job.salary != null ? `$${Number(job.salary).toLocaleString()}` : "Salary TBD"}</p>
                     {job.required_skills?.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1">
                         {job.required_skills.map((s) => (
-                          <span key={s} className="rounded bg-[#e8edff] px-2 py-0.5 text-xs text-[#24408f] dark:bg-[#1e3a5f] dark:text-[#93c5fd]">
+                          <span key={s} className="rounded-full bg-accent-light px-2 py-0.5 text-xs text-accent-text dark:bg-accent/15 dark:text-accent">
                             {s}
                           </span>
                         ))}
@@ -301,7 +301,7 @@ export function RecruiterDashboard({ token, user }) {
             </article>
             <article className={cardClass}>
               <h3 className="mb-1 font-semibold">Publish new role</h3>
-              <p className="mb-4 text-xs text-[#65709a]">Required skills are normalized for ATS matching and Qdrant indexing.</p>
+              <p className="mb-4 text-xs text-ink-muted dark:text-ink-dark-muted">Required skills are normalized for ATS matching and Qdrant indexing.</p>
               <form onSubmit={postJob} className="grid gap-3">
                 <input className={inputClass} placeholder="Job title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
                 <textarea className={`${inputClass} min-h-[100px]`} placeholder="Role description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
@@ -322,9 +322,9 @@ export function RecruiterDashboard({ token, user }) {
         {activePage === "applicants" && (
           <article className={cardClass}>
             <h3 className="mb-1 font-semibold">Applicants</h3>
-            <p className="mb-4 text-xs text-[#65709a]">Click a candidate to open cover letter and CV. Use the status menu without clicking the card body.</p>
+            <p className="mb-4 text-xs text-ink-muted dark:text-ink-dark-muted">Click a candidate to open cover letter and CV. Use the status menu without clicking the card body.</p>
             <div className="space-y-3">
-              {sortedApps.length === 0 && <p className="text-sm text-[#65709a]">No applications to your jobs yet.</p>}
+              {sortedApps.length === 0 && <p className="text-sm text-ink-muted dark:text-ink-dark-muted">No applications to your jobs yet.</p>}
               {sortedApps.map((app) => {
                 const badge = getMatchBand(app.match_percentage)
                 const hasScore = app.match_percentage != null && Number.isFinite(Number(app.match_percentage))
@@ -340,7 +340,7 @@ export function RecruiterDashboard({ token, user }) {
                       openApplicantDetail(app.application_id)
                     }
                   }}
-                  className={`cursor-pointer rounded-xl border border-[#e2e6f6] ${badge.borderClass} p-4 transition hover:border-[#93b4ff] hover:bg-[#f8f9ff] dark:border-[#283056] dark:hover:border-[#3b4f8a] dark:hover:bg-[#151f3a]`}
+                  className={`cursor-pointer rounded-xl border ${badge.borderClass} p-4 transition hover:border-accent hover:bg-surface-subtle dark:hover:bg-surface-dark-subtle`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
@@ -364,9 +364,9 @@ export function RecruiterDashboard({ token, user }) {
                           {badge.label}
                         </span>
                       </div>
-                      <p className="font-semibold text-[#1a1f3c] dark:text-white">{app.candidate_name}</p>
-                      <p className="text-xs text-[#65709a]">{app.candidate_email}</p>
-                      <p className="mt-1 text-sm text-[#374151] dark:text-[#cbd5e1]">{app.job_title}</p>
+                      <p className="font-semibold text-ink dark:text-ink-dark">{app.candidate_name}</p>
+                      <p className="text-xs text-ink-muted dark:text-ink-dark-muted">{app.candidate_email}</p>
+                      <p className="mt-1 text-sm text-ink dark:text-ink-dark">{app.job_title}</p>
                       <div className="mt-2 flex flex-wrap items-center gap-2">
                         <StatusBadge status={app.status} />
                       </div>
@@ -387,7 +387,7 @@ export function RecruiterDashboard({ token, user }) {
                     </div>
                   </div>
                   {(app.matched_skills?.length > 0 || app.missing_skills?.length > 0) && (
-                    <div className="mt-3 flex flex-wrap gap-4 border-t border-[#eef2ff] pt-3 text-xs dark:border-[#283056]">
+                    <div className="mt-3 flex flex-wrap gap-4 border-t border-surface-border pt-3 text-xs dark:border-surface-dark-border">
                       {app.matched_skills?.length > 0 && (
                         <div>
                           <span className="font-semibold text-emerald-700 dark:text-emerald-400">Matched</span>
@@ -425,24 +425,24 @@ export function RecruiterDashboard({ token, user }) {
           <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <article className={cardClass}>
               <h3 className="mb-1 font-semibold">Upcoming</h3>
-              <p className="mb-4 text-xs text-[#65709a]">Scheduled interviews for your roles.</p>
+              <p className="mb-4 text-xs text-ink-muted dark:text-ink-dark-muted">Scheduled interviews for your roles.</p>
               <div className="max-h-[24rem] space-y-2 overflow-auto text-sm">
-                {interviews.length === 0 && <p className="text-[#65709a]">No interviews scheduled.</p>}
+                {interviews.length === 0 && <p className="text-ink-muted dark:text-ink-dark-muted">No interviews scheduled.</p>}
                 {interviews.map((inv) => (
-                  <div key={inv.id} className="rounded-xl border border-[#e2e6f6] p-3 dark:border-[#283056]">
-                    <p className="font-medium text-[#1a1f3c] dark:text-white">{new Date(inv.interview_date).toLocaleString()}</p>
-                    <p className="mt-1 break-all text-xs text-[#2563eb] dark:text-[#93c5fd]">{inv.meeting_link}</p>
-                    {inv.notes && <p className="mt-1 text-xs text-[#65709a]">{inv.notes}</p>}
-                    <p className="mt-1 text-xs text-[#94a3b8]">Application #{inv.application_id}</p>
+                  <div key={inv.id} className="rounded-xl border border-surface-border p-3 dark:border-surface-dark-border">
+                    <p className="font-medium text-ink dark:text-ink-dark">{new Date(inv.interview_date).toLocaleString()}</p>
+                    <p className="mt-1 break-all text-xs text-accent">{inv.meeting_link}</p>
+                    {inv.notes && <p className="mt-1 text-xs text-ink-muted dark:text-ink-dark-muted">{inv.notes}</p>}
+                    <p className="mt-1 text-xs text-ink-faint dark:text-ink-dark-faint">Application #{inv.application_id}</p>
                   </div>
                 ))}
               </div>
             </article>
             <article className={cardClass}>
               <h3 className="mb-1 font-semibold">Schedule interview</h3>
-              <p className="mb-4 text-xs text-[#65709a]">Sets application status to interview and emails the candidate when SMTP is configured.</p>
+              <p className="mb-4 text-xs text-ink-muted dark:text-ink-dark-muted">Sets application status to interview and emails the candidate when SMTP is configured.</p>
               <form onSubmit={scheduleInterview} className="grid gap-3">
-                <label className="text-xs font-medium text-[#5f67a4] dark:text-[#94a3b8]">Application</label>
+                <label className="text-xs font-medium text-ink-muted dark:text-ink-dark-muted">Application</label>
                 <select
                   className={inputClass}
                   value={interviewForm.application_id}
@@ -455,7 +455,7 @@ export function RecruiterDashboard({ token, user }) {
                     </option>
                   ))}
                 </select>
-                <label className="text-xs font-medium text-[#5f67a4] dark:text-[#94a3b8]">Date & time</label>
+                <label className="text-xs font-medium text-ink-muted dark:text-ink-dark-muted">Date & time</label>
                 <input className={inputClass} type="datetime-local" value={interviewForm.interview_date} onChange={(e) => setInterviewForm({ ...interviewForm, interview_date: e.target.value })} />
                 <input className={inputClass} placeholder="Meeting link (Zoom, Meet, …)" value={interviewForm.meeting_link} onChange={(e) => setInterviewForm({ ...interviewForm, meeting_link: e.target.value })} />
                 <input className={inputClass} placeholder="Notes (optional)" value={interviewForm.notes} onChange={(e) => setInterviewForm({ ...interviewForm, notes: e.target.value })} />
@@ -470,10 +470,10 @@ export function RecruiterDashboard({ token, user }) {
         {activePage === "emails" && (
           <article className={cardClass}>
             <h3 className="mb-1 font-semibold">Email automation</h3>
-            <p className="mb-4 text-xs text-[#65709a]">Recent platform sends (applications, interviews, password reset).</p>
-            <div className="overflow-x-auto rounded-xl border border-[#e2e6f6] dark:border-[#283056]">
+            <p className="mb-4 text-xs text-ink-muted dark:text-ink-dark-muted">Recent platform sends (applications, interviews, password reset).</p>
+            <div className="overflow-x-auto rounded-xl border border-surface-border dark:border-surface-dark-border">
               <table className="w-full min-w-[640px] text-left text-sm">
-                <thead className="border-b border-[#e2e6f6] bg-[#f8f9ff] text-xs font-semibold uppercase text-[#5f67a4] dark:border-[#283056] dark:bg-[#151f3a] dark:text-[#94a3b8]">
+                <thead className="border-b border-surface-border bg-surface-subtle text-xs font-semibold uppercase text-ink-muted dark:border-surface-dark-border dark:bg-surface-dark-subtle dark:text-ink-dark-muted">
                   <tr>
                     <th className="px-3 py-2">Status</th>
                     <th className="px-3 py-2">Recipient</th>
@@ -483,16 +483,16 @@ export function RecruiterDashboard({ token, user }) {
                 </thead>
                 <tbody>
                   {logs.slice(0, 40).map((log) => (
-                    <tr key={log.id} className="border-b border-[#f1f4fc] last:border-0 dark:border-[#1e293b]">
-                      <td className="px-3 py-2 font-medium">{log.status}</td>
-                      <td className="px-3 py-2 text-[#65709a]">{log.recipient}</td>
-                      <td className="px-3 py-2">{log.subject}</td>
-                      <td className="px-3 py-2 text-xs text-[#65709a]">{log.created_at ? new Date(log.created_at).toLocaleString() : "—"}</td>
+                    <tr key={log.id} className="border-b border-surface-border last:border-0 dark:border-surface-dark-border">
+                      <td className="px-3 py-2 font-medium text-ink dark:text-ink-dark">{log.status}</td>
+                      <td className="px-3 py-2 text-ink-muted dark:text-ink-dark-muted">{log.recipient}</td>
+                      <td className="px-3 py-2 text-ink dark:text-ink-dark">{log.subject}</td>
+                      <td className="px-3 py-2 text-xs text-ink-muted dark:text-ink-dark-muted">{log.created_at ? new Date(log.created_at).toLocaleString() : "—"}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              {logs.length === 0 && <p className="p-4 text-sm text-[#65709a]">No email rows yet.</p>}
+              {logs.length === 0 && <p className="p-4 text-sm text-ink-muted dark:text-ink-dark-muted">No email rows yet.</p>}
             </div>
           </article>
         )}
@@ -500,7 +500,7 @@ export function RecruiterDashboard({ token, user }) {
         {activePage === "profile" && (
           <article className={`${cardClass} max-w-xl`}>
             <h3 className="mb-1 font-semibold">Company profile</h3>
-            <p className="mb-4 text-xs text-[#65709a]">Create once via API; if you already have a profile, saving again may return an error — use the same email as on your job posts.</p>
+            <p className="mb-4 text-xs text-ink-muted dark:text-ink-dark-muted">Create once via API; if you already have a profile, saving again may return an error — use the same email as on your job posts.</p>
             <form onSubmit={saveProfile} className="grid gap-3">
               <input className={inputClass} placeholder="Company name" value={profile.company_name} onChange={(e) => setProfile({ ...profile, company_name: e.target.value })} required />
               <input className={inputClass} placeholder="Recruiting contact email" value={profile.recruiter_email} onChange={(e) => setProfile({ ...profile, recruiter_email: e.target.value })} required />
@@ -524,29 +524,29 @@ export function RecruiterDashboard({ token, user }) {
           role="dialog"
           aria-modal="true"
           aria-labelledby="applicant-detail-title"
-          className="flex h-full w-full max-w-lg flex-col border-l border-[#d8dcef] bg-white shadow-2xl dark:border-[#2d355c] dark:bg-[#121831] sm:max-w-xl sm:rounded-l-2xl"
+          className="flex h-full w-full max-w-lg flex-col border-l border-surface-border bg-surface-raised shadow-2xl dark:border-surface-dark-border dark:bg-surface-dark-raised sm:max-w-xl sm:rounded-l-2xl"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[#e2e6f6] px-4 py-3 dark:border-[#283056]">
-            <h3 id="applicant-detail-title" className="text-lg font-semibold text-[#1a1f3c] dark:text-white">
+          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-surface-border px-4 py-3 dark:border-surface-dark-border">
+            <h3 id="applicant-detail-title" className="text-lg font-semibold text-ink dark:text-ink-dark">
               {detailId != null ? `Application #${detailId}` : "Application"}
             </h3>
             <button
               type="button"
-              className="rounded-lg border border-[#c9cce5] px-3 py-1.5 text-sm dark:border-[#303a63]"
+              className={buttonGhostClass}
               onClick={closeApplicantDetail}
             >
               Close
             </button>
           </div>
           <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
-            {detailLoading && <p className="text-sm text-[#65709a]">Loading application…</p>}
+            {detailLoading && <p className="text-sm text-ink-muted dark:text-ink-dark-muted">Loading application…</p>}
             {!detailLoading && appDetail && (
               <>
                 <div>
-                  <p className="text-sm font-semibold text-[#1a1f3c] dark:text-white">{appDetail.candidate_name}</p>
-                  <p className="text-xs text-[#65709a]">{appDetail.candidate_email}</p>
-                  <p className="mt-2 text-sm text-[#374151] dark:text-[#cbd5e1]">{appDetail.job_title}</p>
+                  <p className="text-sm font-semibold text-ink dark:text-ink-dark">{appDetail.candidate_name}</p>
+                  <p className="text-xs text-ink-muted dark:text-ink-dark-muted">{appDetail.candidate_email}</p>
+                  <p className="mt-2 text-sm text-ink dark:text-ink-dark">{appDetail.job_title}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <StatusBadge status={appDetail.status} />
                     <select
@@ -563,11 +563,11 @@ export function RecruiterDashboard({ token, user }) {
                     </select>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2 border-t border-[#eef2ff] pt-4 dark:border-[#283056]">
+                <div className="flex flex-wrap gap-2 border-t border-surface-border pt-4 dark:border-surface-dark-border">
                   {appDetail.resume?.id != null && (
                     <button
                       type="button"
-                      className="rounded-lg border border-[#2563eb] bg-white px-3 py-1.5 text-xs font-semibold text-[#2563eb] dark:border-[#60a5fa] dark:bg-[#1e293b] dark:text-[#93c5fd]"
+                      className="rounded-lg border border-accent bg-surface-raised px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent-light dark:bg-surface-dark-raised"
                       onClick={() =>
                         downloadAuthenticatedBlob(
                           `/applications/recruiter/${appDetail.application_id}/resume-file`,
@@ -582,7 +582,7 @@ export function RecruiterDashboard({ token, user }) {
                   {appDetail.generated_cv?.has_pdf && (
                     <button
                       type="button"
-                      className="rounded-lg border border-[#2563eb] bg-white px-3 py-1.5 text-xs font-semibold text-[#2563eb] dark:border-[#60a5fa] dark:bg-[#1e293b] dark:text-[#93c5fd]"
+                      className="rounded-lg border border-accent bg-surface-raised px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent-light dark:bg-surface-dark-raised"
                       onClick={() =>
                         downloadAuthenticatedBlob(
                           `/applications/recruiter/${appDetail.application_id}/cv-download?export_format=pdf`,
@@ -597,7 +597,7 @@ export function RecruiterDashboard({ token, user }) {
                   {appDetail.generated_cv?.has_docx && (
                     <button
                       type="button"
-                      className="rounded-lg border border-[#2563eb] bg-white px-3 py-1.5 text-xs font-semibold text-[#2563eb] dark:border-[#60a5fa] dark:bg-[#1e293b] dark:text-[#93c5fd]"
+                      className="rounded-lg border border-accent bg-surface-raised px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent-light dark:bg-surface-dark-raised"
                       onClick={() =>
                         downloadAuthenticatedBlob(
                           `/applications/recruiter/${appDetail.application_id}/cv-download?export_format=docx`,
@@ -612,15 +612,15 @@ export function RecruiterDashboard({ token, user }) {
                 </div>
                 {appDetail.cover_letter?.content != null && (
                   <div>
-                    <h4 className="text-sm font-semibold text-[#1a1f3c] dark:text-white">Cover letter</h4>
-                    <div className="mt-2 max-h-56 overflow-y-auto rounded-xl border border-[#e2e6f6] bg-[#f8f9ff] p-3 text-sm whitespace-pre-wrap dark:border-[#283056] dark:bg-[#10162d]">
+                    <h4 className="text-sm font-semibold text-ink dark:text-ink-dark">Cover letter</h4>
+                    <div className="mt-2 max-h-56 overflow-y-auto rounded-xl border border-surface-border bg-surface-subtle p-3 text-sm whitespace-pre-wrap dark:border-surface-dark-border dark:bg-surface-dark-subtle">
                       {appDetail.cover_letter.content}
                     </div>
                   </div>
                 )}
                 {appDetail.generated_cv?.cv_json && (
                   <div>
-                    <h4 className="text-sm font-semibold text-[#1a1f3c] dark:text-white">
+                    <h4 className="text-sm font-semibold text-ink dark:text-ink-dark">
                       CV preview{appDetail.generated_cv.title ? ` — ${appDetail.generated_cv.title}` : ""}
                     </h4>
                     <div className="mt-2 max-h-[min(60vh,28rem)] overflow-y-auto">
@@ -630,8 +630,8 @@ export function RecruiterDashboard({ token, user }) {
                 )}
                 {appDetail.resume?.parsed_data && (
                   <div>
-                    <h4 className="text-sm font-semibold text-[#1a1f3c] dark:text-white">Parsed resume snapshot</h4>
-                    <p className="mt-1 text-sm text-[#374151] dark:text-[#cbd5e1]">
+                    <h4 className="text-sm font-semibold text-ink dark:text-ink-dark">Parsed resume snapshot</h4>
+                    <p className="mt-1 text-sm text-ink dark:text-ink-dark">
                       {appDetail.resume.parsed_data?.summary || appDetail.resume.parsed_data?.name || "Parsed fields available in export."}
                     </p>
                   </div>
