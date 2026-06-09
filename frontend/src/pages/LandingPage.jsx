@@ -1,28 +1,118 @@
-import { Link } from "react-router-dom"
-import { cardClass, buttonClass } from "../styles/uiClasses.js"
+﻿import { Link } from "react-router-dom"
+
+const roles = [
+  {
+    id: "job_seeker",
+    title: "Job Seeker",
+    icon: "👤",
+    iconBg: "bg-accent-light",
+    iconColor: "text-accent-text",
+    headline: "Land your next role",
+    desc: "Build an ATS-ready CV through conversation, get matched to jobs semantically, and generate cover letters in one click.",
+    perks: ["Conversational CV Builder", "Semantic Job Matching", "Cover Letter Generator"],
+    cta: "Get Started",
+  },
+  {
+    id: "recruiter",
+    title: "Recruiter",
+    icon: "🏢",
+    iconBg: "bg-warn-bg",
+    iconColor: "text-warn",
+    headline: "Hire the right people",
+    desc: "Parse resumes automatically, score candidates, and manage the full pipeline from application to offer.",
+    perks: ["Resume Parsing & Scoring", "Candidate Pipeline", "Interview Scheduling"],
+    cta: "Start Hiring",
+  },
+  {
+    id: "admin",
+    title: "Admin",
+    icon: "⚙️",
+    iconBg: "bg-surface-subtle dark:bg-surface-dark-subtle",
+    iconColor: "text-ink-muted dark:text-ink-dark-muted",
+    headline: "Manage the platform",
+    desc: "Oversee all users, recruiters, and job listings from a unified dashboard with full analytics.",
+    perks: ["User Management", "Recruiter Oversight", "Platform Analytics"],
+    cta: "Admin Access",
+  },
+]
+
+const features = [
+  { label: "Auth & RBAC", desc: "Secure JWT auth with Google OAuth and role-based access" },
+  { label: "Resume Parsing", desc: "spaCy NER + regex extraction with OpenAI fallback" },
+  { label: "Conversational CV", desc: "Fine-tuned chat model builds ATS-ready CVs through dialogue" },
+  { label: "Semantic Matching", desc: "BGE embeddings + Qdrant vector search with match scoring" },
+  { label: "Cover Letters", desc: "LLM-generated, job-specific cover letters in one click" },
+  { label: "Interview Scheduling", desc: "End-to-end from application to offer with email automation" },
+]
 
 export function LandingPage() {
   return (
-    <section className="grid gap-6 lg:grid-cols-2">
-      <div className={`${cardClass} space-y-4`}>
-        <p className="inline-flex rounded-full border border-[#cdd2ea] px-3 py-1 text-xs font-semibold uppercase tracking-wider dark:border-[#32395f]">
-          Production-ready hiring platform
+    <div className="space-y-8">
+      {/* Compact header */}
+      <div className="space-y-2 text-center">
+        <span className="inline-flex rounded-full border border-accent-muted bg-accent-light px-3 py-1 text-xs font-semibold tracking-wider text-accent-text">
+          AI-Powered Recruitment Platform
+        </span>
+        <h1 className="text-3xl font-bold tracking-tight text-ink dark:text-ink-dark">
+          Run hiring from first resume to final offer.
+        </h1>
+        <p className="text-sm text-ink-muted dark:text-ink-dark-muted">
+          Select your role below to get started
         </p>
-        <h1 className="text-4xl font-semibold tracking-tight">Run hiring from first resume to final interview.</h1>
-        <p className="text-sm text-[#4a5070] dark:text-[#aeb7df]">
-          Complete flows for Job Seekers, Recruiters, and Admin with direct FastAPI integration.
-        </p>
-        <div className="flex flex-wrap gap-3">
-          <Link to="/register?role=job_seeker" className={buttonClass}>Continue as Job Seeker</Link>
-          <Link to="/register?role=recruiter" className="rounded-xl border border-[#c9cce5] px-4 py-2 text-sm font-semibold dark:border-[#303a63]">Continue as Recruiter</Link>
-          <Link to="/register?role=admin" className="rounded-xl border border-[#c9cce5] px-4 py-2 text-sm font-semibold dark:border-[#303a63]">Continue as Admin</Link>
-        </div>
       </div>
-      <div className={`${cardClass} grid gap-3`}>
-        {["Auth and RBAC", "Resume parsing and matching", "CV + cover letter generation", "Applications and status tracking", "Interview scheduling and email logs"].map((item) => (
-          <div key={item} className="rounded-xl border border-[#e2e6f6] p-3 text-sm dark:border-[#283056]">{item}</div>
+
+      {/* Role selection — all three equal */}
+      <div className="grid gap-4 md:grid-cols-3">
+        {roles.map(({ id, title, icon, iconBg, iconColor, headline, desc, perks, cta }) => (
+          <Link
+            key={id}
+            to={`/register?role=${id}`}
+            className="group flex flex-col rounded-2xl border border-surface-border bg-surface-raised p-6 transition-all duration-200 hover:-translate-y-1 hover:border-accent hover:shadow-[0_4px_24px_-4px_rgb(5_150_105_/_0.18)] dark:border-surface-dark-border dark:bg-surface-dark-raised"
+          >
+            <span className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl text-2xl ${iconBg} ${iconColor}`}>
+              {icon}
+            </span>
+            <p className="mb-0.5 text-xs font-semibold uppercase tracking-widest text-ink-faint dark:text-ink-dark-faint">
+              {title}
+            </p>
+            <h2 className="mb-2 text-lg font-bold text-ink dark:text-ink-dark">
+              {headline}
+            </h2>
+            <p className="mb-4 flex-1 text-sm leading-relaxed text-ink-muted dark:text-ink-dark-muted">
+              {desc}
+            </p>
+            <ul className="mb-5 space-y-1.5">
+              {perks.map((perk) => (
+                <li key={perk} className="flex items-center gap-2 text-xs text-ink-muted dark:text-ink-dark-muted">
+                  <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent-light text-[9px] font-bold text-accent-text">✓</span>
+                  {perk}
+                </li>
+              ))}
+            </ul>
+            <div className="rounded-xl bg-accent px-4 py-2 text-center text-sm font-semibold text-white transition-colors group-hover:bg-accent-hover">
+              {cta} →
+            </div>
+          </Link>
         ))}
       </div>
-    </section>
+
+      {/* Platform features — compact secondary */}
+      <div>
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-faint dark:text-ink-dark-faint">
+          What&apos;s included
+        </p>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map(({ label, desc }) => (
+            <div key={label} className="flex items-start gap-2.5 rounded-xl border border-surface-border bg-surface-raised p-3 dark:border-surface-dark-border dark:bg-surface-dark-raised">
+              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-accent-light text-[9px] font-bold text-accent-text">✓</span>
+              <div>
+                <p className="text-xs font-semibold text-ink dark:text-ink-dark">{label}</p>
+                <p className="text-[11px] leading-snug text-ink-muted dark:text-ink-dark-muted">{desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }

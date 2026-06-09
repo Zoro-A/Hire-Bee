@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { apiRequest } from "../lib/api.js"
-import { inputClass } from "../styles/uiClasses.js"
+import { inputClass, buttonClass } from "../styles/uiClasses.js"
 
 export function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
@@ -25,19 +25,19 @@ export function ForgotPasswordPage() {
   }
 
   return (
-    <div className="rounded-2xl border border-[#e5e7eb] bg-white p-8 shadow-sm dark:border-[#1e293b] dark:bg-[#111827]">
-      <h1 className="text-xl font-semibold text-[#111827] dark:text-white">Forgot password</h1>
-      <p className="mt-1 text-sm text-[#6b7280] dark:text-[#9ca3af]">Enter your email and we&apos;ll send reset instructions if an account exists.</p>
+    <div className="rounded-2xl border border-surface-border bg-surface-raised p-8 shadow-card dark:border-surface-dark-border dark:bg-surface-dark-raised">
+      <h1 className="text-xl font-semibold text-ink dark:text-ink-dark">Forgot password</h1>
+      <p className="mt-1 text-sm text-ink-muted dark:text-ink-dark-muted">Enter your email and we&apos;ll send reset instructions if an account exists.</p>
       <form onSubmit={submit} className="mt-6 space-y-4">
         <input className={inputClass} type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        {err && <p className="text-sm text-red-600">{err}</p>}
-        {msg && <p className="text-sm text-emerald-700">{msg}</p>}
-        <button type="submit" disabled={loading} className="w-full rounded-xl bg-[#2563eb] py-3 text-sm font-semibold text-white hover:bg-[#1d4ed8]">
+        {err && <p className="text-sm text-danger">{err}</p>}
+        {msg && <p className="text-sm text-success">{msg}</p>}
+        <button type="submit" disabled={loading} className={`${buttonClass} w-full py-3`}>
           {loading ? "Sending…" : "Send reset link"}
         </button>
       </form>
       <p className="mt-4 text-center text-sm">
-        <Link to="/login" className="text-[#2563eb] hover:underline dark:text-[#60a5fa]">
+        <Link to="/login" className="font-medium text-accent hover:underline">
           Back to sign in
         </Link>
       </p>

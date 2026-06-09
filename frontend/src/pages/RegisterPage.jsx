@@ -2,7 +2,7 @@ import { GoogleLogin } from "@react-oauth/google"
 import { useState } from "react"
 import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { apiRequest } from "../lib/api.js"
-import { inputClass } from "../styles/uiClasses.js"
+import { inputClass, buttonClass } from "../styles/uiClasses.js"
 
 export function RegisterPage({ setToken, googleClientId }) {
   const navigate = useNavigate()
@@ -56,23 +56,35 @@ export function RegisterPage({ setToken, googleClientId }) {
   }
 
   return (
-    <div className="rounded-2xl border border-[#e5e7eb] bg-white p-8 shadow-sm dark:border-[#1e293b] dark:bg-[#111827]">
+    <div className="rounded-2xl border border-surface-border bg-surface-raised p-8 shadow-card dark:border-surface-dark-border dark:bg-surface-dark-raised">
       <div className="mb-6 text-center">
-        <img src="/hirebee-logo.svg" alt="" className="mx-auto mb-3 h-12 w-12" />
-        <h1 className="text-2xl font-semibold text-[#111827] dark:text-white">Create your account</h1>
-        <p className="mt-1 text-sm text-[#6b7280] dark:text-[#9ca3af]">Join HireBee in a few steps</p>
+        <img src="/hirebee-logo.svg" alt="" className="mx-auto mb-3 h-12 w-12 rounded-xl ring-2 ring-accent/20" />
+        <h1 className="text-2xl font-semibold text-ink dark:text-ink-dark">Create your account</h1>
+        <p className="mt-1 text-sm text-ink-muted dark:text-ink-dark-muted">Join HireBee in a few steps</p>
       </div>
       <form onSubmit={submit} className="space-y-4">
-        <input className={inputClass} placeholder="Full name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} required />
-        <select className={inputClass} value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
-          <option value="job_seeker">Job seeker</option>
-          <option value="recruiter">Recruiter</option>
-          <option value="admin">Admin</option>
-        </select>
-        <input className={inputClass} type="email" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
-        <input className={inputClass} type="password" placeholder="Password (min 8 characters)" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <button type="submit" disabled={loading} className="w-full rounded-xl bg-[#2563eb] py-3 text-sm font-semibold text-white hover:bg-[#1d4ed8] disabled:opacity-60">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-ink dark:text-ink-dark">Full name</label>
+          <input className={inputClass} placeholder="Your full name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} required />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-ink dark:text-ink-dark">Role</label>
+          <select className={inputClass} value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
+            <option value="job_seeker">Job seeker</option>
+            <option value="recruiter">Recruiter</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-ink dark:text-ink-dark">Email</label>
+          <input className={inputClass} type="email" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-ink dark:text-ink-dark">Password</label>
+          <input className={inputClass} type="password" placeholder="Password (min 8 characters)" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
+        </div>
+        {error && <p className="text-sm text-danger">{error}</p>}
+        <button type="submit" disabled={loading} className={`${buttonClass} w-full py-3`}>
           {loading ? "Creating…" : "Create account"}
         </button>
       </form>
@@ -80,10 +92,10 @@ export function RegisterPage({ setToken, googleClientId }) {
         <>
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#e5e7eb] dark:border-[#334155]" />
+              <div className="w-full border-t border-surface-border dark:border-surface-dark-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-[#6b7280] dark:bg-[#111827] dark:text-[#9ca3af]">Or continue with</span>
+              <span className="bg-surface-raised px-2 text-ink-muted dark:bg-surface-dark-raised dark:text-ink-dark-muted">Or continue with</span>
             </div>
           </div>
           <div className="flex justify-center [&>div]:w-full">
@@ -91,9 +103,9 @@ export function RegisterPage({ setToken, googleClientId }) {
           </div>
         </>
       )}
-      <p className="mt-6 text-center text-sm text-[#6b7280] dark:text-[#9ca3af]">
+      <p className="mt-6 text-center text-sm text-ink-muted dark:text-ink-dark-muted">
         Already have an account?{" "}
-        <Link to="/login" className="font-semibold text-[#2563eb] hover:underline dark:text-[#60a5fa]">
+        <Link to="/login" className="font-semibold text-accent hover:underline">
           Sign in
         </Link>
       </p>
