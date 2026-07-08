@@ -22,3 +22,4 @@ google-auth
 transformers
 peft
 torch
+accelerate
