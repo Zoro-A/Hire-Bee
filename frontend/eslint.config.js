@@ -18,4 +18,15 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  {
+    // shadcn/ui primitives are library files, not hot-reloadable feature
+    // components — they routinely export a component alongside its `cva`
+    // variants (e.g. `Button` + `buttonVariants`) from the same file, which
+    // is the standard, unmodified shadcn output shape. React Fast Refresh's
+    // "only export components" constraint doesn't apply to this layer.
+    files: ['src/components/ui/**/*.{js,jsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])
