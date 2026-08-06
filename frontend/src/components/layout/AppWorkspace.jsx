@@ -10,7 +10,7 @@ export function AppWorkspace({ user, token, setToken }) {
       <header className="flex shrink-0 items-center justify-between border-b border-surface-border bg-surface-raised/85 px-4 py-3 backdrop-blur-md dark:border-surface-dark-border dark:bg-surface-dark/80 sm:px-6">
         <Link to="/" className="flex items-center gap-2">
           <img src="/hirebee-logo.svg" alt="" className="h-9 w-9 rounded-lg" />
-          <span className="text-lg font-bold text-gradient">HireBee</span>
+          <span className="font-display text-lg font-semibold tracking-tight text-ink">HireBee</span>
         </Link>
         <div className="flex items-center gap-2">
           <button

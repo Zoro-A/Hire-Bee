@@ -1,6 +1,6 @@
 import { cardClass } from "../styles/uiClasses.js"
 
-export function Metric({ label, value, icon, iconBg = "bg-accent/15", iconColor = "text-accent", sub }) {
+export function Metric({ label, value, icon, iconBg = "bg-brand/15", iconColor = "text-brand", sub }) {
   return (
     <div className={`${cardClass} card-hover flex items-start gap-4`}>
       {icon && (

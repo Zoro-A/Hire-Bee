@@ -1,7 +1,7 @@
 export function StatusBadge({ status }) {
   const styles = {
     applied:     "bg-warn-bg    text-warn",
-    shortlisted: "bg-accent-light text-accent-text",
+    shortlisted: "bg-brand-soft text-brand-on-soft",
     interview:   "bg-success-bg  text-success",
     hired:       "bg-success-bg  text-success",
     rejected:    "bg-danger-bg   text-danger",

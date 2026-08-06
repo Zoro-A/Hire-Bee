@@ -59,7 +59,7 @@ export function LoginPage({ setToken, googleClientId }) {
     <div className="rounded-2xl border border-surface-border bg-surface-raised p-8 shadow-card dark:border-surface-dark-border dark:bg-surface-dark-raised">
       <div className="mb-6 text-center">
         <div className="mx-auto mb-3 flex justify-center">
-          <img src="/hirebee-logo.svg" alt="" className="h-12 w-12 rounded-xl ring-2 ring-accent/20" />
+          <img src="/hirebee-logo.svg" alt="" className="h-12 w-12 rounded-xl ring-2 ring-brand/20" />
         </div>
         <h1 className="text-2xl font-semibold text-ink dark:text-ink-dark">Sign in to your account</h1>
         <p className="mt-1 text-sm text-ink-muted dark:text-ink-dark-muted">Welcome back! Please enter your details</p>
@@ -98,7 +98,7 @@ export function LoginPage({ setToken, googleClientId }) {
             <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="rounded" />
             Remember me
           </label>
-          <Link to="/forgot-password" className="font-medium text-accent hover:underline">
+          <Link to="/forgot-password" className="font-medium text-brand hover:underline">
             Forgot password?
           </Link>
         </div>
@@ -137,13 +137,13 @@ export function LoginPage({ setToken, googleClientId }) {
       )}
       <p className="mt-6 text-center text-sm text-ink-muted dark:text-ink-dark-muted">
         Don&apos;t have an account?{" "}
-        <Link to="/register" className="font-semibold text-accent hover:underline">
+        <Link to="/register" className="font-semibold text-brand hover:underline">
           Sign up
         </Link>
       </p>
       <p className="mt-4 text-center text-xs text-ink-faint dark:text-ink-dark-faint">
-        By signing in, you agree to our <span className="text-accent">Terms</span> and{" "}
-        <span className="text-accent">Privacy Policy</span>.
+        By signing in, you agree to our <span className="text-brand">Terms</span> and{" "}
+        <span className="text-brand">Privacy Policy</span>.
       </p>
     </div>
   )

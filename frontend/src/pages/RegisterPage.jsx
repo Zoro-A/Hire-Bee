@@ -58,7 +58,7 @@ export function RegisterPage({ setToken, googleClientId }) {
   return (
     <div className="rounded-2xl border border-surface-border bg-surface-raised p-8 shadow-card dark:border-surface-dark-border dark:bg-surface-dark-raised">
       <div className="mb-6 text-center">
-        <img src="/hirebee-logo.svg" alt="" className="mx-auto mb-3 h-12 w-12 rounded-xl ring-2 ring-accent/20" />
+        <img src="/hirebee-logo.svg" alt="" className="mx-auto mb-3 h-12 w-12 rounded-xl ring-2 ring-brand/20" />
         <h1 className="text-2xl font-semibold text-ink dark:text-ink-dark">Create your account</h1>
         <p className="mt-1 text-sm text-ink-muted dark:text-ink-dark-muted">Join HireBee in a few steps</p>
       </div>
@@ -105,7 +105,7 @@ export function RegisterPage({ setToken, googleClientId }) {
       )}
       <p className="mt-6 text-center text-sm text-ink-muted dark:text-ink-dark-muted">
         Already have an account?{" "}
-        <Link to="/login" className="font-semibold text-accent hover:underline">
+        <Link to="/login" className="font-semibold text-brand hover:underline">
           Sign in
         </Link>
       </p>

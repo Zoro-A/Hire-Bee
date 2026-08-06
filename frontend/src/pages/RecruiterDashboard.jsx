@@ -224,7 +224,7 @@ export function RecruiterDashboard({ token, user }) {
               key={item.key}
               type="button"
               onClick={() => setActivePage(item.key)}
-              className={`rounded-lg px-3 py-2 text-left text-sm transition ${activePage === item.key ? "bg-accent text-white" : "text-ink-muted hover:bg-surface-subtle hover:text-ink dark:text-ink-dark-muted dark:hover:bg-surface-dark-subtle dark:hover:text-ink-dark"}`}
+              className={`rounded-lg px-3 py-2 text-left text-sm transition ${activePage === item.key ? "bg-brand text-white" : "text-ink-muted hover:bg-surface-subtle hover:text-ink dark:text-ink-dark-muted dark:hover:bg-surface-dark-subtle dark:hover:text-ink-dark"}`}
             >
               {item.label}
             </button>
@@ -242,7 +242,7 @@ export function RecruiterDashboard({ token, user }) {
 
         {activePage === "overview" && (
           <section className="grid gap-4">
-            <div className="rounded-2xl border border-accent-muted bg-gradient-to-br from-surface-raised to-accent-light/40 p-6 dark:border-surface-dark-border dark:from-surface-dark-raised dark:to-accent/8">
+            <div className="rounded-2xl border border-brand bg-gradient-to-br from-surface-raised to-brand-soft/40 p-6 dark:border-surface-dark-border dark:from-surface-dark-raised dark:to-brand/8">
               <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted dark:text-ink-dark-muted">Welcome back</p>
               <h2 className="mt-1 text-2xl font-semibold text-ink dark:text-ink-dark">{user?.full_name || "Recruiter"}</h2>
               <p className="mt-2 max-w-2xl text-sm text-ink-muted dark:text-ink-dark-muted">
@@ -258,15 +258,15 @@ export function RecruiterDashboard({ token, user }) {
             <article className={cardClass}>
               <h3 className="mb-3 font-semibold">Quick actions</h3>
               <div className="grid gap-3 md:grid-cols-3">
-                <button type="button" onClick={() => setActivePage("jobs")} className="card-hover rounded-xl border border-surface-border p-4 text-left transition hover:border-accent dark:border-surface-dark-border">
+                <button type="button" onClick={() => setActivePage("jobs")} className="card-hover rounded-xl border border-surface-border p-4 text-left transition hover:border-brand dark:border-surface-dark-border">
                   <p className="font-semibold text-ink dark:text-ink-dark">Post a job</p>
                   <p className="text-xs text-ink-muted dark:text-ink-dark-muted">Title, description, required skills</p>
                 </button>
-                <button type="button" onClick={() => setActivePage("applicants")} className="card-hover rounded-xl border border-surface-border p-4 text-left transition hover:border-accent dark:border-surface-dark-border">
+                <button type="button" onClick={() => setActivePage("applicants")} className="card-hover rounded-xl border border-surface-border p-4 text-left transition hover:border-brand dark:border-surface-dark-border">
                   <p className="font-semibold text-ink dark:text-ink-dark">Review applicants</p>
                   <p className="text-xs text-ink-muted dark:text-ink-dark-muted">Status and skill match</p>
                 </button>
-                <button type="button" onClick={() => setActivePage("interviews")} className="card-hover rounded-xl border border-surface-border p-4 text-left transition hover:border-accent dark:border-surface-dark-border">
+                <button type="button" onClick={() => setActivePage("interviews")} className="card-hover rounded-xl border border-surface-border p-4 text-left transition hover:border-brand dark:border-surface-dark-border">
                   <p className="font-semibold text-ink dark:text-ink-dark">Schedule interviews</p>
                   <p className="text-xs text-ink-muted dark:text-ink-dark-muted">Link candidates to calendar</p>
                 </button>
@@ -289,7 +289,7 @@ export function RecruiterDashboard({ token, user }) {
                     {job.required_skills?.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1">
                         {job.required_skills.map((s) => (
-                          <span key={s} className="rounded-full bg-accent-light px-2 py-0.5 text-xs text-accent-text dark:bg-accent/15 dark:text-accent">
+                          <span key={s} className="rounded-full bg-brand-soft px-2 py-0.5 text-xs text-brand-on-soft dark:bg-brand/15 dark:text-brand">
                             {s}
                           </span>
                         ))}
@@ -340,7 +340,7 @@ export function RecruiterDashboard({ token, user }) {
                       openApplicantDetail(app.application_id)
                     }
                   }}
-                  className={`cursor-pointer rounded-xl border ${badge.borderClass} p-4 transition hover:border-accent hover:bg-surface-subtle dark:hover:bg-surface-dark-subtle`}
+                  className={`cursor-pointer rounded-xl border ${badge.borderClass} p-4 transition hover:border-brand hover:bg-surface-subtle dark:hover:bg-surface-dark-subtle`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
@@ -431,7 +431,7 @@ export function RecruiterDashboard({ token, user }) {
                 {interviews.map((inv) => (
                   <div key={inv.id} className="rounded-xl border border-surface-border p-3 dark:border-surface-dark-border">
                     <p className="font-medium text-ink dark:text-ink-dark">{new Date(inv.interview_date).toLocaleString()}</p>
-                    <p className="mt-1 break-all text-xs text-accent">{inv.meeting_link}</p>
+                    <p className="mt-1 break-all text-xs text-brand">{inv.meeting_link}</p>
                     {inv.notes && <p className="mt-1 text-xs text-ink-muted dark:text-ink-dark-muted">{inv.notes}</p>}
                     <p className="mt-1 text-xs text-ink-faint dark:text-ink-dark-faint">Application #{inv.application_id}</p>
                   </div>
@@ -567,7 +567,7 @@ export function RecruiterDashboard({ token, user }) {
                   {appDetail.resume?.id != null && (
                     <button
                       type="button"
-                      className="rounded-lg border border-accent bg-surface-raised px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent-light dark:bg-surface-dark-raised"
+                      className="rounded-lg border border-brand bg-surface-raised px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand-soft dark:bg-surface-dark-raised"
                       onClick={() =>
                         downloadAuthenticatedBlob(
                           `/applications/recruiter/${appDetail.application_id}/resume-file`,
@@ -582,7 +582,7 @@ export function RecruiterDashboard({ token, user }) {
                   {appDetail.generated_cv?.has_pdf && (
                     <button
                       type="button"
-                      className="rounded-lg border border-accent bg-surface-raised px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent-light dark:bg-surface-dark-raised"
+                      className="rounded-lg border border-brand bg-surface-raised px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand-soft dark:bg-surface-dark-raised"
                       onClick={() =>
                         downloadAuthenticatedBlob(
                           `/applications/recruiter/${appDetail.application_id}/cv-download?export_format=pdf`,
@@ -597,7 +597,7 @@ export function RecruiterDashboard({ token, user }) {
                   {appDetail.generated_cv?.has_docx && (
                     <button
                       type="button"
-                      className="rounded-lg border border-accent bg-surface-raised px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent-light dark:bg-surface-dark-raised"
+                      className="rounded-lg border border-brand bg-surface-raised px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand-soft dark:bg-surface-dark-raised"
                       onClick={() =>
                         downloadAuthenticatedBlob(
                           `/applications/recruiter/${appDetail.application_id}/cv-download?export_format=docx`,

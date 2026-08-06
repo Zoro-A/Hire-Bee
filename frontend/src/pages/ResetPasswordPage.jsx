@@ -42,7 +42,7 @@ export function ResetPasswordPage() {
         </button>
       </form>
       <p className="mt-4 text-center text-sm">
-        <Link to="/login" className="font-medium text-accent hover:underline">
+        <Link to="/login" className="font-medium text-brand hover:underline">
           Back to sign in
         </Link>
       </p>

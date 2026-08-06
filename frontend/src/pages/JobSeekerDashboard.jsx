@@ -598,7 +598,7 @@ export function JobSeekerDashboard({ token, user }) {
               key={item.key}
               type="button"
               onClick={() => setActivePage(item.key)}
-              className={`rounded-lg px-3 py-2 text-left text-sm transition ${activePage === item.key ? "bg-accent text-white" : "text-ink-muted hover:bg-surface-subtle hover:text-ink dark:text-ink-dark-muted dark:hover:bg-surface-dark-subtle dark:hover:text-ink-dark"}`}
+              className={`rounded-lg px-3 py-2 text-left text-sm transition ${activePage === item.key ? "bg-brand text-white" : "text-ink-muted hover:bg-surface-subtle hover:text-ink dark:text-ink-dark-muted dark:hover:bg-surface-dark-subtle dark:hover:text-ink-dark"}`}
             >
               {item.label}
             </button>
@@ -622,7 +622,7 @@ export function JobSeekerDashboard({ token, user }) {
             <Metric
               label="Resume Score"
               value={`${Math.min(98, Math.max(52, Math.round((resumeInsight?.parsing_confidence || 0.6) * 100)))}%`}
-              icon="📄" iconBg="bg-accent/15" iconColor="text-accent"
+              icon="📄" iconBg="bg-brand/15" iconColor="text-brand"
               sub="Based on last upload"
             />
             <Metric
@@ -649,7 +649,7 @@ export function JobSeekerDashboard({ token, user }) {
               <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-ink-faint dark:text-ink-dark-faint">Quick Actions</h3>
               <div className="grid gap-3 md:grid-cols-3">
                 {[
-                  { page: "resume", icon: "📄", iconBg: "bg-accent/15",  iconColor: "text-accent",  title: "Upload Resume",  desc: "Get AI-powered analysis & skill extraction" },
+                  { page: "resume", icon: "📄", iconBg: "bg-brand/15",  iconColor: "text-brand",  title: "Upload Resume",  desc: "Get AI-powered analysis & skill extraction" },
                   { page: "cv",     icon: "✨", iconBg: "bg-warn/15",   iconColor: "text-warn",    title: "Generate CV",    desc: "Build an ATS-ready CV through chat" },
                   { page: "jobs",   icon: "🔍", iconBg: "bg-success/15", iconColor: "text-success", title: "Browse Jobs",    desc: "Explore roles matched to your profile" },
                 ].map(({ page, icon, iconBg, iconColor, title, desc }) => (
@@ -657,7 +657,7 @@ export function JobSeekerDashboard({ token, user }) {
                     key={page}
                     type="button"
                     onClick={() => setActivePage(page)}
-                    className="group flex items-center gap-4 rounded-2xl border border-surface-border bg-surface-raised p-4 text-left transition hover:border-accent hover:shadow-card-hover dark:border-surface-dark-border dark:bg-surface-dark-raised"
+                    className="group flex items-center gap-4 rounded-2xl border border-surface-border bg-surface-raised p-4 text-left transition hover:border-brand hover:shadow-card-hover dark:border-surface-dark-border dark:bg-surface-dark-raised"
                   >
                     <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl transition-transform duration-150 group-hover:scale-110 ${iconBg} ${iconColor}`}>
                       {icon}
@@ -679,7 +679,7 @@ export function JobSeekerDashboard({ token, user }) {
                 <button
                   type="button"
                   onClick={() => setActivePage("jobs")}
-                  className="text-xs font-medium text-accent hover:underline"
+                  className="text-xs font-medium text-brand hover:underline"
                 >
                   View all →
                 </button>
@@ -692,7 +692,7 @@ export function JobSeekerDashboard({ token, user }) {
                       key={job.id}
                       type="button"
                       onClick={() => { setSelectedJobId(String(job.id)); setApplyForm((p) => ({ ...p, job_id: String(job.id) })); setActivePage("jobs") }}
-                      className="group flex flex-col gap-3 rounded-2xl border border-surface-border bg-surface-raised p-4 text-left transition hover:border-accent hover:shadow-card-hover dark:border-surface-dark-border dark:bg-surface-dark-raised"
+                      className="group flex flex-col gap-3 rounded-2xl border border-surface-border bg-surface-raised p-4 text-left transition hover:border-brand hover:shadow-card-hover dark:border-surface-dark-border dark:bg-surface-dark-raised"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
@@ -728,8 +728,8 @@ export function JobSeekerDashboard({ token, user }) {
                 <p className="mt-2 text-xs text-ink-muted dark:text-ink-dark-muted">PDF or DOCX (max 10MB recommended)</p>
               </form>
               {loading.upload && (
-                <div className="mt-4 rounded-xl border border-accent-muted bg-accent-light p-3">
-                  <p className="text-sm font-semibold text-accent-text">Uploading Resume...</p>
+                <div className="mt-4 rounded-xl border border-brand bg-brand-soft p-3">
+                  <p className="text-sm font-semibold text-brand-on-soft">Uploading Resume...</p>
                 </div>
               )}
             </article>
@@ -750,7 +750,7 @@ export function JobSeekerDashboard({ token, user }) {
                     <p className="mb-1 text-xs font-semibold uppercase text-ink-muted dark:text-ink-dark-muted">Skills</p>
                     <div className="flex flex-wrap gap-2">
                       {(resumeInsight.extracted_skills || []).map((skill) => (
-                        <span key={skill} className="rounded-full bg-accent-light px-2 py-1 text-xs text-accent-text dark:bg-accent/15 dark:text-accent">{skill}</span>
+                        <span key={skill} className="rounded-full bg-brand-soft px-2 py-1 text-xs text-brand-on-soft dark:bg-brand/15 dark:text-brand">{skill}</span>
                       ))}
                     </div>
                   </div>
@@ -770,8 +770,8 @@ export function JobSeekerDashboard({ token, user }) {
           <section className="flex min-h-0 flex-1 shrink-0 flex-col gap-4 overflow-hidden">
           <article className={`${cardClass} shrink-0`}>
             <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => setCvMode("manual")} className={`rounded-xl px-3 py-2 text-sm font-medium transition ${cvMode === "manual" ? "bg-accent text-white" : "border border-surface-border text-ink-muted hover:border-accent hover:text-accent dark:border-surface-dark-border dark:text-ink-dark-muted"}`}>Manual CV Generator</button>
-              <button type="button" onClick={() => setCvMode("conversational")} className={`rounded-xl px-3 py-2 text-sm font-medium transition ${cvMode === "conversational" ? "bg-accent text-white" : "border border-surface-border text-ink-muted hover:border-accent hover:text-accent dark:border-surface-dark-border dark:text-ink-dark-muted"}`}>Conversational CV Generator</button>
+              <button type="button" onClick={() => setCvMode("manual")} className={`rounded-xl px-3 py-2 text-sm font-medium transition ${cvMode === "manual" ? "bg-brand text-white" : "border border-surface-border text-ink-muted hover:border-brand hover:text-brand dark:border-surface-dark-border dark:text-ink-dark-muted"}`}>Manual CV Generator</button>
+              <button type="button" onClick={() => setCvMode("conversational")} className={`rounded-xl px-3 py-2 text-sm font-medium transition ${cvMode === "conversational" ? "bg-brand text-white" : "border border-surface-border text-ink-muted hover:border-brand hover:text-brand dark:border-surface-dark-border dark:text-ink-dark-muted"}`}>Conversational CV Generator</button>
             </div>
           </article>
 
@@ -923,14 +923,14 @@ export function JobSeekerDashboard({ token, user }) {
                   <h3 className="font-semibold text-ink dark:text-ink-dark">Live CV Preview</h3>
                   <div className="flex flex-wrap items-center justify-end gap-2">
                     {loading.convoCv && (
-                      <p className="text-xs text-accent dark:text-accent">Generation in progress — downloads paused…</p>
+                      <p className="text-xs text-brand dark:text-brand">Generation in progress — downloads paused…</p>
                     )}
                     <span className="rounded-full bg-success-bg px-2 py-1 text-xs font-semibold text-success">ATS Score: 94%</span>
                     <button
                       type="button"
                       disabled={loading.export || loading.convoCv || !selectedCvId || !selectedCv?.pdf_path}
                       onClick={() => downloadCvOnly("pdf")}
-                      className="rounded-lg border border-accent bg-surface-raised px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent-light disabled:cursor-not-allowed disabled:opacity-50 dark:bg-surface-dark-raised"
+                      className="rounded-lg border border-brand bg-surface-raised px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-50 dark:bg-surface-dark-raised"
                     >
                       Download PDF
                     </button>
@@ -938,7 +938,7 @@ export function JobSeekerDashboard({ token, user }) {
                       type="button"
                       disabled={loading.export || loading.convoCv || !selectedCvId || !selectedCv?.docx_path}
                       onClick={() => downloadCvOnly("docx")}
-                      className="rounded-lg border border-accent bg-surface-raised px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent-light disabled:cursor-not-allowed disabled:opacity-50 dark:bg-surface-dark-raised"
+                      className="rounded-lg border border-brand bg-surface-raised px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-50 dark:bg-surface-dark-raised"
                     >
                       Download DOCX
                     </button>
@@ -953,12 +953,12 @@ export function JobSeekerDashboard({ token, user }) {
                   {(manualCv.linkedin?.trim() || manualCv.github?.trim()) && (
                     <p className="mt-2 flex flex-wrap gap-4 text-sm">
                       {manualCv.linkedin?.trim() && (
-                        <a href={safeExternalUrl(manualCv.linkedin)} target="_blank" rel="noreferrer" className="font-medium text-accent hover:underline">
+                        <a href={safeExternalUrl(manualCv.linkedin)} target="_blank" rel="noreferrer" className="font-medium text-brand hover:underline">
                           LinkedIn
                         </a>
                       )}
                       {manualCv.github?.trim() && (
-                        <a href={safeExternalUrl(manualCv.github)} target="_blank" rel="noreferrer" className="font-medium text-accent hover:underline">
+                        <a href={safeExternalUrl(manualCv.github)} target="_blank" rel="noreferrer" className="font-medium text-brand hover:underline">
                           GitHub
                         </a>
                       )}
@@ -979,7 +979,7 @@ export function JobSeekerDashboard({ token, user }) {
                               .map((s) => s.trim())
                               .filter(Boolean)
                               .map((skill) => (
-                                <span key={skill} className="rounded-full bg-accent-light px-2 py-1 text-xs text-accent-text dark:bg-accent/15 dark:text-accent">
+                                <span key={skill} className="rounded-full bg-brand-soft px-2 py-1 text-xs text-brand-on-soft dark:bg-brand/15 dark:text-brand">
                                   {skill}
                                 </span>
                               ))}
@@ -1005,7 +1005,7 @@ export function JobSeekerDashboard({ token, user }) {
                   <h3 className="font-semibold text-ink dark:text-ink-dark">CV Coach</h3>
                   <p className="mt-0.5 text-xs text-ink-muted dark:text-ink-dark-muted">Chat to build your CV, then generate &amp; export</p>
                 </div>
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-light text-xl">🐝</div>
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-soft text-xl">🐝</div>
               </div>
 
               {/* Messages */}
@@ -1013,11 +1013,11 @@ export function JobSeekerDashboard({ token, user }) {
                 {convoMessages.map((msg, idx) => (
                   <div key={`${msg.role}-${idx}`} className={`flex items-end gap-2 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
                     {msg.role === "assistant" && (
-                      <div className="mb-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-light text-xs">🐝</div>
+                      <div className="mb-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs">🐝</div>
                     )}
                     <div className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
                       msg.role === "user"
-                        ? "rounded-br-sm bg-accent text-white"
+                        ? "rounded-br-sm bg-brand text-white"
                         : "rounded-bl-sm bg-surface-subtle text-ink dark:bg-surface-dark-subtle dark:text-ink-dark"
                     }`}>
                       {msg.content}
@@ -1028,7 +1028,7 @@ export function JobSeekerDashboard({ token, user }) {
                 {/* Typing indicator */}
                 {loading.convoChat && (
                   <div className="flex items-end gap-2">
-                    <div className="mb-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-light text-xs">🐝</div>
+                    <div className="mb-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs">🐝</div>
                     <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-sm bg-surface-subtle px-4 py-3 dark:bg-surface-dark-subtle">
                       <span className="h-2 w-2 rounded-full bg-ink-faint animate-bounce [animation-delay:0ms] dark:bg-ink-dark-faint" />
                       <span className="h-2 w-2 rounded-full bg-ink-faint animate-bounce [animation-delay:160ms] dark:bg-ink-dark-faint" />
@@ -1090,8 +1090,8 @@ export function JobSeekerDashboard({ token, user }) {
                       }}
                       className={`rounded-xl border p-4 text-left text-sm transition ${
                         String(job.id) === String(selectedJobId)
-                          ? "border-accent bg-accent-light/40 dark:bg-accent/10"
-                          : "border-surface-border hover:border-accent hover:bg-surface-subtle dark:border-surface-dark-border dark:hover:bg-surface-dark-subtle"
+                          ? "border-brand bg-brand-soft/40 dark:bg-brand/10"
+                          : "border-surface-border hover:border-brand hover:bg-surface-subtle dark:border-surface-dark-border dark:hover:bg-surface-dark-subtle"
                       }`}
                     >
                       <p className="text-lg font-semibold text-ink dark:text-ink-dark">{job.title}</p>
@@ -1153,7 +1153,7 @@ export function JobSeekerDashboard({ token, user }) {
                       className="mt-2 block w-full text-xs"
                       onChange={(e) => uploadCvForQuickApply(e.target.files?.[0])}
                     />
-                    {loading.cvUpload && <p className="mt-2 text-xs text-accent">Uploading and attaching new CV...</p>}
+                    {loading.cvUpload && <p className="mt-2 text-xs text-brand">Uploading and attaching new CV...</p>}
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <button className={buttonClass} type="button" disabled={loading.coverLetter} onClick={() => generateCoverLetter(selectedJob.id)}>{loading.coverLetter ? "Generating..." : "Generate Cover Letter"}</button>
@@ -1279,7 +1279,7 @@ export function JobSeekerDashboard({ token, user }) {
                 <p className="text-xs font-semibold uppercase text-ink-muted dark:text-ink-dark-muted">Skill Highlights</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {(profileSkills || "").split(",").map((s) => s.trim()).filter(Boolean).map((skill) => (
-                    <span key={skill} className="rounded-full bg-accent-light px-2 py-1 text-xs text-accent-text dark:bg-accent/15 dark:text-accent">{skill}</span>
+                    <span key={skill} className="rounded-full bg-brand-soft px-2 py-1 text-xs text-brand-on-soft dark:bg-brand/15 dark:text-brand">{skill}</span>
                   ))}
                 </div>
               </div>

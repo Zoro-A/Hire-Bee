@@ -1,4 +1,4 @@
-export function MiniBarChart({ items, valueKey, labelKey, color = "var(--color-accent)", max = 1 }) {
+export function MiniBarChart({ items, valueKey, labelKey, color = "var(--color-brand)", max = 1 }) {
   if (!Array.isArray(items) || items.length === 0) {
     return <p className="text-sm text-ink-muted dark:text-ink-dark-muted">No chart data yet.</p>
   }

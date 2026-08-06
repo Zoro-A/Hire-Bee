@@ -17,7 +17,7 @@ export function MarketingLayout({ user, setToken }) {
         <div className={`mx-auto flex w-full items-center justify-between px-6 py-4 ${authLayout ? "max-w-lg" : "max-w-7xl"}`}>
           <Link to="/" className="flex items-center gap-2">
             <img src="/hirebee-logo.svg" alt="" className="h-9 w-9 rounded-lg" />
-            <span className="text-lg font-bold text-gradient">HireBee</span>
+            <span className="font-display text-lg font-semibold tracking-tight text-ink">HireBee</span>
           </Link>
           <div className="flex items-center gap-2">
             <button
@@ -43,7 +43,7 @@ export function MarketingLayout({ user, setToken }) {
             {!authLayout && !user && (
               <>
                 <Link
-                  className="text-sm font-medium text-ink-muted transition hover:text-accent dark:text-ink-dark-muted dark:hover:text-accent"
+                  className="text-sm font-medium text-ink-muted transition hover:text-brand dark:text-ink-dark-muted dark:hover:text-brand"
                   to="/login"
                 >
                   Login
@@ -65,7 +65,7 @@ export function MarketingLayout({ user, setToken }) {
       >
         {authLayout ? (
           <div className="relative w-full">
-            <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,var(--color-accent-light)_0%,transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top,rgb(124_58_237/0.07)_0%,transparent_60%)]" />
+            <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,var(--color-brand-soft)_0%,transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top,rgb(124_58_237/0.07)_0%,transparent_60%)]" />
             <Outlet />
           </div>
         ) : (
