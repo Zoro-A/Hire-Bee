@@ -10,10 +10,10 @@ export function SeekerCvPage() {
   return (
     <section className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
       <article className={`${cardClass} shrink-0`}>
-        <div className="flex flex-wrap gap-2" role="tablist">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="CV generator mode">
           <button
             type="button"
-            aria-selected={cvMode === "manual"}
+            aria-pressed={cvMode === "manual"}
             onClick={() => setCvMode("manual")}
             className={`rounded-xl px-3 py-2 text-sm font-medium transition ${cvMode === "manual" ? "bg-brand text-white" : "border border-surface-border text-ink-muted hover:border-brand hover:text-brand dark:border-surface-dark-border dark:text-ink-dark-muted"}`}
           >
@@ -21,7 +21,7 @@ export function SeekerCvPage() {
           </button>
           <button
             type="button"
-            aria-selected={cvMode === "conversational"}
+            aria-pressed={cvMode === "conversational"}
             onClick={() => setCvMode("conversational")}
             className={`rounded-xl px-3 py-2 text-sm font-medium transition ${cvMode === "conversational" ? "bg-brand text-white" : "border border-surface-border text-ink-muted hover:border-brand hover:text-brand dark:border-surface-dark-border dark:text-ink-dark-muted"}`}
           >

@@ -291,7 +291,7 @@ export function SeekerDataProvider({ token, user, children }) {
       setResumeId(String(data.resume_id))
       setResumeInsight(data)
       setMessage(`Resume uploaded. Parsed confidence: ${(data.parsing_confidence * 100).toFixed(1)}%`)
-      navigate("/app/seeker/resume")
+      navigate("/app/seeker/resume", { replace: true })
       await refresh()
     } catch (err) {
       setError(err.message)
@@ -427,7 +427,7 @@ export function SeekerDataProvider({ token, user, children }) {
       }
       await refresh()
       setMessage("Conversational CV created. You can now export PDF or DOCX.")
-      navigate("/app/seeker/cv")
+      navigate("/app/seeker/cv", { replace: true })
     } catch (err) {
       setError(err.message)
     } finally {
