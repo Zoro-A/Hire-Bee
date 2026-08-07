@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { Navigate, Route, Routes, useLocation } from "react-router-dom"
 import { apiRequest } from "../lib/api.js"
-import { AUTH_LAYOUT_PATHS } from "../constants/authLayout.js"
 import { MarketingLayout } from "../components/layout/MarketingLayout.jsx"
 import { AppSessionLoading } from "../components/layout/AppSessionLoading.jsx"
 import { AppWorkspace } from "../components/layout/AppWorkspace.jsx"
@@ -20,7 +19,6 @@ export default function App() {
   const [token, setToken] = useState(readStoredToken)
   const [user, setUser] = useState(null)
   const [sessionLoading, setSessionLoading] = useState(() => Boolean(readStoredToken()))
-  const authLayout = AUTH_LAYOUT_PATHS.has(location.pathname)
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ""
 
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -73,19 +71,15 @@ export default function App() {
   }, [token])
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  const isAppShell = location.pathname === "/app" && Boolean(token)
+  const isAppShell = location.pathname.startsWith("/app") && Boolean(token)
 
   return (
     <div
-      className={`transition-colors ${
+      className={
         isAppShell
-          ? "h-[100dvh] overflow-hidden bg-[#f4f6fb] text-[#161a2f] dark:bg-[#0a1022] dark:text-[#e8edff]"
-          : `min-h-screen ${
-              authLayout
-                ? "bg-[#eef1f6] text-[#111827] dark:bg-[#0b1220] dark:text-[#e5e7eb]"
-                : "bg-[#f4f6fb] text-[#161a2f] dark:bg-[#0a1022] dark:text-[#e8edff]"
-            }`
-      }`}
+          ? "h-[100dvh] overflow-hidden bg-surface text-ink transition-colors"
+          : "min-h-screen bg-surface text-ink transition-colors"
+      }
     >
       <Routes>
         <Route

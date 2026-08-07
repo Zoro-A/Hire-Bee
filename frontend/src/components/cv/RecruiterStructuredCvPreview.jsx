@@ -2,7 +2,7 @@ import { getSectionDisplayLabel } from "../../lib/cv.js"
 
 export function RecruiterStructuredCvPreview({ cvJson }) {
   if (!cvJson || typeof cvJson !== "object") {
-    return <p className="text-sm text-[#65709a]">No structured CV attached.</p>
+    return <p className="text-sm text-ink-muted">No structured CV attached.</p>
   }
   const header = cvJson.header || cvJson.personal_information || {}
   const name = header.name || header.full_name || "Candidate"
@@ -20,11 +20,11 @@ export function RecruiterStructuredCvPreview({ cvJson }) {
     const val = sections[key]
     if (key === "skills") {
       const list = Array.isArray(val) ? val : String(val || "").split(",").map((s) => s.trim()).filter(Boolean)
-      if (list.length === 0) return <p className="text-sm text-[#65709a]">—</p>
+      if (list.length === 0) return <p className="text-sm text-ink-muted">—</p>
       return (
         <div className="mt-2 flex flex-wrap gap-2">
           {list.map((skill) => (
-            <span key={skill} className="rounded bg-[#e8edff] px-2 py-1 text-xs text-[#24408f] dark:bg-[#1e3a5f] dark:text-[#93c5fd]">
+            <span key={skill} className="rounded bg-brand-soft px-2 py-1 text-xs text-brand-on-soft">
               {skill}
             </span>
           ))}
@@ -35,7 +35,7 @@ export function RecruiterStructuredCvPreview({ cvJson }) {
       return <p className="mt-1 whitespace-pre-line text-sm">{String(val || "").trim() || "—"}</p>
     }
     if (Array.isArray(val)) {
-      if (val.length === 0) return <p className="text-sm text-[#65709a]">—</p>
+      if (val.length === 0) return <p className="text-sm text-ink-muted">—</p>
       return (
         <ul className="mt-1 list-disc space-y-2 pl-4 text-sm">
           {val.map((item, i) => (
@@ -48,7 +48,7 @@ export function RecruiterStructuredCvPreview({ cvJson }) {
     }
     if (val && typeof val === "object") {
       return (
-        <pre className="mt-1 max-h-48 overflow-auto rounded border border-[#e2e6f6] p-2 text-xs dark:border-[#283056]">
+        <pre className="mt-1 max-h-48 overflow-auto rounded border border-surface-border p-2 text-xs">
           {JSON.stringify(val, null, 2)}
         </pre>
       )
@@ -57,13 +57,13 @@ export function RecruiterStructuredCvPreview({ cvJson }) {
   }
 
   return (
-    <div className="rounded-xl border border-[#dbe2f7] p-4 dark:border-[#283056]">
-      <h4 className="text-xl font-semibold text-[#1a1f3c] dark:text-white">{name}</h4>
-      {line2 ? <p className="mt-1 text-sm text-[#5f67a4] dark:text-[#94a3b8]">{line2}</p> : null}
-      <hr className="my-3 border-[#dbe2f7] dark:border-[#283056]" />
+    <div className="rounded-xl border border-surface-border p-4">
+      <h4 className="text-xl font-semibold text-ink">{name}</h4>
+      {line2 ? <p className="mt-1 text-sm text-ink-muted">{line2}</p> : null}
+      <hr className="my-3 border-surface-border" />
       {order.map((key) => (
-        <div key={key} className="mt-3 border-t border-[#eef2ff] pt-3 first:mt-0 first:border-t-0 first:pt-0 dark:border-[#283056]">
-          <h5 className="text-sm font-semibold text-[#1a1f3c] dark:text-white">{sectionLabel(key)}</h5>
+        <div key={key} className="mt-3 border-t border-surface-border pt-3 first:mt-0 first:border-t-0 first:pt-0">
+          <h5 className="text-sm font-semibold text-ink">{sectionLabel(key)}</h5>
           {renderSectionBody(key)}
         </div>
       ))}
