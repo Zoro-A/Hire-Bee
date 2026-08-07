@@ -38,9 +38,10 @@ export function RoleCard({ id, eyebrow, headline, description, perks, cta, Icon,
         <p className="mb-0.5 text-xs font-semibold uppercase tracking-widest text-ink-faint">
           {eyebrow}
         </p>
-        <h2 className={cn("font-display font-bold text-ink", featured ? "mb-2 text-2xl" : "mb-1.5 text-base")}>
+        {/* h3: nested under the "Choose how you'll use HireBee" <h2> in LandingPage.jsx */}
+        <h3 className={cn("font-display font-bold text-ink", featured ? "mb-2 text-2xl" : "mb-1.5 text-base")}>
           {headline}
-        </h2>
+        </h3>
         <p className={cn("text-ink-muted", featured ? "mb-5 text-sm leading-relaxed" : "mb-3 text-xs leading-relaxed")}>
           {description}
         </p>

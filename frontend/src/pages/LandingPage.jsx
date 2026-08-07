@@ -1,5 +1,5 @@
-﻿import { PiCheck } from "react-icons/pi"
-import { RolePicker } from "@/components/landing/RolePicker.jsx"
+﻿import { RolePicker } from "@/components/landing/RolePicker.jsx"
+import { FeatureGrid } from "@/components/landing/FeatureGrid.jsx"
 
 const roles = [
   {
@@ -39,42 +39,33 @@ const features = [
 
 export function LandingPage() {
   return (
-    <div className="space-y-8">
-      {/* Compact header */}
-      <div className="space-y-2 text-center">
-        <span className="inline-flex rounded-full border border-brand bg-brand-soft px-3 py-1 text-xs font-semibold tracking-wider text-brand-on-soft">
-          AI-Powered Recruitment Platform
+    <div className="space-y-14">
+      {/* TODO(hero): deferred — see docs/superpowers/specs/2026-08-06-hirebee-ui-ux-rework-design.md §9.
+          Intentionally a plain top section, not a hero. Do not expand without a new spec. */}
+      <section className="border-b border-surface-border py-14 sm:py-20">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-surface-border bg-surface-subtle px-3 py-1 text-[11px] font-medium uppercase tracking-[0.12em] text-ink-muted">
+          <span aria-hidden="true" className="size-1.5 rounded-full bg-brand" />
+          AI-powered recruitment
         </span>
-        <h1 className="text-3xl font-bold tracking-tight text-ink dark:text-ink-dark">
+        <h1 className="mt-5 max-w-3xl font-display text-4xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-5xl">
           Run hiring from first resume to final offer.
         </h1>
-        <p className="text-sm text-ink-muted dark:text-ink-dark-muted">
-          Select your role below to get started
+        <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-muted">
+          Semantic matching between candidates and roles — not keyword search. Pick how you want to start.
         </p>
-      </div>
+      </section>
 
       {/* Role selection — asymmetric: one featured card + two compact */}
-      <RolePicker roles={roles} />
+      <section>
+        <h2 className="mb-4 font-display text-xl font-semibold text-ink">Choose how you&apos;ll use HireBee</h2>
+        <RolePicker roles={roles} />
+      </section>
 
-      {/* Platform features — compact secondary */}
-      <div>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-faint dark:text-ink-dark-faint">
-          What&apos;s included
-        </p>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map(({ label, desc }) => (
-            <div key={label} className="flex items-start gap-2.5 rounded-xl border border-surface-border bg-surface-raised p-3 dark:border-surface-dark-border dark:bg-surface-dark-raised">
-              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-brand-soft text-brand-on-soft">
-                <PiCheck className="size-3" aria-hidden="true" />
-              </span>
-              <div>
-                <p className="text-xs font-semibold text-ink dark:text-ink-dark">{label}</p>
-                <p className="text-[11px] leading-snug text-ink-muted dark:text-ink-dark-muted">{desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Platform features — informational, zero amber (restraint) */}
+      <section>
+        <h2 className="mb-4 font-display text-xl font-semibold text-ink">What&apos;s included</h2>
+        <FeatureGrid features={features} />
+      </section>
     </div>
   )
 }
