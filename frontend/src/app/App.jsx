@@ -21,7 +21,12 @@ import { RecruiterApplicantsPage } from "../features/recruiter/pages/RecruiterAp
 import { RecruiterInterviewsPage } from "../features/recruiter/pages/RecruiterInterviewsPage.jsx"
 import { RecruiterEmailsPage } from "../features/recruiter/pages/RecruiterEmailsPage.jsx"
 import { RecruiterProfilePage } from "../features/recruiter/pages/RecruiterProfilePage.jsx"
-import { AdminDashboard } from "../pages/AdminDashboard.jsx"
+import { AdminLayout } from "../features/admin/AdminLayout.jsx"
+import { AdminOverviewPage } from "../features/admin/pages/AdminOverviewPage.jsx"
+import { AdminUsersPage } from "../features/admin/pages/AdminUsersPage.jsx"
+import { AdminRecruitersPage } from "../features/admin/pages/AdminRecruitersPage.jsx"
+import { AdminJobsPage } from "../features/admin/pages/AdminJobsPage.jsx"
+import { AdminEmailsPage } from "../features/admin/pages/AdminEmailsPage.jsx"
 import { LandingPage } from "../pages/LandingPage.jsx"
 import { LoginPage } from "../pages/LoginPage.jsx"
 import { RegisterPage } from "../pages/RegisterPage.jsx"
@@ -157,10 +162,18 @@ export default function App() {
             path="admin"
             element={
               <RequireRole user={user ?? { role: "admin" }} role="admin">
-                <AdminDashboard token={token} user={user} />
+                <AdminLayout />
               </RequireRole>
             }
-          />
+          >
+            <Route index element={<Navigate to="overview" replace />} />
+            <Route path="overview" element={<AdminOverviewPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
+            <Route path="recruiters" element={<AdminRecruitersPage />} />
+            <Route path="jobs" element={<AdminJobsPage />} />
+            <Route path="emails" element={<AdminEmailsPage />} />
+            <Route path="*" element={<Navigate to="overview" replace />} />
+          </Route>
         </Route>
 
         <Route element={<MarketingLayout user={user} setToken={setToken} />}>
