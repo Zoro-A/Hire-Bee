@@ -3,7 +3,25 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom"
 import { apiRequest } from "../lib/api.js"
 import { MarketingLayout } from "../components/layout/MarketingLayout.jsx"
 import { AppSessionLoading } from "../components/layout/AppSessionLoading.jsx"
-import { AppWorkspace } from "../components/layout/AppWorkspace.jsx"
+import { AppLayout } from "../components/layout/AppLayout.jsx"
+import { RoleHomeRedirect } from "../components/routing/RoleHomeRedirect.jsx"
+import { RequireRole } from "../components/routing/RequireRole.jsx"
+import { SeekerLayout } from "../features/seeker/SeekerLayout.jsx"
+import { SeekerOverviewPage } from "../features/seeker/pages/SeekerOverviewPage.jsx"
+import { SeekerResumePage } from "../features/seeker/pages/SeekerResumePage.jsx"
+import { SeekerCvPage } from "../features/seeker/pages/SeekerCvPage.jsx"
+import { SeekerJobsPage } from "../features/seeker/pages/SeekerJobsPage.jsx"
+import { SeekerApplicationsPage } from "../features/seeker/pages/SeekerApplicationsPage.jsx"
+import { SeekerEvaluationPage } from "../features/seeker/pages/SeekerEvaluationPage.jsx"
+import { SeekerProfilePage } from "../features/seeker/pages/SeekerProfilePage.jsx"
+import { RecruiterLayout } from "../features/recruiter/RecruiterLayout.jsx"
+import { RecruiterOverviewPage } from "../features/recruiter/pages/RecruiterOverviewPage.jsx"
+import { RecruiterJobsPage } from "../features/recruiter/pages/RecruiterJobsPage.jsx"
+import { RecruiterApplicantsPage } from "../features/recruiter/pages/RecruiterApplicantsPage.jsx"
+import { RecruiterInterviewsPage } from "../features/recruiter/pages/RecruiterInterviewsPage.jsx"
+import { RecruiterEmailsPage } from "../features/recruiter/pages/RecruiterEmailsPage.jsx"
+import { RecruiterProfilePage } from "../features/recruiter/pages/RecruiterProfilePage.jsx"
+import { AdminDashboard } from "../pages/AdminDashboard.jsx"
 import { LandingPage } from "../pages/LandingPage.jsx"
 import { LoginPage } from "../pages/LoginPage.jsx"
 import { RegisterPage } from "../pages/RegisterPage.jsx"
@@ -90,12 +108,61 @@ export default function App() {
             ) : sessionLoading ? (
               <AppSessionLoading />
             ) : user ? (
-              <AppWorkspace user={user} token={token} setToken={setToken} />
+              <AppLayout user={user} token={token} setToken={setToken} />
             ) : (
               <Navigate to="/login" replace />
             )
           }
-        />
+        >
+          <Route index element={<RoleHomeRedirect user={user ?? { role: "admin" }} />} />
+
+          <Route
+            path="seeker"
+            element={
+              <RequireRole user={user ?? { role: "job_seeker" }} role="job_seeker">
+                <SeekerLayout />
+              </RequireRole>
+            }
+          >
+            <Route index element={<Navigate to="overview" replace />} />
+            <Route path="overview" element={<SeekerOverviewPage />} />
+            <Route path="resume" element={<SeekerResumePage />} />
+            <Route path="cv" element={<SeekerCvPage />} />
+            <Route path="jobs" element={<SeekerJobsPage />} />
+            <Route path="applications" element={<SeekerApplicationsPage />} />
+            <Route path="evaluation" element={<SeekerEvaluationPage />} />
+            <Route path="profile" element={<SeekerProfilePage />} />
+            <Route path="*" element={<Navigate to="overview" replace />} />
+          </Route>
+
+          <Route
+            path="recruiter"
+            element={
+              <RequireRole user={user ?? { role: "recruiter" }} role="recruiter">
+                <RecruiterLayout />
+              </RequireRole>
+            }
+          >
+            <Route index element={<Navigate to="overview" replace />} />
+            <Route path="overview" element={<RecruiterOverviewPage />} />
+            <Route path="jobs" element={<RecruiterJobsPage />} />
+            <Route path="applicants" element={<RecruiterApplicantsPage />} />
+            <Route path="interviews" element={<RecruiterInterviewsPage />} />
+            <Route path="emails" element={<RecruiterEmailsPage />} />
+            <Route path="profile" element={<RecruiterProfilePage />} />
+            <Route path="*" element={<Navigate to="overview" replace />} />
+          </Route>
+
+          <Route
+            path="admin"
+            element={
+              <RequireRole user={user ?? { role: "admin" }} role="admin">
+                <AdminDashboard token={token} user={user} />
+              </RequireRole>
+            }
+          />
+        </Route>
+
         <Route element={<MarketingLayout user={user} setToken={setToken} />}>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage setToken={setToken} googleClientId={googleClientId} />} />

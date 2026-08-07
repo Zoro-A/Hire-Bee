@@ -1,16 +1,5 @@
 import { describe, it, expect } from "vitest"
-
-// Mirrors the evalSummaryByRun memo from JobSeekerDashboard.jsx.
-function buildEvalSummary(metrics, points) {
-  const out = {}
-  ;(metrics || []).forEach((m) => {
-    const pts = (points || []).filter((p) => p.method === m.method && p.run_id === m.run_id && !p.is_candidate)
-    const avg = pts.length ? pts.reduce((s, p) => s + Number(p.candidate_cosine || 0), 0) / pts.length : 0
-    const high = pts.filter((p) => Number(p.candidate_cosine || 0) >= 0.6).length
-    out[m.run_id] = { avg, high, total: pts.length }
-  })
-  return out
-}
+import { buildEvalSummary } from "@/lib/evaluation"
 
 describe("evalSummaryByRun (issue #74)", () => {
   const metrics = [

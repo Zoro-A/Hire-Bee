@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest"
 
-// Mirrors the disabled prop expression used in JobSeekerDashboard.jsx for the
+// Mirrors the disabled prop expression used in CvLivePreview.jsx for the
 // preview Download buttons after the issue #72 fix.
 function isDownloadDisabled(loading, selectedCvId, selectedCv, format) {
   const pathPresent = format === "pdf" ? !!selectedCv?.pdf_path : !!selectedCv?.docx_path

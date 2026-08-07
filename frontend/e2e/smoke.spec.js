@@ -10,7 +10,7 @@ async function login(page, { email, password }) {
   await page.locator('input[type="email"]').fill(email)
   await page.locator('input[type="password"]').fill(password)
   await page.getByRole("button", { name: /sign in|log in/i }).click()
-  await page.waitForURL(/\/app/, { timeout: 15000 })
+  await page.waitForURL(/\/app\/(seeker|recruiter|admin)/, { timeout: 15000 })
   // wait for dashboard nav to render (means /auth/me resolved)
   await expect(page.locator("aside")).toBeVisible({ timeout: 15000 })
 }
@@ -51,7 +51,7 @@ test.describe("smoke", () => {
   // Issue #73: recruiter applicants list shows visual match prioritization
   test("recruiter applicants page renders match-prioritized cards or empty state", async ({ page }) => {
     await login(page, RECRUITER)
-    await page.getByRole("button", { name: /^applicants$/i }).first().click()
+    await page.getByRole("link", { name: /^applicants$/i }).first().click()
     const matchChip = page.getByText(/\d+%\s*match/i).first()
     const noApps = page.getByText(/no applications to your jobs yet/i)
     await expect(matchChip.or(noApps)).toBeVisible({ timeout: 10000 })
@@ -61,11 +61,11 @@ test.describe("smoke", () => {
   test("seeker conversational chat persists across refresh (localStorage cache)", async ({ page }) => {
     await login(page, SEEKER)
     // Go to CV section
-    await page.getByRole("button", { name: /^generate cv$/i }).first().click()
+    await page.getByRole("link", { name: /^generate cv$/i }).first().click()
     // Switch to Conversational mode so the chat transcript renders
     await page.getByRole("button", { name: /conversational cv generator/i }).click()
 
-    // We know from JobSeekerDashboard.jsx that chatStorageKey is
+    // We know from SeekerDataContext.jsx that chatStorageKey is
     // `hirebee:cvChat:${user.id}` where user.id is the numeric id from /auth/me.
     // Fetch /auth/me ourselves using the persisted token rather than parsing JWT.
     const userId = await page.evaluate(async () => {
@@ -99,7 +99,7 @@ test.describe("smoke", () => {
     await page.reload()
     // After reload, app must rehydrate session, navigate to CV → conversational
     await expect(page.locator("aside")).toBeVisible({ timeout: 15000 })
-    await page.getByRole("button", { name: /^generate cv$/i }).first().click()
+    await page.getByRole("link", { name: /^generate cv$/i }).first().click()
     await page.getByRole("button", { name: /conversational cv generator/i }).click()
 
     // Chat is rehydrated from localStorage in the initial state of convoMessages.
@@ -113,7 +113,7 @@ test.describe("smoke", () => {
   // We just verify the surrounding UI exposes the buttons + Live CV Preview header.
   test("seeker CV preview area exposes download buttons + no spurious generation banner", async ({ page }) => {
     await login(page, SEEKER)
-    await page.getByRole("button", { name: /^generate cv$/i }).first().click()
+    await page.getByRole("link", { name: /^generate cv$/i }).first().click()
     // Manual mode is default → Live CV Preview header should render
     await expect(page.getByRole("heading", { name: /live cv preview/i })).toBeVisible({
       timeout: 10000,
@@ -129,7 +129,7 @@ test.describe("smoke", () => {
   // or the "No evaluation runs yet" empty state shows.
   test("seeker evaluation page renders summary cards or empty state", async ({ page }) => {
     await login(page, SEEKER)
-    await page.getByRole("button", { name: /^evaluation$/i }).first().click()
+    await page.getByRole("link", { name: /^evaluation$/i }).first().click()
     const hdr = page.getByRole("heading", { name: /recommendation evaluation/i })
     const empty = page.getByText(/no evaluation runs yet/i)
     await expect(hdr).toBeVisible({ timeout: 10000 })
@@ -137,5 +137,31 @@ test.describe("smoke", () => {
     await expect(empty.or(page.getByText(/avg similarity/i).first())).toBeVisible({
       timeout: 10000,
     })
+  })
+
+  // Deep-linking + reload persistence — the point of the nested-route refactor.
+  test("seeker section is deep-linkable and survives a reload", async ({ page }) => {
+    await login(page, SEEKER)
+    await page.goto("/app/seeker/evaluation")
+    await expect(page.getByRole("heading", { name: /recommendation evaluation/i })).toBeVisible({ timeout: 15000 })
+    await page.reload()
+    await expect(page).toHaveURL(/\/app\/seeker\/evaluation/)
+    await expect(page.getByRole("heading", { name: /recommendation evaluation/i })).toBeVisible({ timeout: 15000 })
+  })
+
+  test("browser back returns to the previous seeker section", async ({ page }) => {
+    await login(page, SEEKER)
+    await page.getByRole("link", { name: /^jobs$/i }).first().click()
+    await expect(page).toHaveURL(/\/app\/seeker\/jobs/)
+    await page.getByRole("link", { name: /^applications$/i }).first().click()
+    await expect(page).toHaveURL(/\/app\/seeker\/applications/)
+    await page.goBack()
+    await expect(page).toHaveURL(/\/app\/seeker\/jobs/)
+  })
+
+  test("a seeker cannot reach the recruiter workspace", async ({ page }) => {
+    await login(page, SEEKER)
+    await page.goto("/app/recruiter/applicants")
+    await expect(page).toHaveURL(/\/app\/seeker/)
   })
 })

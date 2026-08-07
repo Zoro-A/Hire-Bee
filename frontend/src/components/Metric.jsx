@@ -1,11 +1,11 @@
 import { cardClass } from "../styles/uiClasses.js"
 
-export function Metric({ label, value, icon, iconBg = "bg-brand/15", iconColor = "text-brand", sub }) {
+export function Metric({ label, value, Icon, iconBg = "bg-brand/15", iconColor = "text-brand", sub }) {
   return (
     <div className={`${cardClass} card-hover flex items-start gap-4`}>
-      {icon && (
+      {Icon && (
         <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl ${iconBg} ${iconColor}`}>
-          {icon}
+          <Icon className="h-5 w-5" />
         </div>
       )}
       <div className="min-w-0">

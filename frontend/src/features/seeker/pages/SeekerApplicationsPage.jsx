@@ -1,0 +1,43 @@
+import { Metric } from "@/components/Metric.jsx"
+import { StatusBadge } from "@/components/StatusBadge.jsx"
+import { cardClass } from "@/styles/uiClasses.js"
+import { useSeekerData } from "../SeekerDataContext.jsx"
+
+export function SeekerApplicationsPage() {
+  const { apps, jobs } = useSeekerData()
+
+  return (
+    <section className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
+      <div className="grid gap-6">
+        <article className={cardClass}>
+          <h3 className="mb-3 text-2xl font-semibold">My Applications</h3>
+          <div className="grid gap-3 md:grid-cols-3">
+            <Metric label="Total Applications" value={apps.length} />
+            <Metric label="Under Review" value={apps.filter((a) => a.status === "applied" || a.status === "shortlisted").length} />
+            <Metric label="Interviews" value={apps.filter((a) => a.status === "interview").length} />
+          </div>
+        </article>
+
+        <article className={cardClass}>
+          <h3 className="mb-3 font-semibold">Application Status Tracking</h3>
+          <div className="grid gap-2 text-sm">
+            {apps.map((app) => {
+              const jobTitle = jobs.find((job) => job.id === app.job_id)?.title ?? `Job #${app.job_id}`
+              return (
+                <div key={app.id} className="rounded-xl border border-surface-border p-3 dark:border-surface-dark-border">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-semibold">{jobTitle}</p>
+                      <p className="text-xs">Application #{app.id}</p>
+                    </div>
+                    <StatusBadge status={app.status} />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </article>
+      </div>
+    </section>
+  )
+}
