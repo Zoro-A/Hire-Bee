@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge.jsx"
+import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { DataTableShell } from "../components/DataTableShell.jsx"
 import { useAdminData } from "../AdminDataContext.jsx"
 
@@ -41,14 +42,17 @@ export function AdminUsersPage() {
   const { users } = useAdminData()
 
   return (
-    <DataTableShell
-      caption="Platform users"
-      columns={columns}
-      rows={users}
-      getRowKey={(row) => row.id}
-      renderCell={renderCell}
-      searchKeys={["full_name", "email", "role"]}
-      emptyLabel="No users found."
-    />
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <PageHeader title="Users" />
+      <DataTableShell
+        caption="Platform users"
+        columns={columns}
+        rows={users}
+        getRowKey={(row) => row.id}
+        renderCell={renderCell}
+        searchKeys={["full_name", "email", "role"]}
+        emptyLabel="No users found."
+      />
+    </div>
   )
 }

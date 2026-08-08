@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge.jsx"
+import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { DataTableShell } from "../components/DataTableShell.jsx"
 import { useAdminData } from "../AdminDataContext.jsx"
 
@@ -50,14 +51,17 @@ export function AdminJobsPage() {
   const { jobs } = useAdminData()
 
   return (
-    <DataTableShell
-      caption="Posted jobs"
-      columns={columns}
-      rows={jobs}
-      getRowKey={(row) => row.id}
-      renderCell={renderCell}
-      searchKeys={["title", "location", "recruiter_email"]}
-      emptyLabel="No jobs found."
-    />
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <PageHeader title="Jobs" />
+      <DataTableShell
+        caption="Posted jobs"
+        columns={columns}
+        rows={jobs}
+        getRowKey={(row) => row.id}
+        renderCell={renderCell}
+        searchKeys={["title", "location", "recruiter_email"]}
+        emptyLabel="No jobs found."
+      />
+    </div>
   )
 }

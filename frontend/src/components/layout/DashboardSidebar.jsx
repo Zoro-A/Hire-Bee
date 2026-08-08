@@ -18,7 +18,7 @@ export function DashboardSidebar({ items, roleLabel, roleSublabel }) {
             className={({ isActive }) =>
               cn(
                 "group relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors duration-150",
-                "focus-visible:outline-none",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:ring-offset-surface",
                 isActive
                   ? "bg-surface-subtle font-medium text-ink"
                   : "text-ink-muted hover:bg-surface-subtle/60 hover:text-ink",

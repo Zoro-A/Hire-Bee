@@ -1,4 +1,5 @@
 import { cardClass } from "@/styles/uiClasses.js"
+import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { useRecruiterData } from "../RecruiterDataContext.jsx"
 import { InterviewScheduleForm } from "../components/InterviewScheduleForm.jsx"
 
@@ -7,9 +8,10 @@ export function RecruiterInterviewsPage() {
 
   return (
     <section className="min-h-0 flex-1 overflow-y-auto pr-1">
+      <PageHeader title="Interviews" />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <article className={cardClass}>
-          <h3 className="mb-1 font-semibold">Upcoming</h3>
+          <h2 className="mb-1 font-semibold">Upcoming</h2>
           <p className="mb-4 text-xs text-ink-muted dark:text-ink-dark-muted">Scheduled interviews for your roles.</p>
           <div className="max-h-[24rem] space-y-2 overflow-auto text-sm">
             {interviews.length === 0 && <p className="text-ink-muted dark:text-ink-dark-muted">No interviews scheduled.</p>}

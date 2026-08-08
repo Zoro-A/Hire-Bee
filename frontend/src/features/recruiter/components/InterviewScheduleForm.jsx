@@ -6,11 +6,12 @@ export function InterviewScheduleForm() {
 
   return (
     <article className={cardClass}>
-      <h3 className="mb-1 font-semibold">Schedule interview</h3>
+      <h2 className="mb-1 font-semibold">Schedule interview</h2>
       <p className="mb-4 text-xs text-ink-muted dark:text-ink-dark-muted">Sets application status to interview and emails the candidate when SMTP is configured.</p>
       <form onSubmit={scheduleInterview} className="grid gap-3">
-        <label className="text-xs font-medium text-ink-muted dark:text-ink-dark-muted">Application</label>
+        <label className="text-xs font-medium text-ink-muted dark:text-ink-dark-muted" htmlFor="interview-application">Application</label>
         <select
+          id="interview-application"
           className={inputClass}
           value={interviewForm.application_id}
           onChange={(e) => setInterviewForm({ ...interviewForm, application_id: e.target.value })}
@@ -22,11 +23,11 @@ export function InterviewScheduleForm() {
             </option>
           ))}
         </select>
-        <label className="text-xs font-medium text-ink-muted dark:text-ink-dark-muted">Date & time</label>
-        <input className={inputClass} type="datetime-local" value={interviewForm.interview_date} onChange={(e) => setInterviewForm({ ...interviewForm, interview_date: e.target.value })} />
-        <input className={inputClass} placeholder="Meeting link (Zoom, Meet, …)" value={interviewForm.meeting_link} onChange={(e) => setInterviewForm({ ...interviewForm, meeting_link: e.target.value })} />
-        <input className={inputClass} placeholder="Notes (optional)" value={interviewForm.notes} onChange={(e) => setInterviewForm({ ...interviewForm, notes: e.target.value })} />
-        <button className={buttonClass} type="submit" disabled={loading.interview}>
+        <label className="text-xs font-medium text-ink-muted dark:text-ink-dark-muted" htmlFor="interview-date">Date & time</label>
+        <input id="interview-date" className={inputClass} type="datetime-local" value={interviewForm.interview_date} onChange={(e) => setInterviewForm({ ...interviewForm, interview_date: e.target.value })} />
+        <input className={inputClass} aria-label="Meeting link" placeholder="Meeting link (Zoom, Meet, …)" value={interviewForm.meeting_link} onChange={(e) => setInterviewForm({ ...interviewForm, meeting_link: e.target.value })} />
+        <input className={inputClass} aria-label="Notes" placeholder="Notes (optional)" value={interviewForm.notes} onChange={(e) => setInterviewForm({ ...interviewForm, notes: e.target.value })} />
+        <button className={buttonClass} type="submit" aria-busy={loading.interview} disabled={loading.interview}>
           {loading.interview ? "Scheduling…" : "Schedule interview"}
         </button>
       </form>

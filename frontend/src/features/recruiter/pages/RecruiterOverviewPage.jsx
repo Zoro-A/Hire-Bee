@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { cardClass } from "@/styles/uiClasses.js"
 import { Metric } from "@/components/Metric.jsx"
+import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { useRecruiterData } from "../RecruiterDataContext.jsx"
 
 export function RecruiterOverviewPage() {
@@ -8,6 +9,7 @@ export function RecruiterOverviewPage() {
 
   return (
     <section className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
+      <PageHeader title="Overview" />
       <div className="grid gap-4">
         <div className="rounded-2xl border border-brand bg-gradient-to-br from-surface-raised to-brand-soft/40 p-6 dark:border-surface-dark-border dark:from-surface-dark-raised dark:to-brand/8">
           <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted dark:text-ink-dark-muted">Welcome back</p>
@@ -23,7 +25,7 @@ export function RecruiterOverviewPage() {
           <Metric label="Emails logged" value={logs.length} />
         </div>
         <article className={cardClass}>
-          <h3 className="mb-3 font-semibold">Quick actions</h3>
+          <h2 className="mb-3 font-semibold">Quick actions</h2>
           <div className="grid gap-3 md:grid-cols-3">
             <Link to="/app/recruiter/jobs" className="card-hover rounded-xl border border-surface-border p-4 text-left transition hover:border-brand dark:border-surface-dark-border">
               <p className="font-semibold text-ink dark:text-ink-dark">Post a job</p>

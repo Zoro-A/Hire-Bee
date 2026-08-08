@@ -6,6 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog.jsx"
+import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { DataTableShell } from "../components/DataTableShell.jsx"
 import { useAdminData } from "../AdminDataContext.jsx"
 
@@ -67,14 +68,17 @@ export function AdminEmailsPage() {
     .slice(0, RENDER_CAP)
 
   return (
-    <DataTableShell
-      caption="Email logs (showing 200 most recent)"
-      columns={columns}
-      rows={rows}
-      getRowKey={(row) => row.id}
-      renderCell={renderCell}
-      searchKeys={["recipient", "subject", "status", "provider"]}
-      emptyLabel="No email logs found."
-    />
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <PageHeader title="Email logs" />
+      <DataTableShell
+        caption="Email logs (showing 200 most recent)"
+        columns={columns}
+        rows={rows}
+        getRowKey={(row) => row.id}
+        renderCell={renderCell}
+        searchKeys={["recipient", "subject", "status", "provider"]}
+        emptyLabel="No email logs found."
+      />
+    </div>
   )
 }

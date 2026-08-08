@@ -1,6 +1,7 @@
 import { cardClass } from "@/styles/uiClasses.js"
 import { Badge } from "@/components/ui/badge.jsx"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.jsx"
+import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { useRecruiterData } from "../RecruiterDataContext.jsx"
 
 function emailStatusVariant(status) {
@@ -16,8 +17,9 @@ export function RecruiterEmailsPage() {
 
   return (
     <section className="min-h-0 flex-1 overflow-y-auto pr-1">
+      <PageHeader title="Email logs" />
       <article className={cardClass}>
-        <h3 className="mb-1 font-semibold">Email automation</h3>
+        <h2 className="mb-1 font-semibold">Email automation</h2>
         <p className="mb-4 text-xs text-ink-muted dark:text-ink-dark-muted">Recent platform sends (applications, interviews, password reset).</p>
         <div className="overflow-hidden rounded-xl border border-surface-border dark:border-surface-dark-border">
           <Table className="min-w-[640px]">

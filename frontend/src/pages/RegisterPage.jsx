@@ -148,7 +148,7 @@ export function RegisterPage({ setToken, googleClientId }) {
           </FieldShell>
         </div>
         <StatusBanner error={error} />
-        <Button type="submit" disabled={loading} className="w-full py-3">
+        <Button type="submit" disabled={loading} aria-busy={loading} className="w-full py-3">
           {loading ? "Creating…" : "Create account"}
         </Button>
       </form>

@@ -19,7 +19,7 @@ export function MarketingLayout({ user, setToken }) {
       <header role="banner" className="sticky top-0 z-40 border-b border-surface-border bg-surface-raised/80 backdrop-blur-md">
         <div className={`mx-auto flex w-full items-center justify-between px-6 py-4 ${authLayout ? "max-w-lg" : "max-w-7xl"}`}>
           <Link to="/" className="flex items-center gap-2">
-            <img src="/hirebee-logo.svg" alt="" className="h-9 w-9 rounded-lg" />
+            <img src="/hirebee-logo.svg" alt="HireBee home" className="h-9 w-9 rounded-lg" />
             <span className="font-display text-lg font-semibold tracking-tight text-ink">HireBee</span>
           </Link>
           <div className="flex items-center gap-2">

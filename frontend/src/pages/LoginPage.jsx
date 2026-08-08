@@ -126,7 +126,7 @@ export function LoginPage({ setToken, googleClientId }) {
           </Link>
         </div>
         <StatusBanner error={error} />
-        <Button type="submit" disabled={loading} className="w-full py-3">
+        <Button type="submit" disabled={loading} aria-busy={loading} className="w-full py-3">
           {loading ? "Signing in…" : "Sign in"}
         </Button>
       </form>

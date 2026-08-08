@@ -1,6 +1,7 @@
 import { evalMethodLabel } from "@/lib/matching.js"
 import { MiniBarChart } from "@/components/charts/MiniBarChart.jsx"
 import { ClusterScatter } from "@/components/charts/ClusterScatter.jsx"
+import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { cardClass, buttonClass } from "@/styles/uiClasses.js"
 import { useSeekerData } from "../SeekerDataContext.jsx"
 
@@ -9,11 +10,12 @@ export function SeekerEvaluationPage() {
 
   return (
     <section className="min-h-0 flex-1 overflow-y-auto pr-1">
+      <PageHeader title="Evaluation" description="Recommendation quality across matching methods." />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <article className={cardClass}>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-2xl font-semibold">Recommendation Evaluation</h3>
-            <button className={buttonClass} type="button" onClick={runSeekerEvaluation} disabled={runningEval}>
+            <h2 className="text-2xl font-semibold">Recommendation Evaluation</h2>
+            <button className={buttonClass} type="button" onClick={runSeekerEvaluation} aria-busy={runningEval} disabled={runningEval}>
               {runningEval ? "Running..." : "Run Evaluation"}
             </button>
           </div>
@@ -37,7 +39,7 @@ export function SeekerEvaluationPage() {
           )}
         </article>
         <article className={cardClass}>
-          <h4 className="font-semibold">Run Comparison Graph</h4>
+          <h2 className="font-semibold">Run Comparison Graph</h2>
           <div className="mt-3">
             <MiniBarChart
               items={(evalData.metrics || []).map((m) => ({
@@ -52,13 +54,13 @@ export function SeekerEvaluationPage() {
           </div>
         </article>
         <article className={cardClass}>
-          <h4 className="font-semibold">Cosine Similarity Graph (You vs Jobs)</h4>
+          <h2 className="font-semibold">Cosine Similarity Graph (You vs Jobs)</h2>
           <div className="mt-3">
             <ClusterScatter points={evalData.points} method="cosine_similarity" runId={latestRunIdByMethod["cosine_similarity"]} />
           </div>
         </article>
         <article className={cardClass}>
-          <h4 className="font-semibold">Skill Overlap Graph (You vs Jobs)</h4>
+          <h2 className="font-semibold">Skill Overlap Graph (You vs Jobs)</h2>
           <div className="mt-3">
             <ClusterScatter points={evalData.points} method="embedding_distance" runId={latestRunIdByMethod["embedding_distance"]} />
           </div>

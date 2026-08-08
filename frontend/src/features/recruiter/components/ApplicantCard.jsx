@@ -26,7 +26,7 @@ export function ApplicantCard({ app }) {
               </span>
             )}
             {badge.isTop && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-band-high px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+              <span className="inline-flex items-center gap-1 rounded-full bg-band-high px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-foreground">
                 <PiStar className="size-3" aria-hidden="true" />
                 Top match
               </span>

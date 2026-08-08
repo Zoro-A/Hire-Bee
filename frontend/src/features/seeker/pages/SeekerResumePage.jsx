@@ -1,4 +1,5 @@
 import { cardClass, buttonClass } from "@/styles/uiClasses.js"
+import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { useSeekerData } from "../SeekerDataContext.jsx"
 
 export function SeekerResumePage() {
@@ -6,23 +7,33 @@ export function SeekerResumePage() {
 
   return (
     <section className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
+      <PageHeader title="Upload Resume" description="Upload your resume for AI-powered analysis." />
       <div className="grid gap-6 lg:grid-cols-2">
         <article className={`${cardClass} lg:col-span-2`}>
-          <h3 className="mb-2 text-xl font-semibold">Upload Resume</h3>
+          <h2 className="mb-2 text-xl font-semibold">Upload Resume</h2>
           <p className="text-sm text-ink-muted dark:text-ink-dark-muted">Upload your resume for AI-powered analysis.</p>
           <form onSubmit={uploadResume} className="mt-4 rounded-xl border border-dashed border-surface-border p-8 text-center dark:border-surface-dark-border">
-            <input className="mx-auto block w-full max-w-xs text-sm" type="file" name="resume" accept=".pdf,.docx" />
-            <button disabled={loading.upload} className={`${buttonClass} mt-4`} type="submit">{loading.upload ? "Uploading Resume..." : "Upload Resume"}</button>
+            <label className="sr-only" htmlFor="resume-upload-file">
+              Resume file (PDF or DOCX)
+            </label>
+            <input
+              id="resume-upload-file"
+              className="mx-auto block w-full max-w-xs text-sm"
+              type="file"
+              name="resume"
+              accept=".pdf,.docx"
+            />
+            <button disabled={loading.upload} aria-busy={loading.upload} className={`${buttonClass} mt-4`} type="submit">{loading.upload ? "Uploading Resume..." : "Upload Resume"}</button>
             <p className="mt-2 text-xs text-ink-muted dark:text-ink-dark-muted">PDF or DOCX (max 10MB recommended)</p>
           </form>
           {loading.upload && (
-            <div className="mt-4 rounded-xl border border-brand bg-brand-soft p-3">
+            <div role="status" className="mt-4 rounded-xl border border-brand bg-brand-soft p-3">
               <p className="text-sm font-semibold text-brand-on-soft">Uploading Resume...</p>
             </div>
           )}
         </article>
         <article className={cardClass}>
-          <h3 className="mb-3 font-semibold">Profile Snapshot</h3>
+          <h2 className="mb-3 font-semibold">Profile Snapshot</h2>
           <div className="space-y-2 text-sm">
             <p><strong>Name:</strong> {resumeInsight?.parsed_data?.name || user.full_name}</p>
             <p><strong>Email:</strong> {resumeInsight?.parsed_data?.email || user.email}</p>
@@ -31,7 +42,7 @@ export function SeekerResumePage() {
           </div>
         </article>
         <article className={cardClass}>
-          <h3 className="mb-3 font-semibold">Extracted Content</h3>
+          <h2 className="mb-3 font-semibold">Extracted Content</h2>
           {resumeInsight ? (
             <div className="space-y-3 text-sm">
               <div>

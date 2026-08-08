@@ -1,5 +1,6 @@
 import { Metric } from "@/components/Metric.jsx"
 import { StatusBadge } from "@/components/StatusBadge.jsx"
+import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { cardClass } from "@/styles/uiClasses.js"
 import { useSeekerData } from "../SeekerDataContext.jsx"
 
@@ -8,9 +9,10 @@ export function SeekerApplicationsPage() {
 
   return (
     <section className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
+      <PageHeader title="My Applications" />
       <div className="grid gap-6">
         <article className={cardClass}>
-          <h3 className="mb-3 text-2xl font-semibold">My Applications</h3>
+          <h2 className="mb-3 text-2xl font-semibold">My Applications</h2>
           <div className="grid gap-3 md:grid-cols-3">
             <Metric label="Total Applications" value={apps.length} />
             <Metric label="Under Review" value={apps.filter((a) => a.status === "applied" || a.status === "shortlisted").length} />
@@ -19,7 +21,7 @@ export function SeekerApplicationsPage() {
         </article>
 
         <article className={cardClass}>
-          <h3 className="mb-3 font-semibold">Application Status Tracking</h3>
+          <h2 className="mb-3 font-semibold">Application Status Tracking</h2>
           <div className="grid gap-2 text-sm">
             {apps.map((app) => {
               const jobTitle = jobs.find((job) => job.id === app.job_id)?.title ?? `Job #${app.job_id}`

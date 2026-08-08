@@ -4,6 +4,7 @@ import { cardClass } from "@/styles/uiClasses.js"
 import { Metric } from "@/components/Metric.jsx"
 import { Badge } from "@/components/ui/badge.jsx"
 import { EmptyState } from "@/components/feedback/EmptyState.jsx"
+import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { useAdminData } from "../AdminDataContext.jsx"
 
 function emailStatusVariant(status) {
@@ -34,6 +35,7 @@ export function AdminOverviewPage() {
 
   return (
     <section className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
+      <PageHeader title="Overview" />
       <div className="grid gap-4 md:grid-cols-4">
         <Link to="/app/admin/users" className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
           <Metric label="Users" value={<span className="tabular">{users.length}</span>} Icon={PiUsersThree} />
@@ -51,7 +53,7 @@ export function AdminOverviewPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <article className={cardClass}>
-          <h3 className="mb-3 font-semibold text-ink dark:text-ink-dark">Users by role</h3>
+          <h2 className="mb-3 font-semibold text-ink dark:text-ink-dark">Users by role</h2>
           {users.length === 0 ? (
             <EmptyState title="No users yet." />
           ) : (
@@ -67,7 +69,7 @@ export function AdminOverviewPage() {
         </article>
 
         <article className={cardClass}>
-          <h3 className="mb-3 font-semibold text-ink dark:text-ink-dark">Recent email activity</h3>
+          <h2 className="mb-3 font-semibold text-ink dark:text-ink-dark">Recent email activity</h2>
           {recentEmails.length === 0 ? (
             <EmptyState title="No email activity yet." />
           ) : (

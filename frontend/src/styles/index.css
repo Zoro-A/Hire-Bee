@@ -24,9 +24,15 @@
 
   --text:            #17150F;
   --text-muted:      #6B675C;
-  --text-faint:      #9A958A;
+  /* AA fix (Task 5.3): #9A958A on --canvas measured 2.85:1; the brief's own
+     suggested fallback (#8A857A) still only reaches 3.52:1. Darkened further
+     to clear 4.5:1 body-text contrast (measured 4.58:1). */
+  --text-faint:      #76726A;
 
-  --brand:           #A9700C;
+  /* AA fix (Task 5.3): white --primary-foreground on #A9700C measured 4.19:1
+     (fails 4.5:1 body-text contrast on every default button/link). Darkened
+     to clear the bar (measured 4.58:1); ring-on-canvas only improves. */
+  --brand:           #A16A0B;
   --brand-hover:     #8A5A08;
   --brand-soft:      #FBF1DC;
   --brand-on-soft:   #6B460A;
@@ -41,7 +47,7 @@
   --state-info-bg:    #E6ECFD;
 
   /* match bands — brand amber is the sanctioned high-match signal */
-  --band-high: #A9700C;
+  --band-high: #A16A0B;
   --band-mid:  #6B675C;
   --band-low:  #B4231F;
   --band-none: #9A958A;
@@ -96,7 +102,9 @@
 
   --text:            #F5F3EE;
   --text-muted:      #A6A096;
-  --text-faint:      #6E6961;
+  /* AA fix (Task 5.3): #6E6961 on --canvas measured 3.63:1. The brief's
+     suggested fallback (#7E7970) clears 4.5:1 here (measured 4.58:1). */
+  --text-faint:      #7E7970;
 
   --brand:           #E8A93A;
   --brand-hover:     #F2BC5C;

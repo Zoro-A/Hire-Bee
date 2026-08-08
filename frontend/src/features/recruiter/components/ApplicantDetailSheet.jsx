@@ -37,7 +37,7 @@ export function ApplicantDetailSheet() {
           </SheetTitle>
         </SheetHeader>
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
-          {detailLoading && <p className="text-sm text-ink-muted dark:text-ink-dark-muted">Loading application…</p>}
+          {detailLoading && <p role="status" className="text-sm text-ink-muted dark:text-ink-dark-muted">Loading application…</p>}
           {!detailLoading && appDetail && (
             <>
               <div>
@@ -48,6 +48,7 @@ export function ApplicantDetailSheet() {
                   <StatusBadge status={appDetail.status} />
                   <select
                     className={`${inputClass} w-auto min-w-[9rem]`}
+                    aria-label={`Update status for ${appDetail.candidate_name}`}
                     value={appDetail.status}
                     onChange={(e) => updateApplicationStatus(appDetail.application_id, e.target.value)}
                     disabled={loading.status[appDetail.application_id]}
@@ -109,7 +110,7 @@ export function ApplicantDetailSheet() {
               </div>
               {appDetail.cover_letter?.content != null && (
                 <div>
-                  <h4 className="text-sm font-semibold text-ink dark:text-ink-dark">Cover letter</h4>
+                  <h3 className="text-sm font-semibold text-ink dark:text-ink-dark">Cover letter</h3>
                   <div className="mt-2 max-h-56 overflow-y-auto rounded-xl border border-surface-border bg-surface-subtle p-3 text-sm whitespace-pre-wrap dark:border-surface-dark-border dark:bg-surface-dark-subtle">
                     {appDetail.cover_letter.content}
                   </div>
@@ -117,9 +118,9 @@ export function ApplicantDetailSheet() {
               )}
               {appDetail.generated_cv?.cv_json && (
                 <div>
-                  <h4 className="text-sm font-semibold text-ink dark:text-ink-dark">
+                  <h3 className="text-sm font-semibold text-ink dark:text-ink-dark">
                     CV preview{appDetail.generated_cv.title ? ` — ${appDetail.generated_cv.title}` : ""}
-                  </h4>
+                  </h3>
                   <div className="mt-2 max-h-[min(60vh,28rem)] overflow-y-auto">
                     <RecruiterStructuredCvPreview cvJson={appDetail.generated_cv.cv_json} />
                   </div>
@@ -127,7 +128,7 @@ export function ApplicantDetailSheet() {
               )}
               {appDetail.resume?.parsed_data && (
                 <div>
-                  <h4 className="text-sm font-semibold text-ink dark:text-ink-dark">Parsed resume snapshot</h4>
+                  <h3 className="text-sm font-semibold text-ink dark:text-ink-dark">Parsed resume snapshot</h3>
                   <p className="mt-1 text-sm text-ink dark:text-ink-dark">
                     {appDetail.resume.parsed_data?.summary || appDetail.resume.parsed_data?.name || "Parsed fields available in export."}
                   </p>

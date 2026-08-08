@@ -11,6 +11,7 @@ import {
 } from "react-icons/pi"
 import { formatJobMatchLabel } from "@/lib/matching.js"
 import { Metric } from "@/components/Metric.jsx"
+import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { useSeekerData } from "../SeekerDataContext.jsx"
 
 export function SeekerOverviewPage() {
@@ -18,6 +19,7 @@ export function SeekerOverviewPage() {
 
   return (
     <section className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
+      <PageHeader title="Dashboard" description="Your job search at a glance." />
       <div className="grid gap-4 md:grid-cols-4">
         {/* Metric cards */}
         <Metric
@@ -47,7 +49,7 @@ export function SeekerOverviewPage() {
 
         {/* Quick Actions */}
         <article className="md:col-span-4">
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-ink-faint dark:text-ink-dark-faint">Quick Actions</h3>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-ink-faint dark:text-ink-dark-faint">Quick Actions</h2>
           <div className="grid gap-3 md:grid-cols-3">
             {[
               { page: "resume", Icon: PiFileArrowUp, iconBg: "bg-brand/15",  iconColor: "text-brand",  title: "Upload Resume",  desc: "Get AI-powered analysis & skill extraction" },
@@ -77,7 +79,7 @@ export function SeekerOverviewPage() {
         {/* Recommended Jobs */}
         <article className="md:col-span-4">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-ink-faint dark:text-ink-dark-faint">Recommended Jobs</h3>
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-ink-faint dark:text-ink-dark-faint">Recommended Jobs</h2>
             <Link
               to="/app/seeker/jobs"
               className="text-xs font-medium text-brand hover:underline"

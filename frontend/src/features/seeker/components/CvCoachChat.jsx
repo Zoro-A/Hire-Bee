@@ -21,7 +21,7 @@ export function CvCoachChat() {
       {/* Chat header */}
       <div className="flex shrink-0 items-center justify-between border-b border-surface-border pb-4 dark:border-surface-dark-border">
         <div>
-          <h3 className="font-semibold text-ink dark:text-ink-dark">CV Coach</h3>
+          <h2 className="font-semibold text-ink dark:text-ink-dark">CV Coach</h2>
           <p className="mt-0.5 text-xs text-ink-muted dark:text-ink-dark-muted">Chat to build your CV, then generate &amp; export</p>
         </div>
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-soft text-xl">
@@ -40,9 +40,10 @@ export function CvCoachChat() {
             )}
             <div className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
               msg.role === "user"
-                ? "rounded-br-sm bg-brand text-white"
+                ? "rounded-br-sm bg-brand text-primary-foreground"
                 : "rounded-bl-sm bg-surface-subtle text-ink dark:bg-surface-dark-subtle dark:text-ink-dark"
             }`}>
+              <span className="sr-only">{msg.role === "assistant" ? "CV Coach: " : "You: "}</span>
               {msg.content}
             </div>
           </div>
@@ -50,14 +51,15 @@ export function CvCoachChat() {
 
         {/* Typing indicator */}
         {loading.convoChat && (
-          <div className="flex items-end gap-2">
+          <div className="flex items-end gap-2" role="status">
             <div className="mb-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs">
               <img src="/hirebee-logo.svg" alt="" className="h-3.5 w-3.5" />
             </div>
             <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-sm bg-surface-subtle px-4 py-3 dark:bg-surface-dark-subtle">
-              <span className="h-2 w-2 rounded-full bg-ink-faint animate-bounce [animation-delay:0ms] dark:bg-ink-dark-faint" />
-              <span className="h-2 w-2 rounded-full bg-ink-faint animate-bounce [animation-delay:160ms] dark:bg-ink-dark-faint" />
-              <span className="h-2 w-2 rounded-full bg-ink-faint animate-bounce [animation-delay:320ms] dark:bg-ink-dark-faint" />
+              <span className="sr-only">CV Coach is typing…</span>
+              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-ink-faint animate-bounce [animation-delay:0ms] dark:bg-ink-dark-faint" />
+              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-ink-faint animate-bounce [animation-delay:160ms] dark:bg-ink-dark-faint" />
+              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-ink-faint animate-bounce [animation-delay:320ms] dark:bg-ink-dark-faint" />
             </div>
           </div>
         )}
@@ -67,7 +69,11 @@ export function CvCoachChat() {
       {/* Input + actions */}
       <div className="shrink-0 border-t border-surface-border pt-3 dark:border-surface-dark-border">
         <form onSubmit={handleConvoSend} className="flex gap-2">
+          <label className="sr-only" htmlFor="cv-coach-message">
+            Message to CV Coach
+          </label>
           <input
+            id="cv-coach-message"
             className={inputClass}
             value={convoInput}
             onChange={(e) => setConvoInput(e.target.value)}
@@ -79,13 +85,13 @@ export function CvCoachChat() {
           </button>
         </form>
         <div className="mt-3 flex flex-wrap gap-2">
-          <button className={buttonClass} disabled={loading.convoCv} type="button" onClick={generateConversationalCv}>
+          <button className={buttonClass} disabled={loading.convoCv} aria-busy={loading.convoCv} type="button" onClick={generateConversationalCv}>
             {loading.convoCv ? "Generating CV…" : "Generate Conversational CV"}
           </button>
-          <button className={buttonClass} type="button" disabled={loading.export || loading.convoCv || !selectedCvId} onClick={() => exportCv("pdf")}>
+          <button className={buttonClass} type="button" aria-busy={loading.export} disabled={loading.export || loading.convoCv || !selectedCvId} onClick={() => exportCv("pdf")}>
             {loading.export ? "Exporting…" : "Export PDF"}
           </button>
-          <button className={buttonGhostClass} type="button" disabled={loading.export || loading.convoCv || !selectedCvId} onClick={() => exportCv("docx")}>
+          <button className={buttonGhostClass} type="button" aria-busy={loading.export} disabled={loading.export || loading.convoCv || !selectedCvId} onClick={() => exportCv("docx")}>
             {loading.export ? "Exporting…" : "Export DOCX"}
           </button>
         </div>

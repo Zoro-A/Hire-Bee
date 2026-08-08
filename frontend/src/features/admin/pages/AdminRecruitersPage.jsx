@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { DataTableShell } from "../components/DataTableShell.jsx"
 import { useAdminData } from "../AdminDataContext.jsx"
 
@@ -37,14 +38,17 @@ export function AdminRecruitersPage() {
   }
 
   return (
-    <DataTableShell
-      caption="Recruiters"
-      columns={columns}
-      rows={rows}
-      getRowKey={(row) => row.id}
-      renderCell={renderCell}
-      searchKeys={["company_name", "recruiter_email"]}
-      emptyLabel="No recruiters found."
-    />
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <PageHeader title="Recruiters" />
+      <DataTableShell
+        caption="Recruiters"
+        columns={columns}
+        rows={rows}
+        getRowKey={(row) => row.id}
+        renderCell={renderCell}
+        searchKeys={["company_name", "recruiter_email"]}
+        emptyLabel="No recruiters found."
+      />
+    </div>
   )
 }

@@ -55,7 +55,7 @@ export function ForgotPasswordPage() {
           </FieldShell>
         </div>
         <StatusBanner message={msg} error={err} />
-        <Button type="submit" disabled={loading} className="w-full py-3">
+        <Button type="submit" disabled={loading} aria-busy={loading} className="w-full py-3">
           {loading ? "Sending…" : "Send reset link"}
         </Button>
       </form>

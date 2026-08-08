@@ -1,5 +1,6 @@
 import { getSectionDisplayLabel, safeExternalUrl } from "@/lib/cv.js"
 import { cardClass } from "@/styles/uiClasses.js"
+import { isDownloadDisabled } from "@/lib/exportGuards"
 import { useSeekerData } from "../SeekerDataContext.jsx"
 
 export function CvLivePreview() {
@@ -16,7 +17,7 @@ export function CvLivePreview() {
   return (
     <article className={`${cardClass} flex min-h-0 flex-col overflow-hidden`}>
       <div className="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2">
-        <h3 className="font-semibold text-ink dark:text-ink-dark">Live CV Preview</h3>
+        <h2 className="font-semibold text-ink dark:text-ink-dark">Live CV Preview</h2>
         <div className="flex flex-wrap items-center justify-end gap-2">
           {loading.convoCv && (
             <p className="text-xs text-brand dark:text-brand">Generation in progress — downloads paused…</p>
@@ -24,7 +25,7 @@ export function CvLivePreview() {
           <span className="rounded-full bg-success-bg px-2 py-1 text-xs font-semibold text-success">ATS Score: 94%</span>
           <button
             type="button"
-            disabled={loading.export || loading.convoCv || !selectedCvId || !selectedCv?.pdf_path}
+            disabled={isDownloadDisabled(loading, selectedCvId, selectedCv, "pdf")}
             onClick={() => downloadCvOnly("pdf")}
             className="rounded-lg border border-brand bg-surface-raised px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-50 dark:bg-surface-dark-raised"
           >
@@ -32,7 +33,7 @@ export function CvLivePreview() {
           </button>
           <button
             type="button"
-            disabled={loading.export || loading.convoCv || !selectedCvId || !selectedCv?.docx_path}
+            disabled={isDownloadDisabled(loading, selectedCvId, selectedCv, "docx")}
             onClick={() => downloadCvOnly("docx")}
             className="rounded-lg border border-brand bg-surface-raised px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-50 dark:bg-surface-dark-raised"
           >
@@ -42,7 +43,7 @@ export function CvLivePreview() {
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto pr-1">
       <div className="rounded-xl border border-surface-border p-5 dark:border-surface-dark-border">
-        <h4 className="text-2xl font-semibold text-ink dark:text-ink-dark">{manualCv.full_name || "Your Name"}</h4>
+        <h3 className="text-2xl font-semibold text-ink dark:text-ink-dark">{manualCv.full_name || "Your Name"}</h3>
         <p className="mt-1 text-sm text-ink-muted dark:text-ink-dark-muted">
           {[manualCv.email, manualCv.phone, manualCv.location].filter(Boolean).join(" • ") || "email@example.com"}
         </p>
@@ -67,7 +68,7 @@ export function CvLivePreview() {
           const emptyHint = key === "skills" ? "Add comma-separated skills." : `Add ${label.toLowerCase()}.`
           return (
             <div key={`preview-${key}`} className={pidx ? "mt-4" : ""}>
-              <h5 className="font-semibold">{label}</h5>
+              <h4 className="font-semibold">{label}</h4>
               {key === "skills" ? (
                 <div className="mt-2 flex flex-wrap gap-2">
                   {String(raw)

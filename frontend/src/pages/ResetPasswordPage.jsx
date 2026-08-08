@@ -71,7 +71,7 @@ export function ResetPasswordPage() {
           </FieldShell>
         </div>
         <StatusBanner message={msg} error={err} />
-        <Button type="submit" disabled={loading || !token} className="w-full py-3">
+        <Button type="submit" disabled={loading || !token} aria-busy={loading} className="w-full py-3">
           {loading ? "Updating…" : "Update password"}
         </Button>
       </form>
