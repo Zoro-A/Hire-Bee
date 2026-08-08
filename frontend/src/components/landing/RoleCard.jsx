@@ -48,7 +48,7 @@ export function RoleCard({ id, eyebrow, headline, description, perks, cta, Icon,
         <ul className={cn("space-y-1.5", featured ? "mb-6" : "mb-4")}>
           {visiblePerks.map((perk) => (
             <li key={perk} className="flex items-center gap-2 text-xs text-ink-muted">
-              <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-on-soft">
+              <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded-full", featured ? "bg-brand-soft text-brand-on-soft" : "bg-surface-subtle text-ink-muted")}>
                 <PiCheck className="size-2.5" aria-hidden="true" />
               </span>
               {perk}
