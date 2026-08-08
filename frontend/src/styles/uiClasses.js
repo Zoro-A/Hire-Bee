@@ -9,7 +9,7 @@ export const cardClass =
   "dark:border-surface-dark-border dark:bg-surface-dark-raised"
 
 export const buttonClass =
-  "rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white transition " +
+  "rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-primary-foreground transition " +
   "hover:bg-brand-hover active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
 
 export const buttonGhostClass =
