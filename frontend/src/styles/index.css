@@ -52,16 +52,32 @@
   --band-low:  #B4231F;
   --band-none: #9A958A;
 
-  /* chart palettes — never the brand accent, never the state colors */
-  --chart-1: #2F6F8F;
-  --chart-2: #8A5CA8;
-  --chart-3: #3E8E7E;
-  --chart-4: #B4653A;
-  --chart-5: #5C6BC0;
-  --chart-6: #7A8B2E;
-  --chart-seq-1: #DCE7EE;
-  --chart-seq-2: #A9C6D8;
-  --chart-seq-3: #6FA1BC;
+  /* chart palettes — never the brand accent, never the state colors.
+     dataviz fix (Task 5.5): original 6-color set failed the palette
+     validator (chroma too low on 2 colors — read as gray — plus a
+     CVD-unsafe adjacent pair). Replaced with a validated set reordered so
+     aqua<->green, aqua<->magenta, and magenta<->red never sit adjacent
+     (all three fail CVD/normal-vision separation badly); verified via
+     dataviz/scripts/validate_palette.js --mode light --surface "#FAFAF8"
+     -> ALL CHECKS PASS (two expected WARNs: magenta/green CVD separation
+     sits in the "legal only with secondary encoding" band, and aqua/magenta
+     dip below 3:1 on this light surface — this chart ships a table
+     fallback, per-point <title> tooltips, and a legend as that secondary
+     encoding). Zero amber/orange-family hues, so none compete with --brand
+     on the candidate marker. */
+  --chart-1: #1baf7a;
+  --chart-2: #2a78d6;
+  --chart-3: #e34948;
+  --chart-4: #4a3aa7;
+  --chart-5: #008300;
+  --chart-6: #e87ba4;
+  /* dataviz fix (Task 5.4): original ramp's light end (#DCE7EE) measured
+     1.20:1 against --canvas — nearly invisible. Replaced with a validated
+     ramp (light-end contrast >=2:1, monotone lightness, adjacent DeltaL
+     >=0.06, single hue) via dataviz/scripts/validate_palette.js. */
+  --chart-seq-1: #8FB4CB;
+  --chart-seq-2: #6FA1BC;
+  --chart-seq-3: #5D8CA9;
   --chart-seq-4: #3D7B9C;
   --chart-seq-5: #1E4F6B;
 
@@ -125,17 +141,25 @@
   --band-low:  #F87171;
   --band-none: #6E6961;
 
-  --chart-1: #7FB6D4;
-  --chart-2: #C3A0DA;
-  --chart-3: #7FCBBB;
-  --chart-4: #E0A183;
-  --chart-5: #9BA6E8;
-  --chart-6: #BCC97A;
-  --chart-seq-1: #1B2A33;
-  --chart-seq-2: #2C4655;
-  --chart-seq-3: #43697F;
-  --chart-seq-4: #6194AC;
-  --chart-seq-5: #8FBFD6;
+  /* dataviz fix (Task 5.5): see the light-mode --chart-1..6 comment above
+     for why this order and hue set. Verified via
+     dataviz/scripts/validate_palette.js --mode dark --surface "#0B0A08"
+     -> ALL CHECKS PASS (same two expected WARNs as light mode). */
+  --chart-1: #199e70;
+  --chart-2: #3987e5;
+  --chart-3: #e66767;
+  --chart-4: #9085e9;
+  --chart-5: #008300;
+  --chart-6: #d55181;
+  /* dataviz fix (Task 5.4): original ramp's light end (#1B2A33) measured
+     1.34:1 against --canvas (dark) — nearly invisible. Replaced with a
+     validated ramp (light-end contrast >=2:1, monotone lightness, adjacent
+     DeltaL >=0.06, single hue) via dataviz/scripts/validate_palette.js. */
+  --chart-seq-1: #345364;
+  --chart-seq-2: #4D7690;
+  --chart-seq-3: #6699B3;
+  --chart-seq-4: #82B4CC;
+  --chart-seq-5: #A9D2E3;
 
   --background: var(--canvas);
   --foreground: var(--text);
