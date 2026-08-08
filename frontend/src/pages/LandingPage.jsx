@@ -1,5 +1,9 @@
-﻿import { RolePicker } from "@/components/landing/RolePicker.jsx"
+﻿import { Link } from "react-router-dom"
+import { RolePicker } from "@/components/landing/RolePicker.jsx"
 import { FeatureGrid } from "@/components/landing/FeatureGrid.jsx"
+import { HowItWorks } from "@/components/landing/HowItWorks.jsx"
+import { CapabilityShowcase } from "@/components/landing/CapabilityShowcase.jsx"
+import { Button } from "@/components/ui/button"
 
 const roles = [
   {
@@ -51,7 +55,7 @@ export function LandingPage() {
           Run hiring from first resume to final offer.
         </h1>
         <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-muted">
-          Semantic matching between candidates and roles — not keyword search. Pick how you want to start.
+          Semantic matching between candidates and roles, not keyword search. Pick how you want to start.
         </p>
       </section>
 
@@ -61,10 +65,29 @@ export function LandingPage() {
         <RolePicker roles={roles} />
       </section>
 
+      {/* Real numbered process per audience — two-column list, not a card grid */}
+      <HowItWorks />
+
       {/* Platform features — informational, zero amber (restraint) */}
       <section>
         <h2 className="mb-4 font-display text-xl font-semibold text-ink">What&apos;s included</h2>
         <FeatureGrid features={features} />
+      </section>
+
+      {/* Deeper dive on the 3 most distinctive capabilities — asymmetric bento */}
+      <CapabilityShowcase />
+
+      {/* Closing CTA — quiet, centered, reuses existing role CTAs verbatim */}
+      <section className="border-t border-surface-border py-14 text-center">
+        <h2 className="font-display text-2xl font-semibold text-ink">Ready to get started?</h2>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <Button asChild size="lg">
+            <Link to="/register?role=job_seeker">Get Started</Link>
+          </Button>
+          <Button asChild variant="outline" size="lg">
+            <Link to="/register?role=recruiter">Start Hiring</Link>
+          </Button>
+        </div>
       </section>
     </div>
   )
