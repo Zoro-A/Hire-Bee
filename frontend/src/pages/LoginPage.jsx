@@ -1,15 +1,23 @@
 import { GoogleLogin } from "@react-oauth/google"
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import { PiEnvelopeSimple, PiEye, PiEyeSlash, PiLock } from "react-icons/pi"
 import { apiRequest } from "../lib/api.js"
-import { inputClass, buttonClass } from "../styles/uiClasses.js"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { StatusBanner } from "@/components/feedback/StatusBanner.jsx"
 import { FieldShell } from "../components/auth/FieldShell.jsx"
+
+const fieldInputClass =
+  "h-auto flex-1 border-0 bg-transparent p-0 shadow-none text-sm text-ink outline-none focus-visible:ring-0 focus-visible:ring-offset-0 dark:text-ink-dark"
 
 export function LoginPage({ setToken, googleClientId }) {
   const navigate = useNavigate()
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [remember, setRemember] = useState(true)
+  const [showPassword, setShowPassword] = useState(false)
   const [form, setForm] = useState({ email: "", password: "" })
 
   async function submit(e) {
@@ -66,11 +74,14 @@ export function LoginPage({ setToken, googleClientId }) {
       </div>
       <form onSubmit={submit} className="space-y-4">
         <div>
-          <label className="mb-1 block text-sm font-medium text-ink dark:text-ink-dark">Email</label>
+          <Label htmlFor="login-email" className="mb-1 text-ink dark:text-ink-dark">
+            Email
+          </Label>
           <FieldShell>
-            <span className="text-ink-faint dark:text-ink-dark-faint" aria-hidden>✉</span>
-            <input
-              className="min-w-0 flex-1 border-0 bg-transparent text-sm text-ink outline-none dark:text-ink-dark"
+            <PiEnvelopeSimple aria-hidden="true" />
+            <Input
+              id="login-email"
+              className={fieldInputClass}
               type="email"
               placeholder="Enter your email"
               value={form.email}
@@ -80,17 +91,29 @@ export function LoginPage({ setToken, googleClientId }) {
           </FieldShell>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-ink dark:text-ink-dark">Password</label>
+          <Label htmlFor="login-password" className="mb-1 text-ink dark:text-ink-dark">
+            Password
+          </Label>
           <FieldShell>
-            <span className="text-ink-faint dark:text-ink-dark-faint" aria-hidden>🔒</span>
-            <input
-              className="min-w-0 flex-1 border-0 bg-transparent text-sm text-ink outline-none dark:text-ink-dark"
-              type="password"
+            <PiLock aria-hidden="true" />
+            <Input
+              id="login-password"
+              className={fieldInputClass}
+              type={showPassword ? "text" : "password"}
               placeholder="••••••••"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               required
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
+              className="press shrink-0 text-ink-faint transition hover:text-ink dark:text-ink-dark-faint dark:hover:text-ink-dark"
+            >
+              {showPassword ? <PiEyeSlash className="size-4" aria-hidden="true" /> : <PiEye className="size-4" aria-hidden="true" />}
+            </button>
           </FieldShell>
         </div>
         <div className="flex items-center justify-between text-sm">
@@ -102,14 +125,10 @@ export function LoginPage({ setToken, googleClientId }) {
             Forgot password?
           </Link>
         </div>
-        {error && <p className="text-sm text-danger">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className={`${buttonClass} w-full py-3`}
-        >
+        <StatusBanner error={error} />
+        <Button type="submit" disabled={loading} className="w-full py-3">
           {loading ? "Signing in…" : "Sign in"}
-        </button>
+        </Button>
       </form>
       {googleClientId && (
         <>

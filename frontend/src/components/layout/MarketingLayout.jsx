@@ -1,7 +1,8 @@
 import { Link, Outlet, useLocation } from "react-router-dom"
+import { PiMoon, PiSun } from "react-icons/pi"
 import { useTheme } from "../../context/ThemeContext.jsx"
 import { AUTH_LAYOUT_PATHS } from "../../constants/authLayout.js"
-import { buttonClass, buttonGhostClass } from "../../styles/uiClasses.js"
+import { Button } from "@/components/ui/button"
 
 export function MarketingLayout({ user, setToken }) {
   const location = useLocation()
@@ -9,32 +10,38 @@ export function MarketingLayout({ user, setToken }) {
   const { isDark, toggleTheme } = useTheme()
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-surface-border bg-surface-raised/80 backdrop-blur-md">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-brand focus:px-4 focus:py-2 focus:text-primary-foreground"
+      >
+        Skip to main content
+      </a>
+      <header role="banner" className="sticky top-0 z-40 border-b border-surface-border bg-surface-raised/80 backdrop-blur-md">
         <div className={`mx-auto flex w-full items-center justify-between px-6 py-4 ${authLayout ? "max-w-lg" : "max-w-7xl"}`}>
           <Link to="/" className="flex items-center gap-2">
             <img src="/hirebee-logo.svg" alt="" className="h-9 w-9 rounded-lg" />
             <span className="font-display text-lg font-semibold tracking-tight text-ink">HireBee</span>
           </Link>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={toggleTheme}
-              className={buttonGhostClass}
-              aria-label="Toggle theme"
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
             >
-              {isDark ? "Light mode" : "Dark mode"}
-            </button>
+              {isDark ? <PiSun className="size-4" aria-hidden="true" /> : <PiMoon className="size-4" aria-hidden="true" />}
+            </Button>
             {!authLayout && user && (
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => {
                   localStorage.removeItem("hirebee-persist")
                   setToken("")
                 }}
-                className={buttonGhostClass}
               >
                 Logout
-              </button>
+              </Button>
             )}
             {!authLayout && !user && (
               <>
@@ -44,15 +51,16 @@ export function MarketingLayout({ user, setToken }) {
                 >
                   Login
                 </Link>
-                <Link className={buttonClass} to="/register">
-                  Get Started
-                </Link>
+                <Button asChild>
+                  <Link to="/register">Get Started</Link>
+                </Button>
               </>
             )}
           </div>
         </div>
       </header>
       <main
+        id="main"
         className={
           authLayout
             ? "mx-auto flex min-h-[calc(100dvh-4rem)] w-full max-w-lg items-center justify-center px-6 py-12"
