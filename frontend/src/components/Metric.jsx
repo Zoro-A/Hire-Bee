@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react"
-import { gsap } from "@/lib/gsap"
+import { useRef, useState } from "react"
+import { gsap, useGSAP } from "@/lib/gsap"
 import { DUR, EASE, REDUCED_MOTION_QUERY } from "@/lib/motion"
 import { cardClass } from "../styles/uiClasses.js"
 
@@ -17,25 +17,25 @@ export function Metric({ label, value, Icon, iconBg = "bg-brand/15", iconColor =
   const [tweenedValue, setTweenedValue] = useState(() => (isNumeric && !prefersReducedMotion() ? 0 : null))
   const hasAnimatedRef = useRef(false)
 
-  useEffect(() => {
-    if (!isNumeric || hasAnimatedRef.current || prefersReducedMotion()) return
-    hasAnimatedRef.current = true
+  useGSAP(
+    () => {
+      if (!isNumeric || hasAnimatedRef.current || prefersReducedMotion()) return
+      hasAnimatedRef.current = true
 
-    const counter = { v: 0 }
-    const tween = gsap.to(counter, {
-      v: value,
-      duration: DUR.slow,
-      ease: EASE.soft,
-      snap: { v: 1 },
-      onUpdate: () => setTweenedValue(counter.v),
-      onComplete: () => setTweenedValue(null),
-    })
-    return () => {
-      tween.kill()
-      setTweenedValue(null)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value])
+      const counter = { v: 0 }
+      gsap.to(counter, {
+        v: value,
+        duration: DUR.slow,
+        ease: EASE.soft,
+        snap: { v: 1 },
+        onUpdate: () => setTweenedValue(counter.v),
+        onComplete: () => setTweenedValue(null),
+      })
+
+      return () => setTweenedValue(null)
+    },
+    { dependencies: [value] },
+  )
 
   const displayNumber = tweenedValue !== null ? tweenedValue : value
 
