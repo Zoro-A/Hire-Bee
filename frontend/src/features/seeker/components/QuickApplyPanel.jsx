@@ -21,20 +21,20 @@ export function QuickApplyPanel({ job }) {
   return (
     <>
       <h3 className="mt-4 font-semibold">Quick Apply</h3>
-      <div className="mt-2 rounded-xl border border-surface-border p-3 text-sm dark:border-surface-dark-border">
-        <p className="text-xs font-semibold uppercase text-ink-muted dark:text-ink-dark-muted">AI-generated cover letter</p>
+      <div className="mt-2 rounded-xl border border-surface-border p-3 text-sm">
+        <p className="text-xs font-semibold uppercase text-ink-muted">AI-generated cover letter</p>
         <textarea
           className={`${inputClass} mt-2 min-h-44`}
           value={coverLetterDraft}
           onChange={(e) => setCoverLetterDraft(e.target.value)}
           placeholder="Generate a cover letter, then edit it before applying."
         />
-        <p className="mt-2 text-xs text-ink-muted dark:text-ink-dark-muted">
+        <p className="mt-2 text-xs text-ink-muted">
           {selectedJobLetter ? `Using cover letter #${selectedJobLetter.id}` : "No cover letter linked yet."}
         </p>
       </div>
-      <div className="mt-3 rounded-xl border border-surface-border p-3 text-sm dark:border-surface-dark-border">
-        <p id="quick-apply-cv-label" className="text-xs font-semibold uppercase text-ink-muted dark:text-ink-dark-muted">Attached CV</p>
+      <div className="mt-3 rounded-xl border border-surface-border p-3 text-sm">
+        <p id="quick-apply-cv-label" className="text-xs font-semibold uppercase text-ink-muted">Attached CV</p>
         <select
           className={`${inputClass} mt-2`}
           aria-labelledby="quick-apply-cv-label"
@@ -48,14 +48,14 @@ export function QuickApplyPanel({ job }) {
             </option>
           ))}
         </select>
-        <p className="mt-2 text-xs text-ink-muted dark:text-ink-dark-muted">
+        <p className="mt-2 text-xs text-ink-muted">
           {applyForm.generated_cv_id
             ? `Using saved CV: ${cvs.find((cv) => String(cv.id) === String(applyForm.generated_cv_id))?.title || "Selected"}`
             : resumeId
               ? `Using uploaded CV/Resume ID: ${resumeId}`
               : "No CV selected yet"}
         </p>
-        <label className="mt-3 block text-xs font-semibold uppercase text-ink-muted dark:text-ink-dark-muted" htmlFor="quick-apply-cv-file">
+        <label className="mt-3 block text-xs font-semibold uppercase text-ink-muted" htmlFor="quick-apply-cv-file">
           Or upload a new CV (PDF/DOCX)
         </label>
         <input

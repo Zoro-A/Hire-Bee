@@ -10,7 +10,7 @@ import { StatusBanner } from "@/components/feedback/StatusBanner.jsx"
 import { FieldShell } from "../components/auth/FieldShell.jsx"
 
 const fieldInputClass =
-  "h-auto flex-1 border-0 bg-transparent p-0 shadow-none text-sm text-ink outline-none focus-visible:ring-0 focus-visible:ring-offset-0 dark:text-ink-dark"
+  "h-auto flex-1 border-0 bg-transparent p-0 shadow-none text-sm text-ink outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
 
 export function LoginPage({ setToken, googleClientId }) {
   const navigate = useNavigate()
@@ -64,17 +64,17 @@ export function LoginPage({ setToken, googleClientId }) {
   }
 
   return (
-    <div className="rounded-2xl border border-surface-border bg-surface-raised p-8 shadow-card dark:border-surface-dark-border dark:bg-surface-dark-raised">
+    <div className="rounded-2xl border border-surface-border bg-surface-raised p-8 shadow-card">
       <div className="mb-6 text-center">
         <div className="mx-auto mb-3 flex justify-center">
           <img src="/hirebee-logo.svg" alt="" className="h-12 w-12 rounded-xl ring-2 ring-brand/20" />
         </div>
-        <h1 className="text-2xl font-semibold text-ink dark:text-ink-dark">Sign in to your account</h1>
-        <p className="mt-1 text-sm text-ink-muted dark:text-ink-dark-muted">Welcome back! Please enter your details</p>
+        <h1 className="text-2xl font-semibold text-ink">Sign in to your account</h1>
+        <p className="mt-1 text-sm text-ink-muted">Welcome back! Please enter your details</p>
       </div>
       <form onSubmit={submit} className="space-y-4">
         <div>
-          <Label htmlFor="login-email" className="mb-1 text-ink dark:text-ink-dark">
+          <Label htmlFor="login-email" className="mb-1 text-ink">
             Email
           </Label>
           <FieldShell>
@@ -91,7 +91,7 @@ export function LoginPage({ setToken, googleClientId }) {
           </FieldShell>
         </div>
         <div>
-          <Label htmlFor="login-password" className="mb-1 text-ink dark:text-ink-dark">
+          <Label htmlFor="login-password" className="mb-1 text-ink">
             Password
           </Label>
           <FieldShell>
@@ -110,14 +110,14 @@ export function LoginPage({ setToken, googleClientId }) {
               onClick={() => setShowPassword((v) => !v)}
               aria-label={showPassword ? "Hide password" : "Show password"}
               aria-pressed={showPassword}
-              className="press shrink-0 text-ink-faint transition hover:text-ink dark:text-ink-dark-faint dark:hover:text-ink-dark"
+              className="press shrink-0 text-ink-faint transition hover:text-ink"
             >
               {showPassword ? <PiEyeSlash className="size-4" aria-hidden="true" /> : <PiEye className="size-4" aria-hidden="true" />}
             </button>
           </FieldShell>
         </div>
         <div className="flex items-center justify-between text-sm">
-          <label className="flex cursor-pointer items-center gap-2 text-ink-muted dark:text-ink-dark-muted">
+          <label className="flex cursor-pointer items-center gap-2 text-ink-muted">
             <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="rounded" />
             Remember me
           </label>
@@ -134,10 +134,10 @@ export function LoginPage({ setToken, googleClientId }) {
         <>
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-surface-border dark:border-surface-dark-border" />
+              <div className="w-full border-t border-surface-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-surface-raised px-2 text-ink-muted dark:bg-surface-dark-raised dark:text-ink-dark-muted">Or continue with</span>
+              <span className="bg-surface-raised px-2 text-ink-muted">Or continue with</span>
             </div>
           </div>
           <div className="flex justify-center [&>div]:w-full">
@@ -154,13 +154,13 @@ export function LoginPage({ setToken, googleClientId }) {
           </div>
         </>
       )}
-      <p className="mt-6 text-center text-sm text-ink-muted dark:text-ink-dark-muted">
+      <p className="mt-6 text-center text-sm text-ink-muted">
         Don&apos;t have an account?{" "}
         <Link to="/register" className="font-semibold text-brand hover:underline">
           Sign up
         </Link>
       </p>
-      <p className="mt-4 text-center text-xs text-ink-faint dark:text-ink-dark-faint">
+      <p className="mt-4 text-center text-xs text-ink-faint">
         By signing in, you agree to our <span className="text-brand">Terms</span> and{" "}
         <span className="text-brand">Privacy Policy</span>.
       </p>

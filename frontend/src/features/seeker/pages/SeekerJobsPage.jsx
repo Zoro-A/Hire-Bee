@@ -33,7 +33,7 @@ export function SeekerJobsPage() {
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <article className={cardClass}>
           <h2 className="mb-2 text-2xl font-semibold">Job Recommendations</h2>
-          <p className="mb-3 text-sm text-ink-muted dark:text-ink-dark-muted">AI-powered matches based on your profile.</p>
+          <p className="mb-3 text-sm text-ink-muted">AI-powered matches based on your profile.</p>
           <label className="sr-only" htmlFor="job-search">
             Search by job title, company, or keywords
           </label>
@@ -63,13 +63,13 @@ export function SeekerJobsPage() {
           <h2 className="mb-3 text-2xl font-semibold">{selectedJob?.title || "Select a job"}</h2>
           {selectedJob ? (
             <>
-              <p className="text-sm text-ink-muted dark:text-ink-dark-muted">{selectedJob.location || "Remote"} • {selectedJob.recruiter_email}</p>
+              <p className="text-sm text-ink-muted">{selectedJob.location || "Remote"} • {selectedJob.recruiter_email}</p>
               <h3 className="mt-4 font-semibold">About the role</h3>
               <p className="mt-1 text-sm whitespace-pre-line">{selectedJob.description}</p>
               <QuickApplyPanel job={selectedJob} />
             </>
           ) : (
-            <p className="text-sm text-ink-muted dark:text-ink-dark-muted">Pick a job from the list to view full details and quick apply panel.</p>
+            <p className="text-sm text-ink-muted">Pick a job from the list to view full details and quick apply panel.</p>
           )}
         </article>
       </div>

@@ -124,7 +124,7 @@ export default function App() {
           <Route
             path="seeker"
             element={
-              <RequireRole user={user ?? { role: "job_seeker" }} role="job_seeker">
+              <RequireRole user={user} role="job_seeker">
                 <SeekerLayout />
               </RequireRole>
             }
@@ -143,7 +143,7 @@ export default function App() {
           <Route
             path="recruiter"
             element={
-              <RequireRole user={user ?? { role: "recruiter" }} role="recruiter">
+              <RequireRole user={user} role="recruiter">
                 <RecruiterLayout />
               </RequireRole>
             }
@@ -161,7 +161,7 @@ export default function App() {
           <Route
             path="admin"
             element={
-              <RequireRole user={user ?? { role: "admin" }} role="admin">
+              <RequireRole user={user} role="admin">
                 <AdminLayout />
               </RequireRole>
             }

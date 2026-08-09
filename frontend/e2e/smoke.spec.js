@@ -165,3 +165,21 @@ test.describe("smoke", () => {
     await expect(page).toHaveURL(/\/app\/seeker/)
   })
 })
+
+// The landing page ("/") is the only route reachable without a backend/login.
+// Regression coverage for the gsap.from -> fromTo fix: reveal targets must not
+// be stuck at opacity:0 forever after their scroll-triggered animation runs.
+test.describe("landing page (no login required)", () => {
+  test("renders the hero heading and all three role cards", async ({ page }) => {
+    await page.goto("/")
+    await expect(
+      page.getByRole("heading", { name: "Run hiring from first resume to final offer." }),
+    ).toBeVisible()
+
+    // The three role picker cards are each a single <Link> whose accessible
+    // name includes the headline text (see RoleCard.jsx / RolePicker.jsx).
+    await expect(page.getByRole("link", { name: /land your next role/i })).toBeVisible()
+    await expect(page.getByRole("link", { name: /hire the right people/i })).toBeVisible()
+    await expect(page.getByRole("link", { name: /manage the platform/i })).toBeVisible()
+  })
+})

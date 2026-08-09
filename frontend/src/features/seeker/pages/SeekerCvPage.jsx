@@ -17,7 +17,7 @@ export function SeekerCvPage() {
             type="button"
             aria-pressed={cvMode === "manual"}
             onClick={() => setCvMode("manual")}
-            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${cvMode === "manual" ? "bg-brand text-primary-foreground" : "border border-surface-border text-ink-muted hover:border-brand hover:text-brand dark:border-surface-dark-border dark:text-ink-dark-muted"}`}
+            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${cvMode === "manual" ? "bg-brand text-primary-foreground" : "border border-surface-border text-ink-muted hover:border-brand hover:text-brand"}`}
           >
             Manual CV Generator
           </button>
@@ -25,7 +25,7 @@ export function SeekerCvPage() {
             type="button"
             aria-pressed={cvMode === "conversational"}
             onClick={() => setCvMode("conversational")}
-            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${cvMode === "conversational" ? "bg-brand text-primary-foreground" : "border border-surface-border text-ink-muted hover:border-brand hover:text-brand dark:border-surface-dark-border dark:text-ink-dark-muted"}`}
+            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${cvMode === "conversational" ? "bg-brand text-primary-foreground" : "border border-surface-border text-ink-muted hover:border-brand hover:text-brand"}`}
           >
             Conversational CV Generator
           </button>

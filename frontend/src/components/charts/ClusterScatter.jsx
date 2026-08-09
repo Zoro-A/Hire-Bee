@@ -52,7 +52,7 @@ export function ClusterScatter({ points, method, runId }) {
   const scoped = all.filter((p) => p.method === method && (runId == null || p.run_id === runId))
 
   if (scoped.length === 0) {
-    return <p className="text-sm text-ink-muted dark:text-ink-dark-muted">No chart data yet.</p>
+    return <p className="text-sm text-ink-muted">No chart data yet.</p>
   }
 
   const distanceLabel = method === "cosine_similarity" ? "higher cosine = closer to centre" : "higher overlap = closer to centre"
@@ -90,7 +90,7 @@ export function ClusterScatter({ points, method, runId }) {
         Similarity scatter for {method === "cosine_similarity" ? "cosine similarity" : "embedding distance"}
       </figcaption>
 
-      <div className="relative w-full overflow-hidden rounded-xl border border-surface-border bg-surface-raised dark:border-surface-dark-border dark:bg-surface-dark-raised">
+      <div className="relative w-full overflow-hidden rounded-xl border border-surface-border bg-surface-raised">
         <svg
           viewBox="0 0 100 100"
           role="img"

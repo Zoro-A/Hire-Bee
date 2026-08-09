@@ -36,9 +36,9 @@ export function ApplicantCard({ app }) {
               {badge.label}
             </span>
           </div>
-          <p className="font-semibold text-ink dark:text-ink-dark">{app.candidate_name}</p>
-          <p className="text-xs text-ink-muted dark:text-ink-dark-muted">{app.candidate_email}</p>
-          <p className="mt-1 text-sm text-ink dark:text-ink-dark">{app.job_title}</p>
+          <p className="font-semibold text-ink">{app.candidate_name}</p>
+          <p className="text-xs text-ink-muted">{app.candidate_email}</p>
+          <p className="mt-1 text-sm text-ink">{app.job_title}</p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <StatusBadge status={app.status} />
           </div>
@@ -70,7 +70,7 @@ export function ApplicantCard({ app }) {
         </div>
       </div>
       {(app.matched_skills?.length > 0 || app.missing_skills?.length > 0) && (
-        <div className="mt-3 flex flex-wrap gap-4 border-t border-surface-border pt-3 text-xs dark:border-surface-dark-border">
+        <div className="mt-3 flex flex-wrap gap-4 border-t border-surface-border pt-3 text-xs">
           {app.matched_skills?.length > 0 && (
             <div>
               <span className="font-semibold text-success">Matched</span>

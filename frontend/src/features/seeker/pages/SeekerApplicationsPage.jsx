@@ -26,7 +26,7 @@ export function SeekerApplicationsPage() {
             {apps.map((app) => {
               const jobTitle = jobs.find((job) => job.id === app.job_id)?.title ?? `Job #${app.job_id}`
               return (
-                <div key={app.id} className="rounded-xl border border-surface-border p-3 dark:border-surface-dark-border">
+                <div key={app.id} className="rounded-xl border border-surface-border p-3">
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="font-semibold">{jobTitle}</p>

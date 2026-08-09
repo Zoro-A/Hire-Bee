@@ -9,7 +9,7 @@ import { StatusBanner } from "@/components/feedback/StatusBanner.jsx"
 import { FieldShell } from "../components/auth/FieldShell.jsx"
 
 const fieldInputClass =
-  "h-auto flex-1 border-0 bg-transparent p-0 shadow-none text-sm text-ink outline-none focus-visible:ring-0 focus-visible:ring-offset-0 dark:text-ink-dark"
+  "h-auto flex-1 border-0 bg-transparent p-0 shadow-none text-sm text-ink outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
 
 export function ResetPasswordPage() {
   const [params] = useSearchParams()
@@ -39,12 +39,12 @@ export function ResetPasswordPage() {
   }
 
   return (
-    <div className="rounded-2xl border border-surface-border bg-surface-raised p-8 shadow-card dark:border-surface-dark-border dark:bg-surface-dark-raised">
-      <h1 className="text-xl font-semibold text-ink dark:text-ink-dark">Set new password</h1>
+    <div className="rounded-2xl border border-surface-border bg-surface-raised p-8 shadow-card">
+      <h1 className="text-xl font-semibold text-ink">Set new password</h1>
       <StatusBanner error={!token ? "Missing token. Open the link from your email." : ""} />
       <form onSubmit={submit} className="mt-6 space-y-4">
         <div>
-          <Label htmlFor="reset-password" className="mb-1 text-ink dark:text-ink-dark">
+          <Label htmlFor="reset-password" className="mb-1 text-ink">
             New password
           </Label>
           <FieldShell>
@@ -64,7 +64,7 @@ export function ResetPasswordPage() {
               onClick={() => setShowPassword((v) => !v)}
               aria-label={showPassword ? "Hide password" : "Show password"}
               aria-pressed={showPassword}
-              className="press shrink-0 text-ink-faint transition hover:text-ink dark:text-ink-dark-faint dark:hover:text-ink-dark"
+              className="press shrink-0 text-ink-faint transition hover:text-ink"
             >
               {showPassword ? <PiEyeSlash className="size-4" aria-hidden="true" /> : <PiEye className="size-4" aria-hidden="true" />}
             </button>

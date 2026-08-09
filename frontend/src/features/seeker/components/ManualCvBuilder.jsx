@@ -38,8 +38,8 @@ export function ManualCvBuilder() {
         </div>
       </div>
       <SectionEditorList />
-      <div className="mt-4 rounded-xl border border-dashed border-surface-border p-3 dark:border-surface-dark-border">
-        <p className="mb-2 text-xs font-semibold text-ink-muted dark:text-ink-dark-muted">Add a section</p>
+      <div className="mt-4 rounded-xl border border-dashed border-surface-border p-3">
+        <p className="mb-2 text-xs font-semibold text-ink-muted">Add a section</p>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
           <select
             className={`${inputClass} sm:max-w-xs`}
@@ -80,7 +80,7 @@ export function ManualCvBuilder() {
           </button>
         </div>
       </div>
-      <div className="mt-4 grid gap-3 border-t border-surface-border pt-4 dark:border-surface-dark-border">
+      <div className="mt-4 grid gap-3 border-t border-surface-border pt-4">
         <select className={inputClass} aria-label="Select created CV for export" value={selectedCvId} onChange={(e) => setSelectedCvId(e.target.value)}>
           <option value="">Select created CV for export</option>
           {cvs.map((cv) => (

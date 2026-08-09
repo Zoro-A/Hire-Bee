@@ -53,15 +53,15 @@ export function AdminOverviewPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <article className={cardClass}>
-          <h2 className="mb-3 font-semibold text-ink dark:text-ink-dark">Users by role</h2>
+          <h2 className="mb-3 font-semibold text-ink">Users by role</h2>
           {users.length === 0 ? (
             <EmptyState title="No users yet." />
           ) : (
             <ul className="space-y-2">
               {Object.entries(ROLE_LABELS).map(([role, label]) => (
-                <li key={role} className="flex items-center justify-between rounded-xl border border-surface-border px-3 py-2 text-sm dark:border-surface-dark-border">
-                  <span className="text-ink-muted dark:text-ink-dark-muted">{label}</span>
-                  <span className="tabular font-semibold text-ink dark:text-ink-dark">{roleCounts[role] || 0}</span>
+                <li key={role} className="flex items-center justify-between rounded-xl border border-surface-border px-3 py-2 text-sm">
+                  <span className="text-ink-muted">{label}</span>
+                  <span className="tabular font-semibold text-ink">{roleCounts[role] || 0}</span>
                 </li>
               ))}
             </ul>
@@ -69,16 +69,16 @@ export function AdminOverviewPage() {
         </article>
 
         <article className={cardClass}>
-          <h2 className="mb-3 font-semibold text-ink dark:text-ink-dark">Recent email activity</h2>
+          <h2 className="mb-3 font-semibold text-ink">Recent email activity</h2>
           {recentEmails.length === 0 ? (
             <EmptyState title="No email activity yet." />
           ) : (
             <ul className="space-y-2">
               {recentEmails.map((email) => (
-                <li key={email.id} className="flex items-center justify-between gap-3 rounded-xl border border-surface-border px-3 py-2 text-sm dark:border-surface-dark-border">
+                <li key={email.id} className="flex items-center justify-between gap-3 rounded-xl border border-surface-border px-3 py-2 text-sm">
                   <div className="min-w-0">
-                    <p className="truncate text-ink dark:text-ink-dark">{email.subject}</p>
-                    <p className="truncate text-xs text-ink-muted dark:text-ink-dark-muted">{email.recipient}</p>
+                    <p className="truncate text-ink">{email.subject}</p>
+                    <p className="truncate text-xs text-ink-muted">{email.recipient}</p>
                   </div>
                   <Badge variant={emailStatusVariant(email.status)} className="shrink-0">
                     {email.status}

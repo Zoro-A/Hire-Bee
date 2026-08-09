@@ -11,9 +11,9 @@ export function RecruiterApplicantsPage() {
       <PageHeader title="Applicants" />
       <article className={cardClass}>
         <h2 className="mb-1 font-semibold">Applicants</h2>
-        <p className="mb-4 text-xs text-ink-muted dark:text-ink-dark-muted">Select "View application" to open the cover letter and CV. Update status from the menu.</p>
+        <p className="mb-4 text-xs text-ink-muted">Select "View application" to open the cover letter and CV. Update status from the menu.</p>
         <div className="space-y-3">
-          {sortedApps.length === 0 && <p className="text-sm text-ink-muted dark:text-ink-dark-muted">No applications to your jobs yet.</p>}
+          {sortedApps.length === 0 && <p className="text-sm text-ink-muted">No applications to your jobs yet.</p>}
           {sortedApps.map((app) => (
             <ApplicantCard key={app.application_id} app={app} />
           ))}

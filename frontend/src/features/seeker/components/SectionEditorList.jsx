@@ -16,11 +16,11 @@ export function SectionEditorList() {
 
   return (
     <div className="mt-4 space-y-3">
-      <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted dark:text-ink-dark-muted">Sections — drag ⋮⋮ to reorder</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Sections — drag ⋮⋮ to reorder</p>
       {manualSectionOrder.map((key, idx) => (
         <div
           key={key}
-          className="rounded-xl border border-surface-border bg-surface-subtle p-3 dark:border-surface-dark-border dark:bg-surface-dark-subtle"
+          className="rounded-xl border border-surface-border bg-surface-subtle p-3"
           onDragOver={handleDragOverSection}
           onDrop={(e) => handleDropSection(e, idx)}
         >
@@ -29,14 +29,14 @@ export function SectionEditorList() {
               type="button"
               draggable
               onDragStart={(e) => handleDragStartSection(e, idx)}
-              className="press mt-1 cursor-grab select-none rounded border border-surface-border px-1.5 py-1 text-xs text-ink-muted hover:bg-surface-subtle active:cursor-grabbing dark:border-surface-dark-border dark:text-ink-dark-muted dark:hover:bg-surface-dark-subtle"
+              className="press mt-1 cursor-grab select-none rounded border border-surface-border px-1.5 py-1 text-xs text-ink-muted hover:bg-surface-subtle active:cursor-grabbing"
               aria-label="Drag to reorder section"
               title="Drag to reorder"
             >
               ⋮⋮
             </button>
             <div className="min-w-0 flex-1">
-              <label className="mb-1 block text-xs font-medium text-ink dark:text-ink-dark" htmlFor={`cv-section-${key}`}>
+              <label className="mb-1 block text-xs font-medium text-ink" htmlFor={`cv-section-${key}`}>
                 {getSectionDisplayLabel(key, sectionExtraLabels)}
               </label>
               {key === "skills" ? (

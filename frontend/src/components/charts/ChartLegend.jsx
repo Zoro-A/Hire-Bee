@@ -12,7 +12,7 @@
 export function ChartLegend({ items }) {
   if (!Array.isArray(items) || items.length === 0) return null
   return (
-    <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted dark:text-ink-dark-muted" role="list">
+    <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted" role="list">
       {items.map((item) => (
         <li key={item.key} className="flex items-center gap-1.5">
           <span

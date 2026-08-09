@@ -20,7 +20,7 @@ const BAR_COLOR = "var(--color-chart-seq-4)"
  */
 export function MiniBarChart({ items, valueKey, labelKey, max = 1, unit = "%", caption = "Chart values" }) {
   if (!Array.isArray(items) || items.length === 0) {
-    return <p className="text-sm text-ink-muted dark:text-ink-dark-muted">No chart data yet.</p>
+    return <p className="text-sm text-ink-muted">No chart data yet.</p>
   }
 
   const rows = items.map((item) => {
@@ -39,11 +39,11 @@ export function MiniBarChart({ items, valueKey, labelKey, max = 1, unit = "%", c
           return (
             <div
               key={row.label}
-              className="-mx-1.5 rounded-md px-1.5 py-1 transition-colors hover:bg-surface-subtle dark:hover:bg-surface-dark-subtle"
+              className="-mx-1.5 rounded-md px-1.5 py-1 transition-colors hover:bg-surface-subtle"
             >
               <div className="mb-1 flex items-center justify-between gap-2 text-xs">
-                <span className="truncate text-ink dark:text-ink-dark">{row.label}</span>
-                <span className="tabular shrink-0 text-ink-muted dark:text-ink-dark-muted">
+                <span className="truncate text-ink">{row.label}</span>
+                <span className="tabular shrink-0 text-ink-muted">
                   {displayPct}
                   {unit}
                 </span>
@@ -59,7 +59,7 @@ export function MiniBarChart({ items, valueKey, labelKey, max = 1, unit = "%", c
                   width="100"
                   height="8"
                   rx="4"
-                  className="fill-surface-subtle dark:fill-surface-dark-subtle"
+                  className="fill-surface-subtle"
                 />
                 <rect x="0" y="0" width={row.pct} height="8" rx="4" fill={BAR_COLOR} />
                 {/* 50%-of-max guide line, drawn last so it stays visible over the fill */}
@@ -79,7 +79,7 @@ export function MiniBarChart({ items, valueKey, labelKey, max = 1, unit = "%", c
       </div>
 
       <div
-        className="flex items-center justify-between text-[10px] text-ink-muted dark:text-ink-dark-muted"
+        className="flex items-center justify-between text-[10px] text-ink-muted"
         aria-hidden="true"
       >
         <span>0{unit}</span>

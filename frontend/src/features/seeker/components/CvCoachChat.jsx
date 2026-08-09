@@ -47,10 +47,10 @@ export function CvCoachChat() {
   return (
     <article className={`${cardClass} flex min-h-0 flex-1 flex-col overflow-hidden`}>
       {/* Chat header */}
-      <div className="flex shrink-0 items-center justify-between border-b border-surface-border pb-4 dark:border-surface-dark-border">
+      <div className="flex shrink-0 items-center justify-between border-b border-surface-border pb-4">
         <div>
-          <h2 className="font-semibold text-ink dark:text-ink-dark">CV Coach</h2>
-          <p className="mt-0.5 text-xs text-ink-muted dark:text-ink-dark-muted">Chat to build your CV, then generate &amp; export</p>
+          <h2 className="font-semibold text-ink">CV Coach</h2>
+          <p className="mt-0.5 text-xs text-ink-muted">Chat to build your CV, then generate &amp; export</p>
         </div>
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-soft text-xl">
           <img src="/hirebee-logo.svg" alt="" className="h-5 w-5" />
@@ -69,7 +69,7 @@ export function CvCoachChat() {
             <div className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
               msg.role === "user"
                 ? "rounded-br-sm bg-brand text-primary-foreground"
-                : "rounded-bl-sm bg-surface-subtle text-ink dark:bg-surface-dark-subtle dark:text-ink-dark"
+                : "rounded-bl-sm bg-surface-subtle text-ink"
             }`}>
               <span className="sr-only">{msg.role === "assistant" ? "CV Coach: " : "You: "}</span>
               {msg.content}
@@ -83,11 +83,11 @@ export function CvCoachChat() {
             <div className="mb-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs">
               <img src="/hirebee-logo.svg" alt="" className="h-3.5 w-3.5" />
             </div>
-            <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-sm bg-surface-subtle px-4 py-3 dark:bg-surface-dark-subtle">
+            <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-sm bg-surface-subtle px-4 py-3">
               <span className="sr-only">CV Coach is typing…</span>
-              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-ink-faint animate-bounce [animation-delay:0ms] dark:bg-ink-dark-faint" />
-              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-ink-faint animate-bounce [animation-delay:160ms] dark:bg-ink-dark-faint" />
-              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-ink-faint animate-bounce [animation-delay:320ms] dark:bg-ink-dark-faint" />
+              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-ink-faint animate-bounce [animation-delay:0ms]" />
+              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-ink-faint animate-bounce [animation-delay:160ms]" />
+              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-ink-faint animate-bounce [animation-delay:320ms]" />
             </div>
           </div>
         )}
@@ -95,7 +95,7 @@ export function CvCoachChat() {
       </div>
 
       {/* Input + actions */}
-      <div className="shrink-0 border-t border-surface-border pt-3 dark:border-surface-dark-border">
+      <div className="shrink-0 border-t border-surface-border pt-3">
         <form onSubmit={handleConvoSend} className="flex gap-2">
           <label className="sr-only" htmlFor="cv-coach-message">
             Message to CV Coach

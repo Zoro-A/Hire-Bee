@@ -20,14 +20,28 @@ export function useScrollReveal(scopeRef, opts = {}) {
       const mm = gsap.matchMedia()
 
       mm.add(`(prefers-reduced-motion: no-preference)`, () => {
-        gsap.from(targets, {
-          opacity: 0,
-          y,
-          duration: DUR.base,
-          ease: EASE.out,
-          stagger,
-          scrollTrigger: { trigger: scopeRef.current, start, once: true },
-        })
+        gsap.fromTo(
+          targets,
+          { opacity: 0, y },
+          {
+            opacity: 1,
+            y: 0,
+            duration: DUR.base,
+            ease: EASE.out,
+            stagger,
+            clearProps: "opacity",
+            scrollTrigger: { trigger: scopeRef.current, start, once: true },
+            // Targets also carry a Tailwind `opacity-0` class (FOUC guard for the
+            // pre-JS moment). That class is static JSX and React never removes it,
+            // so once `clearProps` drops the inline opacity GSAP was holding at 1,
+            // the class would fall straight back to opacity:0 and re-hide the
+            // element. Strip it once the reveal is done so the browser default
+            // (opacity:1) applies instead, and CSS-only interactions that toggle
+            // opacity via a plain (non-!important) class — e.g. RoleCard's
+            // group-hover/picker dim-siblings effect — can take over normally.
+            onComplete: () => targets.forEach((el) => el.classList.remove("opacity-0")),
+          },
+        )
       })
 
       mm.add(REDUCED_MOTION_QUERY, () => {

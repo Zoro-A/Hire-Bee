@@ -11,7 +11,7 @@ import { StatusBanner } from "@/components/feedback/StatusBanner.jsx"
 import { FieldShell } from "../components/auth/FieldShell.jsx"
 
 const fieldInputClass =
-  "h-auto flex-1 border-0 bg-transparent p-0 shadow-none text-sm text-ink outline-none focus-visible:ring-0 focus-visible:ring-offset-0 dark:text-ink-dark"
+  "h-auto flex-1 border-0 bg-transparent p-0 shadow-none text-sm text-ink outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
 
 export function RegisterPage({ setToken, googleClientId }) {
   const navigate = useNavigate()
@@ -66,15 +66,15 @@ export function RegisterPage({ setToken, googleClientId }) {
   }
 
   return (
-    <div className="rounded-2xl border border-surface-border bg-surface-raised p-8 shadow-card dark:border-surface-dark-border dark:bg-surface-dark-raised">
+    <div className="rounded-2xl border border-surface-border bg-surface-raised p-8 shadow-card">
       <div className="mb-6 text-center">
         <img src="/hirebee-logo.svg" alt="" className="mx-auto mb-3 h-12 w-12 rounded-xl ring-2 ring-brand/20" />
-        <h1 className="text-2xl font-semibold text-ink dark:text-ink-dark">Create your account</h1>
-        <p className="mt-1 text-sm text-ink-muted dark:text-ink-dark-muted">Join HireBee in a few steps</p>
+        <h1 className="text-2xl font-semibold text-ink">Create your account</h1>
+        <p className="mt-1 text-sm text-ink-muted">Join HireBee in a few steps</p>
       </div>
       <form onSubmit={submit} className="space-y-4">
         <div>
-          <Label htmlFor="register-full-name" className="mb-1 text-ink dark:text-ink-dark">
+          <Label htmlFor="register-full-name" className="mb-1 text-ink">
             Full name
           </Label>
           <FieldShell>
@@ -90,7 +90,7 @@ export function RegisterPage({ setToken, googleClientId }) {
           </FieldShell>
         </div>
         <div>
-          <Label htmlFor="register-role" className="mb-1 text-ink dark:text-ink-dark">
+          <Label htmlFor="register-role" className="mb-1 text-ink">
             Role
           </Label>
           <Select value={form.role} onValueChange={(value) => setForm({ ...form, role: value })}>
@@ -105,7 +105,7 @@ export function RegisterPage({ setToken, googleClientId }) {
           </Select>
         </div>
         <div>
-          <Label htmlFor="register-email" className="mb-1 text-ink dark:text-ink-dark">
+          <Label htmlFor="register-email" className="mb-1 text-ink">
             Email
           </Label>
           <FieldShell>
@@ -122,7 +122,7 @@ export function RegisterPage({ setToken, googleClientId }) {
           </FieldShell>
         </div>
         <div>
-          <Label htmlFor="register-password" className="mb-1 text-ink dark:text-ink-dark">
+          <Label htmlFor="register-password" className="mb-1 text-ink">
             Password
           </Label>
           <FieldShell>
@@ -141,7 +141,7 @@ export function RegisterPage({ setToken, googleClientId }) {
               onClick={() => setShowPassword((v) => !v)}
               aria-label={showPassword ? "Hide password" : "Show password"}
               aria-pressed={showPassword}
-              className="press shrink-0 text-ink-faint transition hover:text-ink dark:text-ink-dark-faint dark:hover:text-ink-dark"
+              className="press shrink-0 text-ink-faint transition hover:text-ink"
             >
               {showPassword ? <PiEyeSlash className="size-4" aria-hidden="true" /> : <PiEye className="size-4" aria-hidden="true" />}
             </button>
@@ -156,10 +156,10 @@ export function RegisterPage({ setToken, googleClientId }) {
         <>
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-surface-border dark:border-surface-dark-border" />
+              <div className="w-full border-t border-surface-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-surface-raised px-2 text-ink-muted dark:bg-surface-dark-raised dark:text-ink-dark-muted">Or continue with</span>
+              <span className="bg-surface-raised px-2 text-ink-muted">Or continue with</span>
             </div>
           </div>
           <div className="flex justify-center [&>div]:w-full">
@@ -167,7 +167,7 @@ export function RegisterPage({ setToken, googleClientId }) {
           </div>
         </>
       )}
-      <p className="mt-6 text-center text-sm text-ink-muted dark:text-ink-dark-muted">
+      <p className="mt-6 text-center text-sm text-ink-muted">
         Already have an account?{" "}
         <Link to="/login" className="font-semibold text-brand hover:underline">
           Sign in

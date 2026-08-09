@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils"
 export function ChartTableFallback({ caption, columns, rows }) {
   return (
     <details className="group mt-2">
-      <summary className="cursor-pointer select-none text-xs font-medium text-ink-muted underline decoration-dotted underline-offset-2 hover:text-ink dark:text-ink-dark-muted dark:hover:text-ink-dark">
+      <summary className="cursor-pointer select-none text-xs font-medium text-ink-muted underline decoration-dotted underline-offset-2 hover:text-ink">
         View as table
       </summary>
       <div className="mt-2">

@@ -16,7 +16,7 @@ const STATUS_STYLES = {
 
 export function StatusBadge({ status }) {
   const { className, Icon } = STATUS_STYLES[status] || {
-    className: "bg-surface-subtle text-ink-muted dark:bg-surface-dark-subtle dark:text-ink-dark-muted",
+    className: "bg-surface-subtle text-ink-muted",
     Icon: null,
   }
   return (

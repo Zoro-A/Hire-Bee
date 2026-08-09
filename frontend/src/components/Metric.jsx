@@ -47,8 +47,8 @@ export function Metric({ label, value, Icon, iconBg = "bg-brand/15", iconColor =
         </div>
       )}
       <div className="min-w-0">
-        <p className="text-xs font-medium uppercase tracking-wider text-ink-faint dark:text-ink-dark-faint">{label}</p>
-        <p className="mt-0.5 text-3xl font-bold tracking-tight text-ink dark:text-ink-dark">
+        <p className="text-xs font-medium uppercase tracking-wider text-ink-faint">{label}</p>
+        <p className="mt-0.5 text-3xl font-bold tracking-tight text-ink">
           {isNumeric ? (
             <span className="tabular">
               {displayNumber}
@@ -58,7 +58,7 @@ export function Metric({ label, value, Icon, iconBg = "bg-brand/15", iconColor =
             value
           )}
         </p>
-        {sub && <p className="mt-0.5 text-xs text-ink-muted dark:text-ink-dark-muted">{sub}</p>}
+        {sub && <p className="mt-0.5 text-xs text-ink-muted">{sub}</p>}
       </div>
     </div>
   )
