@@ -8,5 +8,6 @@ export function roleHome(role) {
 }
 
 export function RoleHomeRedirect({ user }) {
+  if (!user?.role) return <Navigate to="/login" replace />
   return <Navigate to={roleHome(user.role)} replace />
 }

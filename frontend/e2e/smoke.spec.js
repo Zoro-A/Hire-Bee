@@ -172,9 +172,11 @@ test.describe("smoke", () => {
 test.describe("landing page (no login required)", () => {
   test("renders the hero heading and all three role cards", async ({ page }) => {
     await page.goto("/")
-    await expect(
-      page.getByRole("heading", { name: "Run hiring from first resume to final offer." }),
-    ).toBeVisible()
+    const heading = page.getByRole("heading", { name: "Run hiring from first resume to final offer." })
+    await expect(heading).toBeVisible()
+    // Verify heading is not stuck at opacity:0 after reveal animation completes.
+    // DUR.base (320ms) + network/render settle time.
+    await expect(heading).toHaveCSS("opacity", "1", { timeout: 1000 })
 
     // The three role picker cards are each a single <Link> whose accessible
     // name includes the headline text (see RoleCard.jsx / RolePicker.jsx).

@@ -119,7 +119,7 @@ export default function App() {
             )
           }
         >
-          <Route index element={<RoleHomeRedirect user={user ?? { role: "admin" }} />} />
+          <Route index element={<RoleHomeRedirect user={user} />} />
 
           <Route
             path="seeker"
