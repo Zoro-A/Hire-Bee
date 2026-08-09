@@ -27,15 +27,15 @@ export function RecruiterOverviewPage() {
         <article className={cardClass}>
           <h2 className="mb-3 font-semibold">Quick actions</h2>
           <div className="grid gap-3 md:grid-cols-3">
-            <Link to="/app/recruiter/jobs" className="card-hover rounded-xl border border-surface-border p-4 text-left transition hover:border-brand dark:border-surface-dark-border">
+            <Link to="/app/recruiter/jobs" className="rounded-xl border border-surface-border p-4 text-left transition-transform duration-150 ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:border-brand active:scale-[0.97] motion-reduce:hover:translate-y-0 dark:border-surface-dark-border">
               <p className="font-semibold text-ink dark:text-ink-dark">Post a job</p>
               <p className="text-xs text-ink-muted dark:text-ink-dark-muted">Title, description, required skills</p>
             </Link>
-            <Link to="/app/recruiter/applicants" className="card-hover rounded-xl border border-surface-border p-4 text-left transition hover:border-brand dark:border-surface-dark-border">
+            <Link to="/app/recruiter/applicants" className="rounded-xl border border-surface-border p-4 text-left transition-transform duration-150 ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:border-brand active:scale-[0.97] motion-reduce:hover:translate-y-0 dark:border-surface-dark-border">
               <p className="font-semibold text-ink dark:text-ink-dark">Review applicants</p>
               <p className="text-xs text-ink-muted dark:text-ink-dark-muted">Status and skill match</p>
             </Link>
-            <Link to="/app/recruiter/interviews" className="card-hover rounded-xl border border-surface-border p-4 text-left transition hover:border-brand dark:border-surface-dark-border">
+            <Link to="/app/recruiter/interviews" className="rounded-xl border border-surface-border p-4 text-left transition-transform duration-150 ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:border-brand active:scale-[0.97] motion-reduce:hover:translate-y-0 dark:border-surface-dark-border">
               <p className="font-semibold text-ink dark:text-ink-dark">Schedule interviews</p>
               <p className="text-xs text-ink-muted dark:text-ink-dark-muted">Link candidates to calendar</p>
             </Link>

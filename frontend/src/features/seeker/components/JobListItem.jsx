@@ -5,7 +5,7 @@ export function JobListItem({ job, match, isSelected, onSelect }) {
     <button
       type="button"
       onClick={onSelect}
-      className={`rounded-xl border p-4 text-left text-sm transition ${
+      className={`rounded-xl border p-4 text-left text-sm transition active:scale-[0.97] ${
         isSelected
           ? "border-brand bg-brand-soft/40 dark:bg-brand/10"
           : "border-surface-border hover:border-brand hover:bg-surface-subtle dark:border-surface-dark-border dark:hover:bg-surface-dark-subtle"

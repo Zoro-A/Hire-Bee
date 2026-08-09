@@ -37,17 +37,17 @@ export function AdminOverviewPage() {
     <section className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
       <PageHeader title="Overview" />
       <div className="grid gap-4 md:grid-cols-4">
-        <Link to="/app/admin/users" className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
-          <Metric label="Users" value={<span className="tabular">{users.length}</span>} Icon={PiUsersThree} />
+        <Link to="/app/admin/users" className="press block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
+          <Metric label="Users" value={users.length} Icon={PiUsersThree} />
         </Link>
-        <Link to="/app/admin/recruiters" className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
-          <Metric label="Recruiters" value={<span className="tabular">{recruiters.length}</span>} Icon={PiBuildings} />
+        <Link to="/app/admin/recruiters" className="press block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
+          <Metric label="Recruiters" value={recruiters.length} Icon={PiBuildings} />
         </Link>
-        <Link to="/app/admin/jobs" className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
-          <Metric label="Jobs" value={<span className="tabular">{jobs.length}</span>} Icon={PiBriefcase} />
+        <Link to="/app/admin/jobs" className="press block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
+          <Metric label="Jobs" value={jobs.length} Icon={PiBriefcase} />
         </Link>
-        <Link to="/app/admin/emails" className="block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
-          <Metric label="Emails logged" value={<span className="tabular">{emails.length}</span>} Icon={PiEnvelopeSimple} />
+        <Link to="/app/admin/emails" className="press block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
+          <Metric label="Emails logged" value={emails.length} Icon={PiEnvelopeSimple} />
         </Link>
       </div>
 

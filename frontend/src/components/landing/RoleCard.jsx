@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 const FOCUS_CLASSES =
   "transition-[filter,transform,border-color] duration-200 ease-[var(--ease-out-expo)] " +
   "group-hover/picker:blur-[1.5px] group-hover/picker:opacity-70 " +
-  "hover:!blur-0 hover:!opacity-100 hover:-translate-y-0.5 hover:border-brand/50 " +
+  "hover:!blur-0 hover:!opacity-100 hover:-translate-y-0.5 hover:border-brand/50 active:scale-[0.97] " +
   "focus-within:!blur-0 focus-within:!opacity-100 " +
   "motion-reduce:!blur-0 motion-reduce:!transform-none"
 
@@ -19,8 +19,9 @@ export function RoleCard({ id, eyebrow, headline, description, perks, cta, Icon,
   return (
     <Link
       to={`/register?role=${id}`}
+      data-reveal-role
       className={cn(
-        "group relative flex flex-col rounded-2xl border border-surface-border bg-surface-raised",
+        "group relative flex flex-col rounded-2xl border border-surface-border bg-surface-raised opacity-0",
         FOCUS_CLASSES,
         featured ? "justify-between p-7" : "justify-center gap-1 p-5",
         className,

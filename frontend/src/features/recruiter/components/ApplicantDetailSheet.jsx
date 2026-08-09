@@ -65,7 +65,7 @@ export function ApplicantDetailSheet() {
                 {appDetail.resume?.id != null && (
                   <button
                     type="button"
-                    className="rounded-lg border border-brand bg-surface-raised px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand-soft dark:bg-surface-dark-raised"
+                    className="press rounded-lg border border-brand bg-surface-raised px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand-soft dark:bg-surface-dark-raised"
                     onClick={() =>
                       downloadAuthenticatedBlob(
                         `/applications/recruiter/${appDetail.application_id}/resume-file`,
@@ -80,7 +80,7 @@ export function ApplicantDetailSheet() {
                 {appDetail.generated_cv?.has_pdf && (
                   <button
                     type="button"
-                    className="rounded-lg border border-brand bg-surface-raised px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand-soft dark:bg-surface-dark-raised"
+                    className="press rounded-lg border border-brand bg-surface-raised px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand-soft dark:bg-surface-dark-raised"
                     onClick={() =>
                       downloadAuthenticatedBlob(
                         `/applications/recruiter/${appDetail.application_id}/cv-download?export_format=pdf`,
@@ -95,7 +95,7 @@ export function ApplicantDetailSheet() {
                 {appDetail.generated_cv?.has_docx && (
                   <button
                     type="button"
-                    className="rounded-lg border border-brand bg-surface-raised px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand-soft dark:bg-surface-dark-raised"
+                    className="press rounded-lg border border-brand bg-surface-raised px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand-soft dark:bg-surface-dark-raised"
                     onClick={() =>
                       downloadAuthenticatedBlob(
                         `/applications/recruiter/${appDetail.application_id}/cv-download?export_format=docx`,

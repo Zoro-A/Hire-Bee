@@ -27,7 +27,7 @@ export function CvLivePreview() {
             type="button"
             disabled={isDownloadDisabled(loading, selectedCvId, selectedCv, "pdf")}
             onClick={() => downloadCvOnly("pdf")}
-            className="rounded-lg border border-brand bg-surface-raised px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-50 dark:bg-surface-dark-raised"
+            className="press rounded-lg border border-brand bg-surface-raised px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-50 dark:bg-surface-dark-raised"
           >
             Download PDF
           </button>
@@ -35,7 +35,7 @@ export function CvLivePreview() {
             type="button"
             disabled={isDownloadDisabled(loading, selectedCvId, selectedCv, "docx")}
             onClick={() => downloadCvOnly("docx")}
-            className="rounded-lg border border-brand bg-surface-raised px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-50 dark:bg-surface-dark-raised"
+            className="press rounded-lg border border-brand bg-surface-raised px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-50 dark:bg-surface-dark-raised"
           >
             Download DOCX
           </button>

@@ -1,9 +1,11 @@
-﻿import { Link } from "react-router-dom"
+﻿import { useRef } from "react"
+import { Link } from "react-router-dom"
 import { RolePicker } from "@/components/landing/RolePicker.jsx"
 import { FeatureGrid } from "@/components/landing/FeatureGrid.jsx"
 import { HowItWorks } from "@/components/landing/HowItWorks.jsx"
 import { CapabilityShowcase } from "@/components/landing/CapabilityShowcase.jsx"
 import { Button } from "@/components/ui/button"
+import { useScrollReveal } from "@/hooks/useScrollReveal.js"
 
 const roles = [
   {
@@ -42,19 +44,26 @@ const features = [
 ]
 
 export function LandingPage() {
+  // Scoped to this top section only (not the page root) so its default
+  // `[data-reveal]` selector can't also pick up HowItWorks/CapabilityShowcase's
+  // own `[data-reveal]` targets further down the tree — each section owns its
+  // own useScrollReveal scope, per the established pattern.
+  const scope = useRef(null)
+  useScrollReveal(scope)
+
   return (
     <div className="space-y-14">
       {/* TODO(hero): deferred — see docs/superpowers/specs/2026-08-06-hirebee-ui-ux-rework-design.md §9.
           Intentionally a plain top section, not a hero. Do not expand without a new spec. */}
-      <section className="border-b border-surface-border py-14 sm:py-20">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-surface-border bg-surface-subtle px-3 py-1 text-[11px] font-medium uppercase tracking-[0.12em] text-ink-muted">
+      <section ref={scope} className="border-b border-surface-border py-14 sm:py-20">
+        <span data-reveal className="inline-flex items-center gap-1.5 rounded-full border border-surface-border bg-surface-subtle px-3 py-1 text-[11px] font-medium uppercase tracking-[0.12em] text-ink-muted opacity-0">
           <span aria-hidden="true" className="size-1.5 rounded-full bg-brand" />
           AI-powered recruitment
         </span>
-        <h1 className="mt-5 max-w-3xl font-display text-4xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-5xl">
+        <h1 data-reveal className="mt-5 max-w-3xl font-display text-4xl font-semibold leading-[1.08] tracking-tight text-ink opacity-0 sm:text-5xl">
           Run hiring from first resume to final offer.
         </h1>
-        <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-muted">
+        <p data-reveal className="mt-4 max-w-xl text-base leading-relaxed text-ink-muted opacity-0">
           Semantic matching between candidates and roles, not keyword search. Pick how you want to start.
         </p>
       </section>

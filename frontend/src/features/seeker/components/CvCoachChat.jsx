@@ -1,5 +1,8 @@
+import { useRef } from "react"
 import { CvScoreCard } from "@/components/cv/CvScoreCard.jsx"
 import { buttonClass, buttonGhostClass, cardClass, inputClass } from "@/styles/uiClasses.js"
+import { gsap, useGSAP } from "@/lib/gsap"
+import { DUR, EASE, REDUCED_MOTION_QUERY } from "@/lib/motion"
 import { useSeekerData } from "../SeekerDataContext.jsx"
 
 export function CvCoachChat() {
@@ -16,6 +19,31 @@ export function CvCoachChat() {
     cvEval,
   } = useSeekerData()
 
+  const messageListRef = useRef(null)
+  const animatedCountRef = useRef(0)
+
+  // Only the newly appended message(s) animate in — re-running this on every
+  // render would replay the entrance for the whole existing transcript.
+  useGSAP(
+    () => {
+      const container = messageListRef.current
+      if (!container) return
+      const nodes = Array.from(container.querySelectorAll("[data-chat-message]"))
+      const newNodes = nodes.slice(animatedCountRef.current)
+      animatedCountRef.current = nodes.length
+      if (newNodes.length === 0) return
+      const mm = gsap.matchMedia()
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.from(newNodes, { opacity: 0, y: 8, duration: DUR.fast, ease: EASE.out })
+      })
+      mm.add(REDUCED_MOTION_QUERY, () => {
+        gsap.set(newNodes, { opacity: 1, y: 0 })
+      })
+      return () => mm.revert()
+    },
+    { scope: messageListRef, dependencies: [convoMessages.length] },
+  )
+
   return (
     <article className={`${cardClass} flex min-h-0 flex-1 flex-col overflow-hidden`}>
       {/* Chat header */}
@@ -30,9 +58,9 @@ export function CvCoachChat() {
       </div>
 
       {/* Messages */}
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto py-4 pr-1">
+      <div ref={messageListRef} className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto py-4 pr-1">
         {convoMessages.map((msg, idx) => (
-          <div key={`${msg.role}-${idx}`} className={`flex items-end gap-2 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
+          <div key={`${msg.role}-${idx}`} data-chat-message className={`flex items-end gap-2 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
             {msg.role === "assistant" && (
               <div className="mb-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs">
                 <img src="/hirebee-logo.svg" alt="" className="h-3.5 w-3.5" />

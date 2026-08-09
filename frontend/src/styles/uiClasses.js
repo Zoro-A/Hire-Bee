@@ -13,6 +13,6 @@ export const buttonClass =
   "hover:bg-brand-hover active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
 
 export const buttonGhostClass =
-  "rounded-xl border border-surface-border px-4 py-2 text-sm font-semibold text-ink transition " +
+  "rounded-xl border border-surface-border px-4 py-2 text-sm font-semibold text-ink transition active:scale-[0.97] " +
   "hover:bg-surface-subtle hover:border-brand hover:text-brand " +
   "dark:border-surface-dark-border dark:text-ink-dark dark:hover:border-brand dark:hover:text-brand"

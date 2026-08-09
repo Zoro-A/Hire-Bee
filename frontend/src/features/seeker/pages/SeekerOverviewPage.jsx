@@ -16,6 +16,7 @@ import { useSeekerData } from "../SeekerDataContext.jsx"
 
 export function SeekerOverviewPage() {
   const { resumeInsight, apps, jobsSortedByMatch, matchByJobId } = useSeekerData()
+  const resumeScore = Math.min(98, Math.max(52, Math.round((resumeInsight?.parsing_confidence || 0.6) * 100)))
 
   return (
     <section className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
@@ -24,7 +25,8 @@ export function SeekerOverviewPage() {
         {/* Metric cards */}
         <Metric
           label="Resume Score"
-          value={`${Math.min(98, Math.max(52, Math.round((resumeInsight?.parsing_confidence || 0.6) * 100)))}%`}
+          value={resumeScore}
+          suffix="%"
           Icon={PiFileText} iconBg="bg-brand/15" iconColor="text-brand"
           sub="Based on last upload"
         />
@@ -59,7 +61,7 @@ export function SeekerOverviewPage() {
               <Link
                 key={page}
                 to={`/app/seeker/${page}`}
-                className="group flex items-center gap-4 rounded-2xl border border-surface-border bg-surface-raised p-4 text-left transition hover:border-brand hover:shadow-card-hover dark:border-surface-dark-border dark:bg-surface-dark-raised"
+                className="group flex items-center gap-4 rounded-2xl border border-surface-border bg-surface-raised p-4 text-left transition active:scale-[0.97] hover:border-brand hover:shadow-card-hover dark:border-surface-dark-border dark:bg-surface-dark-raised"
               >
                 <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl transition-transform duration-150 group-hover:scale-110 ${iconBg} ${iconColor}`}>
                   <Icon className="h-6 w-6" />
@@ -94,7 +96,7 @@ export function SeekerOverviewPage() {
                 <Link
                   key={job.id}
                   to={`/app/seeker/jobs?job=${job.id}`}
-                  className="group flex flex-col gap-3 rounded-2xl border border-surface-border bg-surface-raised p-4 text-left transition hover:border-brand hover:shadow-card-hover dark:border-surface-dark-border dark:bg-surface-dark-raised"
+                  className="group flex flex-col gap-3 rounded-2xl border border-surface-border bg-surface-raised p-4 text-left transition active:scale-[0.97] hover:border-brand hover:shadow-card-hover dark:border-surface-dark-border dark:bg-surface-dark-raised"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
