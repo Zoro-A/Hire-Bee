@@ -29,7 +29,7 @@ export function useScrollReveal(scopeRef, opts = {}) {
             duration: DUR.base,
             ease: EASE.out,
             stagger,
-            clearProps: "opacity",
+            clearProps: "opacity,transform",
             scrollTrigger: { trigger: scopeRef.current, start, once: true },
             // Targets also carry a Tailwind `opacity-0` class (FOUC guard for the
             // pre-JS moment). That class is static JSX and React never removes it,
@@ -38,7 +38,9 @@ export function useScrollReveal(scopeRef, opts = {}) {
             // element. Strip it once the reveal is done so the browser default
             // (opacity:1) applies instead, and CSS-only interactions that toggle
             // opacity via a plain (non-!important) class — e.g. RoleCard's
-            // group-hover/picker dim-siblings effect — can take over normally.
+            // group-hover dim-siblings effect — can take over normally. Also clear
+            // the inline `transform` GSAP leaves behind so no stale translateY(0)
+            // lingers on the element after the reveal completes.
             onComplete: () => targets.forEach((el) => el.classList.remove("opacity-0")),
           },
         )
@@ -46,6 +48,7 @@ export function useScrollReveal(scopeRef, opts = {}) {
 
       mm.add(REDUCED_MOTION_QUERY, () => {
         gsap.set(targets, { opacity: 1, y: 0, clearProps: "transform" })
+        targets.forEach((el) => el.classList.remove("opacity-0"))
       })
 
       return () => mm.revert()

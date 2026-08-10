@@ -59,7 +59,7 @@ function CapabilityCard({ capability, className }) {
     <div
       data-reveal
       className={cn(
-        "flex flex-col gap-4 rounded-2xl border border-surface-border bg-surface-raised p-5",
+        "flex flex-col gap-4 rounded-2xl border border-surface-border bg-surface-raised p-5 opacity-0",
         className,
       )}
     >

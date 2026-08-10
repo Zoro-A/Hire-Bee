@@ -59,7 +59,7 @@ export function HowItWorks() {
             </h3>
             <ol className="space-y-6">
               {track.steps.map((step, index) => (
-                <li key={step.title} data-reveal className="flex gap-4">
+                <li key={step.title} data-reveal className="flex gap-4 opacity-0">
                   <span
                     aria-hidden="true"
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-subtle text-sm font-semibold text-ink-muted"
