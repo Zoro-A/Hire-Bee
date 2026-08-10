@@ -71,7 +71,7 @@ export function QuickApplyPanel({ job }) {
           onChange={(e) => uploadCvForQuickApply(e.target.files?.[0])}
         />
         {loading.cvUpload && (
-          <p role="status" className="mt-2 text-xs text-brand">Uploading and attaching new CV...</p>
+          <p role="status" className="mt-2 text-xs text-ink-muted">Uploading and attaching new CV...</p>
         )}
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
