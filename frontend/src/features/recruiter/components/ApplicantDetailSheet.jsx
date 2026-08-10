@@ -1,5 +1,5 @@
 import { downloadAuthenticatedBlob } from "@/lib/api.js"
-import { inputClass } from "@/styles/uiClasses.js"
+import { nativeSelectClass, cn } from "@/lib/utils.js"
 import { StatusBadge } from "@/components/StatusBadge.jsx"
 import { RecruiterStructuredCvPreview } from "@/components/cv/RecruiterStructuredCvPreview.jsx"
 import { RECRUITER_STATUS_OPTIONS } from "@/constants/recruiter.js"
@@ -47,7 +47,7 @@ export function ApplicantDetailSheet() {
                 <div className="mt-2 flex flex-wrap gap-2">
                   <StatusBadge status={appDetail.status} />
                   <select
-                    className={`${inputClass} w-auto min-w-[9rem]`}
+                    className={cn(nativeSelectClass, "w-auto min-w-36")}
                     aria-label={`Update status for ${appDetail.candidate_name}`}
                     value={appDetail.status}
                     onChange={(e) => updateApplicationStatus(appDetail.application_id, e.target.value)}

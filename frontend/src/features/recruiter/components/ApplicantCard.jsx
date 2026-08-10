@@ -1,6 +1,7 @@
 import { PiStar } from "react-icons/pi"
 import { getMatchBand } from "@/lib/matching.js"
-import { inputClass, buttonGhostClass } from "@/styles/uiClasses.js"
+import { Button } from "@/components/ui/button.jsx"
+import { nativeSelectClass } from "@/lib/utils.js"
 import { StatusBadge } from "@/components/StatusBadge.jsx"
 import { RECRUITER_STATUS_OPTIONS } from "@/constants/recruiter.js"
 import { useRecruiterData } from "../RecruiterDataContext.jsx"
@@ -49,7 +50,7 @@ export function ApplicantCard({ app }) {
           </label>
           <select
             id={statusFieldId}
-            className={inputClass}
+            className={nativeSelectClass}
             value={app.status}
             onChange={(e) => updateApplicationStatus(app.application_id, e.target.value)}
             disabled={loading.status[app.application_id]}
@@ -60,13 +61,13 @@ export function ApplicantCard({ app }) {
               </option>
             ))}
           </select>
-          <button
+          <Button
+            variant="outline"
             type="button"
-            className={buttonGhostClass}
             onClick={() => openApplicantDetail(app.application_id)}
           >
             View application
-          </button>
+          </Button>
         </div>
       </div>
       {(app.matched_skills?.length > 0 || app.missing_skills?.length > 0) && (

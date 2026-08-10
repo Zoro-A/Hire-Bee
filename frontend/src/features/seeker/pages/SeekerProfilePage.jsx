@@ -1,4 +1,5 @@
-import { cardClass, inputClass } from "@/styles/uiClasses.js"
+import { Card } from "@/components/ui/card.jsx"
+import { Input } from "@/components/ui/input.jsx"
 import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { useSeekerData } from "../SeekerDataContext.jsx"
 
@@ -9,15 +10,15 @@ export function SeekerProfilePage() {
     <section className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
       <PageHeader title="My Profile" description="Manage your profile and career details." />
       <div className="grid gap-4">
-        <article className={cardClass}>
+        <Card className="block gap-0 p-5">
           <div className="grid gap-3 md:grid-cols-2">
-            <input className={inputClass} aria-label="Full name" value={manualCv.full_name} onChange={(e) => setManualCv({ ...manualCv, full_name: e.target.value })} placeholder="Full name" />
-            <input className={inputClass} aria-label="Email" value={manualCv.email} onChange={(e) => setManualCv({ ...manualCv, email: e.target.value })} placeholder="Email" />
-            <input className={inputClass} aria-label="Phone" value={manualCv.phone} onChange={(e) => setManualCv({ ...manualCv, phone: e.target.value })} placeholder="Phone" />
-            <input className={inputClass} aria-label="Location" value={manualCv.location} onChange={(e) => setManualCv({ ...manualCv, location: e.target.value })} placeholder="Location" />
-            <input className={inputClass} aria-label="LinkedIn URL" value={manualCv.linkedin} onChange={(e) => setManualCv({ ...manualCv, linkedin: e.target.value })} placeholder="LinkedIn URL" />
-            <input className={inputClass} aria-label="GitHub URL" value={manualCv.github} onChange={(e) => setManualCv({ ...manualCv, github: e.target.value })} placeholder="GitHub URL" />
-            <input className={inputClass} aria-label="Skills, comma separated" value={manualCv.skills} onChange={(e) => setManualCv({ ...manualCv, skills: e.target.value })} placeholder="Skills comma separated" />
+            <Input aria-label="Full name" value={manualCv.full_name} onChange={(e) => setManualCv({ ...manualCv, full_name: e.target.value })} placeholder="Full name" />
+            <Input aria-label="Email" value={manualCv.email} onChange={(e) => setManualCv({ ...manualCv, email: e.target.value })} placeholder="Email" />
+            <Input aria-label="Phone" value={manualCv.phone} onChange={(e) => setManualCv({ ...manualCv, phone: e.target.value })} placeholder="Phone" />
+            <Input aria-label="Location" value={manualCv.location} onChange={(e) => setManualCv({ ...manualCv, location: e.target.value })} placeholder="Location" />
+            <Input aria-label="LinkedIn URL" value={manualCv.linkedin} onChange={(e) => setManualCv({ ...manualCv, linkedin: e.target.value })} placeholder="LinkedIn URL" />
+            <Input aria-label="GitHub URL" value={manualCv.github} onChange={(e) => setManualCv({ ...manualCv, github: e.target.value })} placeholder="GitHub URL" />
+            <Input aria-label="Skills, comma separated" value={manualCv.skills} onChange={(e) => setManualCv({ ...manualCv, skills: e.target.value })} placeholder="Skills comma separated" />
           </div>
           <div className="mt-4 rounded-xl border border-surface-border p-4">
             <p className="text-xs font-semibold uppercase text-ink-muted">Skill Highlights</p>
@@ -27,7 +28,7 @@ export function SeekerProfilePage() {
               ))}
             </div>
           </div>
-        </article>
+        </Card>
       </div>
     </section>
   )

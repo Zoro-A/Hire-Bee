@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { PiBriefcase, PiBuildings, PiEnvelopeSimple, PiUsersThree } from "react-icons/pi"
-import { cardClass } from "@/styles/uiClasses.js"
+import { Card } from "@/components/ui/card.jsx"
 import { Metric } from "@/components/Metric.jsx"
 import { Badge } from "@/components/ui/badge.jsx"
 import { EmptyState } from "@/components/feedback/EmptyState.jsx"
@@ -46,7 +46,7 @@ export function AdminOverviewPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <article className={cardClass}>
+        <Card className="block gap-0 p-5">
           <h2 className="mb-3 font-display font-semibold text-ink">Users by role</h2>
           {users.length === 0 ? (
             <EmptyState title="No users yet." />
@@ -60,9 +60,9 @@ export function AdminOverviewPage() {
               ))}
             </ul>
           )}
-        </article>
+        </Card>
 
-        <article className={cardClass}>
+        <Card className="block gap-0 p-5">
           <h2 className="mb-3 font-display font-semibold text-ink">Recent email activity</h2>
           {recentEmails.length === 0 ? (
             <EmptyState title="No email activity yet." />
@@ -81,7 +81,7 @@ export function AdminOverviewPage() {
               ))}
             </ul>
           )}
-        </article>
+        </Card>
       </div>
     </section>
   )

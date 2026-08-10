@@ -1,7 +1,7 @@
 import { useRef, useState } from "react"
 import { gsap, useGSAP } from "@/lib/gsap"
 import { DUR, EASE, REDUCED_MOTION_QUERY } from "@/lib/motion"
-import { cardClass } from "../styles/uiClasses.js"
+import { Card } from "@/components/ui/card.jsx"
 
 function prefersReducedMotion() {
   return typeof window !== "undefined" && !!window.matchMedia?.(REDUCED_MOTION_QUERY).matches
@@ -40,7 +40,7 @@ export function Metric({ label, value, Icon, iconBg = "bg-brand/15", iconColor =
   const displayNumber = tweenedValue !== null ? tweenedValue : value
 
   return (
-    <div className={`${cardClass} flex items-start gap-4 transition-transform duration-150 ease-[var(--ease-out-expo)] hover:-translate-y-0.5 motion-reduce:hover:translate-y-0`}>
+    <Card className="flex-row items-start gap-4 p-5 transition-transform duration-150 ease-[var(--ease-out-expo)] hover:-translate-y-0.5 motion-reduce:hover:translate-y-0">
       {Icon && (
         <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl ${iconBg} ${iconColor}`}>
           <Icon className="h-5 w-5" />
@@ -60,6 +60,6 @@ export function Metric({ label, value, Icon, iconBg = "bg-brand/15", iconColor =
         </p>
         {sub && <p className="mt-0.5 text-xs text-ink-muted">{sub}</p>}
       </div>
-    </div>
+    </Card>
   )
 }

@@ -2,7 +2,8 @@ import { evalMethodLabel } from "@/lib/matching.js"
 import { MiniBarChart } from "@/components/charts/MiniBarChart.jsx"
 import { ClusterScatter } from "@/components/charts/ClusterScatter.jsx"
 import { PageHeader } from "@/components/feedback/PageHeader.jsx"
-import { cardClass, buttonClass } from "@/styles/uiClasses.js"
+import { Card } from "@/components/ui/card.jsx"
+import { Button } from "@/components/ui/button.jsx"
 import { useSeekerData } from "../SeekerDataContext.jsx"
 
 export function SeekerEvaluationPage() {
@@ -12,12 +13,12 @@ export function SeekerEvaluationPage() {
     <section className="min-h-0 flex-1 overflow-y-auto pr-1">
       <PageHeader title="Evaluation" description="Recommendation quality across matching methods." />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-        <article className={cardClass}>
+        <Card className="block gap-0 p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="font-display font-semibold text-ink">Recommendation Evaluation</h2>
-            <button className={buttonClass} type="button" onClick={runSeekerEvaluation} aria-busy={runningEval} disabled={runningEval}>
+            <Button type="button" onClick={runSeekerEvaluation} aria-busy={runningEval} disabled={runningEval}>
               {runningEval ? "Running..." : "Run Evaluation"}
-            </button>
+            </Button>
           </div>
           <p className="mt-1 text-sm text-ink-muted">Latest runs comparing cosine semantic similarity vs literal skill-overlap similarity.</p>
           {evalData.metrics.length === 0 ? (
@@ -37,8 +38,8 @@ export function SeekerEvaluationPage() {
               })}
             </div>
           )}
-        </article>
-        <article className={cardClass}>
+        </Card>
+        <Card className="block gap-0 p-5">
           <h2 className="font-display font-semibold text-ink">Run Comparison Graph</h2>
           <div className="mt-3">
             <MiniBarChart
@@ -52,19 +53,19 @@ export function SeekerEvaluationPage() {
               max={1}
             />
           </div>
-        </article>
-        <article className={cardClass}>
+        </Card>
+        <Card className="block gap-0 p-5">
           <h2 className="font-display font-semibold text-ink">Cosine Similarity Graph (You vs Jobs)</h2>
           <div className="mt-3">
             <ClusterScatter points={evalData.points} method="cosine_similarity" runId={latestRunIdByMethod["cosine_similarity"]} />
           </div>
-        </article>
-        <article className={cardClass}>
+        </Card>
+        <Card className="block gap-0 p-5">
           <h2 className="font-display font-semibold text-ink">Skill Overlap Graph (You vs Jobs)</h2>
           <div className="mt-3">
             <ClusterScatter points={evalData.points} method="embedding_distance" runId={latestRunIdByMethod["embedding_distance"]} />
           </div>
-        </article>
+        </Card>
       </div>
     </section>
   )

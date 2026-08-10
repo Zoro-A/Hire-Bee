@@ -1,5 +1,5 @@
 import { getSectionDisplayLabel, safeExternalUrl } from "@/lib/cv.js"
-import { cardClass } from "@/styles/uiClasses.js"
+import { Card } from "@/components/ui/card.jsx"
 import { isDownloadDisabled } from "@/lib/exportGuards"
 import { useSeekerData } from "../SeekerDataContext.jsx"
 
@@ -15,7 +15,7 @@ export function CvLivePreview() {
   } = useSeekerData()
 
   return (
-    <article className={`${cardClass} flex min-h-0 flex-col overflow-hidden`}>
+    <Card className="gap-0 p-5 min-h-0 overflow-hidden">
       <div className="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2">
         <h2 className="font-display font-semibold text-ink">Live CV Preview</h2>
         <div className="flex flex-wrap items-center justify-end gap-2">
@@ -91,6 +91,6 @@ export function CvLivePreview() {
         })}
       </div>
       </div>
-    </article>
+    </Card>
   )
 }

@@ -1,5 +1,5 @@
 import { PiUsersThree } from "react-icons/pi"
-import { cardClass } from "@/styles/uiClasses.js"
+import { Card } from "@/components/ui/card.jsx"
 import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { EmptyState } from "@/components/feedback/EmptyState.jsx"
 import { useRecruiterData } from "../RecruiterDataContext.jsx"
@@ -11,7 +11,7 @@ export function RecruiterApplicantsPage() {
   return (
     <section className="min-h-0 flex-1 overflow-y-auto pr-1">
       <PageHeader title="Applicants" />
-      <article className={cardClass}>
+      <Card className="block gap-0 p-5">
         <p className="mb-4 text-xs text-ink-muted">Select "View application" to open the cover letter and CV. Update status from the menu.</p>
         {sortedApps.length === 0 ? (
           <EmptyState
@@ -26,7 +26,7 @@ export function RecruiterApplicantsPage() {
             ))}
           </div>
         )}
-      </article>
+      </Card>
     </section>
   )
 }

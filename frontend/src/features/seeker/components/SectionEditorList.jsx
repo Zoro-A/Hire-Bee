@@ -1,5 +1,5 @@
 import { CORE_CV_SECTION_KEYS, getSectionDisplayLabel } from "@/lib/cv.js"
-import { inputClass } from "@/styles/uiClasses.js"
+import { Textarea } from "@/components/ui/textarea.jsx"
 import { useSeekerData } from "../SeekerDataContext.jsx"
 
 export function SectionEditorList() {
@@ -40,9 +40,8 @@ export function SectionEditorList() {
                 {getSectionDisplayLabel(key, sectionExtraLabels)}
               </label>
               {key === "skills" ? (
-                <textarea
+                <Textarea
                   id={`cv-section-${key}`}
-                  className={inputClass}
                   rows={2}
                   value={manualCv[key] ?? ""}
                   onChange={(e) => setManualCv({ ...manualCv, [key]: e.target.value })}
@@ -51,9 +50,8 @@ export function SectionEditorList() {
                   placeholder="Comma-separated skills"
                 />
               ) : (
-                <textarea
+                <Textarea
                   id={`cv-section-${key}`}
-                  className={inputClass}
                   rows={key === "summary" ? 3 : 4}
                   value={manualCv[key] ?? ""}
                   onChange={(e) => setManualCv({ ...manualCv, [key]: e.target.value })}

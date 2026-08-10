@@ -1,5 +1,5 @@
 import { PiCalendarX } from "react-icons/pi"
-import { cardClass } from "@/styles/uiClasses.js"
+import { Card } from "@/components/ui/card.jsx"
 import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { EmptyState } from "@/components/feedback/EmptyState.jsx"
 import { useRecruiterData } from "../RecruiterDataContext.jsx"
@@ -12,7 +12,7 @@ export function RecruiterInterviewsPage() {
     <section className="min-h-0 flex-1 overflow-y-auto pr-1">
       <PageHeader title="Interviews" />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <article className={cardClass}>
+        <Card className="block gap-0 p-5">
           <h2 className="mb-1 font-display font-semibold text-ink">Upcoming</h2>
           <p className="mb-4 text-xs text-ink-muted">Scheduled interviews for your roles.</p>
           {interviews.length === 0 ? (
@@ -33,7 +33,7 @@ export function RecruiterInterviewsPage() {
               ))}
             </div>
           )}
-        </article>
+        </Card>
         <InterviewScheduleForm />
       </div>
     </section>

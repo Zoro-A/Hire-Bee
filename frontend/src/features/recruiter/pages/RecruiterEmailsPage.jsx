@@ -1,4 +1,4 @@
-import { cardClass } from "@/styles/uiClasses.js"
+import { Card } from "@/components/ui/card.jsx"
 import { Badge } from "@/components/ui/badge.jsx"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.jsx"
 import { PageHeader } from "@/components/feedback/PageHeader.jsx"
@@ -11,7 +11,7 @@ export function RecruiterEmailsPage() {
   return (
     <section className="min-h-0 flex-1 overflow-y-auto pr-1">
       <PageHeader title="Email logs" />
-      <article className={cardClass}>
+      <Card className="block gap-0 p-5">
         <h2 className="mb-1 font-display font-semibold text-ink">Email automation</h2>
         <p className="mb-4 text-xs text-ink-muted">Recent platform sends (applications, interviews, password reset).</p>
         <div className="overflow-hidden rounded-xl border border-surface-border">
@@ -40,7 +40,7 @@ export function RecruiterEmailsPage() {
           </Table>
           {logs.length === 0 && <p className="p-4 text-sm text-ink-muted">No email rows yet.</p>}
         </div>
-      </article>
+      </Card>
     </section>
   )
 }

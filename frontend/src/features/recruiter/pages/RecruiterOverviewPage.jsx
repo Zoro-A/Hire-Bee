@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import { cardClass } from "@/styles/uiClasses.js"
+import { Card } from "@/components/ui/card.jsx"
 import { Metric } from "@/components/Metric.jsx"
 import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { useRecruiterData } from "../RecruiterDataContext.jsx"
@@ -24,7 +24,7 @@ export function RecruiterOverviewPage() {
           <Metric label="Interviews" value={interviews.length} />
           <Metric label="Emails logged" value={logs.length} />
         </div>
-        <article className={cardClass}>
+        <Card className="block gap-0 p-5">
           <h2 className="mb-3 font-display font-semibold text-ink">Quick actions</h2>
           <div className="grid gap-3 md:grid-cols-3">
             <Link to="/app/recruiter/jobs" className="rounded-xl border border-surface-border p-4 text-left transition-transform duration-150 ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:border-brand active:scale-[0.97] motion-reduce:hover:translate-y-0">
@@ -40,7 +40,7 @@ export function RecruiterOverviewPage() {
               <p className="text-xs text-ink-muted">Link candidates to calendar</p>
             </Link>
           </div>
-        </article>
+        </Card>
       </div>
     </section>
   )

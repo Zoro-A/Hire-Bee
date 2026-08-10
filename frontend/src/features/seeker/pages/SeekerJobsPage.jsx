@@ -1,7 +1,8 @@
 import { useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
 import { PiMagnifyingGlass } from "react-icons/pi"
-import { cardClass, inputClass } from "@/styles/uiClasses.js"
+import { Card } from "@/components/ui/card.jsx"
+import { Input } from "@/components/ui/input.jsx"
 import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { EmptyState } from "@/components/feedback/EmptyState.jsx"
 import { useSeekerData } from "../SeekerDataContext.jsx"
@@ -33,14 +34,13 @@ export function SeekerJobsPage() {
     <section className="min-h-0 flex-1 overflow-y-auto pr-1">
       <PageHeader title="Jobs" description="AI-powered matches based on your profile." />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-        <article className={cardClass}>
+        <Card className="block gap-0 p-5">
           <h2 className="mb-3 font-display font-semibold text-ink">Job Recommendations</h2>
           <label className="sr-only" htmlFor="job-search">
             Search by job title, company, or keywords
           </label>
-          <input
+          <Input
             id="job-search"
-            className={inputClass}
             placeholder="Search by job title, company, or keywords..."
             value={jobQuery}
             onChange={(e) => setJobQuery(e.target.value)}
@@ -69,8 +69,8 @@ export function SeekerJobsPage() {
               ))}
             </div>
           )}
-        </article>
-        <article className={cardClass}>
+        </Card>
+        <Card className="block gap-0 p-5">
           <h2 className="mb-3 font-display text-2xl font-semibold text-ink">{selectedJob?.title || "Select a job"}</h2>
           {selectedJob ? (
             <>
@@ -82,7 +82,7 @@ export function SeekerJobsPage() {
           ) : (
             <p className="text-sm text-ink-muted">Pick a job from the list to view full details and quick apply panel.</p>
           )}
-        </article>
+        </Card>
       </div>
     </section>
   )

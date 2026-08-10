@@ -1,6 +1,8 @@
 import { useRef } from "react"
 import { CvScoreCard } from "@/components/cv/CvScoreCard.jsx"
-import { buttonClass, buttonGhostClass, cardClass, inputClass } from "@/styles/uiClasses.js"
+import { Card } from "@/components/ui/card.jsx"
+import { Button } from "@/components/ui/button.jsx"
+import { Input } from "@/components/ui/input.jsx"
 import { gsap, useGSAP } from "@/lib/gsap"
 import { DUR, EASE, REDUCED_MOTION_QUERY } from "@/lib/motion"
 import { useSeekerData } from "../SeekerDataContext.jsx"
@@ -45,7 +47,7 @@ export function CvCoachChat() {
   )
 
   return (
-    <article className={`${cardClass} flex min-h-0 flex-1 flex-col overflow-hidden`}>
+    <Card className="gap-0 p-5 min-h-0 flex-1 overflow-hidden">
       {/* Chat header */}
       <div className="flex shrink-0 items-center justify-between border-b border-surface-border pb-4">
         <div>
@@ -100,31 +102,30 @@ export function CvCoachChat() {
           <label className="sr-only" htmlFor="cv-coach-message">
             Message to CV Coach
           </label>
-          <input
+          <Input
             id="cv-coach-message"
-            className={inputClass}
             value={convoInput}
             onChange={(e) => setConvoInput(e.target.value)}
             placeholder="Type about your goals, skills, or experience…"
             disabled={loading.convoChat}
           />
-          <button className={buttonClass} type="submit" disabled={loading.convoChat || !convoInput.trim()}>
+          <Button type="submit" disabled={loading.convoChat || !convoInput.trim()}>
             Send
-          </button>
+          </Button>
         </form>
         <div className="mt-3 flex flex-wrap gap-2">
-          <button className={buttonClass} disabled={loading.convoCv} aria-busy={loading.convoCv} type="button" onClick={generateConversationalCv}>
+          <Button disabled={loading.convoCv} aria-busy={loading.convoCv} type="button" onClick={generateConversationalCv}>
             {loading.convoCv ? "Generating CV…" : "Generate Conversational CV"}
-          </button>
-          <button className={buttonClass} type="button" aria-busy={loading.export} disabled={loading.export || loading.convoCv || !selectedCvId} onClick={() => exportCv("pdf")}>
+          </Button>
+          <Button type="button" aria-busy={loading.export} disabled={loading.export || loading.convoCv || !selectedCvId} onClick={() => exportCv("pdf")}>
             {loading.export ? "Exporting…" : "Export PDF"}
-          </button>
-          <button className={buttonGhostClass} type="button" aria-busy={loading.export} disabled={loading.export || loading.convoCv || !selectedCvId} onClick={() => exportCv("docx")}>
+          </Button>
+          <Button variant="outline" type="button" aria-busy={loading.export} disabled={loading.export || loading.convoCv || !selectedCvId} onClick={() => exportCv("docx")}>
             {loading.export ? "Exporting…" : "Export DOCX"}
-          </button>
+          </Button>
         </div>
         <CvScoreCard cvEval={cvEval} />
       </div>
-    </article>
+    </Card>
   )
 }

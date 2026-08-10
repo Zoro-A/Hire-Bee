@@ -3,7 +3,7 @@ import { Metric } from "@/components/Metric.jsx"
 import { StatusBadge } from "@/components/StatusBadge.jsx"
 import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { EmptyState } from "@/components/feedback/EmptyState.jsx"
-import { cardClass } from "@/styles/uiClasses.js"
+import { Card } from "@/components/ui/card.jsx"
 import { useSeekerData } from "../SeekerDataContext.jsx"
 
 export function SeekerApplicationsPage() {
@@ -13,15 +13,15 @@ export function SeekerApplicationsPage() {
     <section className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
       <PageHeader title="My Applications" />
       <div className="grid gap-6">
-        <article className={cardClass}>
+        <Card className="block gap-0 p-5">
           <div className="grid gap-3 md:grid-cols-3">
             <Metric label="Total Applications" value={apps.length} />
             <Metric label="Under Review" value={apps.filter((a) => a.status === "applied" || a.status === "shortlisted").length} />
             <Metric label="Interviews" value={apps.filter((a) => a.status === "interview").length} />
           </div>
-        </article>
+        </Card>
 
-        <article className={cardClass}>
+        <Card className="block gap-0 p-5">
           <h2 className="mb-3 font-display font-semibold text-ink">Application Status Tracking</h2>
           {apps.length === 0 ? (
             <EmptyState
@@ -47,7 +47,7 @@ export function SeekerApplicationsPage() {
               })}
             </div>
           )}
-        </article>
+        </Card>
       </div>
     </section>
   )

@@ -1,4 +1,4 @@
-import { cardClass } from "@/styles/uiClasses.js"
+import { Card } from "@/components/ui/card.jsx"
 import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { useSeekerData } from "../SeekerDataContext.jsx"
 import { ManualCvBuilder } from "../components/ManualCvBuilder.jsx"
@@ -11,7 +11,7 @@ export function SeekerCvPage() {
   return (
     <section className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
       <PageHeader title="Generate CV" description="Build an ATS-ready CV manually or through a chat coach." />
-      <article className={`${cardClass} shrink-0`}>
+      <Card className="block gap-0 p-5 shrink-0">
         <div className="flex flex-wrap gap-2" role="group" aria-label="CV generator mode">
           <button
             type="button"
@@ -30,7 +30,7 @@ export function SeekerCvPage() {
             Conversational CV Generator
           </button>
         </div>
-      </article>
+      </Card>
 
       {cvMode === "manual" ? (
         <div className="grid min-h-0 flex-1 gap-4 overflow-hidden lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
