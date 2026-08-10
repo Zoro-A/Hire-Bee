@@ -68,7 +68,7 @@ export function AdminEmailsPage() {
     .slice(0, RENDER_CAP)
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
+    <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1">
       <PageHeader title="Email logs" />
       <DataTableShell
         caption="Email logs (showing 200 most recent)"

@@ -3,13 +3,12 @@ import {
   PiFileText,
   PiListChecks,
   PiCalendarCheck,
-  PiEye,
   PiFileArrowUp,
   PiNotePencil,
   PiMagnifyingGlass,
   PiArrowRight,
 } from "react-icons/pi"
-import { formatJobMatchLabel } from "@/lib/matching.js"
+import { formatJobMatchLabel, getMatchBand } from "@/lib/matching.js"
 import { Metric } from "@/components/Metric.jsx"
 import { PageHeader } from "@/components/feedback/PageHeader.jsx"
 import { useSeekerData } from "../SeekerDataContext.jsx"
@@ -21,7 +20,7 @@ export function SeekerOverviewPage() {
   return (
     <section className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
       <PageHeader title="Dashboard" description="Your job search at a glance." />
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-3">
         {/* Metric cards */}
         <Metric
           label="Resume Score"
@@ -42,15 +41,9 @@ export function SeekerOverviewPage() {
           Icon={PiCalendarCheck} iconBg="bg-success/15" iconColor="text-success"
           sub="Scheduled"
         />
-        <Metric
-          label="Profile Views"
-          value={145}
-          Icon={PiEye} iconBg="bg-ink-faint/10" iconColor="text-ink-muted"
-          sub="This week"
-        />
 
         {/* Quick Actions */}
-        <article className="md:col-span-4">
+        <article className="md:col-span-3">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-ink-faint">Quick Actions</h2>
           <div className="grid gap-3 md:grid-cols-3">
             {[
@@ -79,7 +72,7 @@ export function SeekerOverviewPage() {
         </article>
 
         {/* Recommended Jobs */}
-        <article className="md:col-span-4">
+        <article className="md:col-span-3">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-ink-faint">Recommended Jobs</h2>
             <Link
@@ -92,6 +85,7 @@ export function SeekerOverviewPage() {
           <div className="grid gap-3 md:grid-cols-2">
             {jobsSortedByMatch.slice(0, 4).map((job) => {
               const m = matchByJobId.get(job.id)
+              const band = getMatchBand(m?.match_percentage)
               return (
                 <Link
                   key={job.id}
@@ -103,7 +97,7 @@ export function SeekerOverviewPage() {
                       <p className="font-semibold text-ink">{job.title}</p>
                       <p className="mt-0.5 text-xs text-ink-muted">{job.location || "Remote"}{job.salary ? ` · $${job.salary}` : ""}</p>
                     </div>
-                    <span className="shrink-0 rounded-full bg-success-bg px-2.5 py-1 text-xs font-semibold text-success">{formatJobMatchLabel(m)}</span>
+                    <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${band.chipClass}`}>{formatJobMatchLabel(m)}</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {job.required_skills.slice(0, 5).map((skill) => (

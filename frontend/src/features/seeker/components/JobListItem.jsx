@@ -1,6 +1,8 @@
-import { formatJobMatchLabel } from "@/lib/matching.js"
+import { formatJobMatchLabel, getMatchBand } from "@/lib/matching.js"
 
 export function JobListItem({ job, match, isSelected, onSelect }) {
+  const band = getMatchBand(match?.match_percentage)
+
   return (
     <button
       type="button"
@@ -14,7 +16,7 @@ export function JobListItem({ job, match, isSelected, onSelect }) {
       <p className="text-lg font-semibold text-ink">{job.title}</p>
       <p className="text-xs text-ink-muted">{job.location || "Remote"} • ${job.salary || "N/A"}</p>
       <div className="mt-2 flex items-center justify-between">
-        <span className="rounded-full bg-success-bg px-2 py-1 text-xs font-semibold text-success">{formatJobMatchLabel(match)}</span>
+        <span className={`rounded-full px-2 py-1 text-xs font-semibold ${band.chipClass}`}>{formatJobMatchLabel(match)}</span>
         <span className="text-xs text-ink-muted">Apply now</span>
       </div>
     </button>
