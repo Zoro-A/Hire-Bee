@@ -6,7 +6,7 @@ export function InterviewScheduleForm() {
 
   return (
     <article className={cardClass}>
-      <h2 className="mb-1 font-semibold">Schedule interview</h2>
+      <h2 className="mb-1 font-display font-semibold text-ink">Schedule interview</h2>
       <p className="mb-4 text-xs text-ink-muted">Sets application status to interview and emails the candidate when SMTP is configured.</p>
       <form onSubmit={scheduleInterview} className="grid gap-3">
         <label className="text-xs font-medium text-ink-muted" htmlFor="interview-application">Application</label>

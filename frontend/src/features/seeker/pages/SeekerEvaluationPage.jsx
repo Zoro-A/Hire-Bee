@@ -14,7 +14,7 @@ export function SeekerEvaluationPage() {
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <article className={cardClass}>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-2xl font-semibold">Recommendation Evaluation</h2>
+            <h2 className="font-display font-semibold text-ink">Recommendation Evaluation</h2>
             <button className={buttonClass} type="button" onClick={runSeekerEvaluation} aria-busy={runningEval} disabled={runningEval}>
               {runningEval ? "Running..." : "Run Evaluation"}
             </button>
@@ -39,7 +39,7 @@ export function SeekerEvaluationPage() {
           )}
         </article>
         <article className={cardClass}>
-          <h2 className="font-semibold">Run Comparison Graph</h2>
+          <h2 className="font-display font-semibold text-ink">Run Comparison Graph</h2>
           <div className="mt-3">
             <MiniBarChart
               items={(evalData.metrics || []).map((m) => ({
@@ -54,13 +54,13 @@ export function SeekerEvaluationPage() {
           </div>
         </article>
         <article className={cardClass}>
-          <h2 className="font-semibold">Cosine Similarity Graph (You vs Jobs)</h2>
+          <h2 className="font-display font-semibold text-ink">Cosine Similarity Graph (You vs Jobs)</h2>
           <div className="mt-3">
             <ClusterScatter points={evalData.points} method="cosine_similarity" runId={latestRunIdByMethod["cosine_similarity"]} />
           </div>
         </article>
         <article className={cardClass}>
-          <h2 className="font-semibold">Skill Overlap Graph (You vs Jobs)</h2>
+          <h2 className="font-display font-semibold text-ink">Skill Overlap Graph (You vs Jobs)</h2>
           <div className="mt-3">
             <ClusterScatter points={evalData.points} method="embedding_distance" runId={latestRunIdByMethod["embedding_distance"]} />
           </div>

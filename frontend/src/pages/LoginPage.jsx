@@ -69,7 +69,7 @@ export function LoginPage({ setToken, googleClientId }) {
         <div className="mx-auto mb-3 flex justify-center">
           <img src="/hirebee-logo.svg" alt="" className="h-12 w-12 rounded-xl ring-2 ring-brand/20" />
         </div>
-        <h1 className="text-2xl font-semibold text-ink">Sign in to your account</h1>
+        <h1 className="font-display text-2xl font-semibold text-ink">Sign in to your account</h1>
         <p className="mt-1 text-sm text-ink-muted">Welcome back! Please enter your details</p>
       </div>
       <form onSubmit={submit} className="space-y-4">

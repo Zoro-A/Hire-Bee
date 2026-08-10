@@ -72,7 +72,7 @@ export function RegisterPage({ setToken, googleClientId }) {
     <div className="rounded-2xl border border-surface-border bg-surface-raised p-8 shadow-card">
       <div className="mb-6 text-center">
         <img src="/hirebee-logo.svg" alt="" className="mx-auto mb-3 h-12 w-12 rounded-xl ring-2 ring-brand/20" />
-        <h1 className="text-2xl font-semibold text-ink">Create your account</h1>
+        <h1 className="font-display text-2xl font-semibold text-ink">Create your account</h1>
         <p className="mt-1 text-sm text-ink-muted">Join HireBee in a few steps</p>
       </div>
       <form onSubmit={submit} className="space-y-4">

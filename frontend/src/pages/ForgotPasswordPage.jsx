@@ -34,7 +34,7 @@ export function ForgotPasswordPage() {
 
   return (
     <div className="rounded-2xl border border-surface-border bg-surface-raised p-8 shadow-card">
-      <h1 className="text-xl font-semibold text-ink">Forgot password</h1>
+      <h1 className="font-display text-2xl font-semibold text-ink">Forgot password</h1>
       <p className="mt-1 text-sm text-ink-muted">Enter your email and we&apos;ll send reset instructions if an account exists.</p>
       <form onSubmit={submit} className="mt-6 space-y-4">
         <div>

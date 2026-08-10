@@ -14,7 +14,6 @@ export function SeekerApplicationsPage() {
       <PageHeader title="My Applications" />
       <div className="grid gap-6">
         <article className={cardClass}>
-          <h2 className="mb-3 text-2xl font-semibold">My Applications</h2>
           <div className="grid gap-3 md:grid-cols-3">
             <Metric label="Total Applications" value={apps.length} />
             <Metric label="Under Review" value={apps.filter((a) => a.status === "applied" || a.status === "shortlisted").length} />
@@ -23,7 +22,7 @@ export function SeekerApplicationsPage() {
         </article>
 
         <article className={cardClass}>
-          <h2 className="mb-3 font-semibold">Application Status Tracking</h2>
+          <h2 className="mb-3 font-display font-semibold text-ink">Application Status Tracking</h2>
           {apps.length === 0 ? (
             <EmptyState
               icon={<PiListChecks aria-hidden="true" />}

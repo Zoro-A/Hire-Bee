@@ -10,10 +10,6 @@ export function SeekerProfilePage() {
       <PageHeader title="My Profile" description="Manage your profile and career details." />
       <div className="grid gap-4">
         <article className={cardClass}>
-          <h2 className="text-2xl font-semibold">My Profile</h2>
-          <p className="text-sm text-ink-muted">Manage your profile and career details.</p>
-        </article>
-        <article className={cardClass}>
           <div className="grid gap-3 md:grid-cols-2">
             <input className={inputClass} aria-label="Full name" value={manualCv.full_name} onChange={(e) => setManualCv({ ...manualCv, full_name: e.target.value })} placeholder="Full name" />
             <input className={inputClass} aria-label="Email" value={manualCv.email} onChange={(e) => setManualCv({ ...manualCv, email: e.target.value })} placeholder="Email" />

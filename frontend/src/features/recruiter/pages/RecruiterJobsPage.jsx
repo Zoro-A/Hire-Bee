@@ -13,7 +13,7 @@ export function RecruiterJobsPage() {
       <PageHeader title="Jobs" />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         <article className={cardClass}>
-          <h2 className="mb-1 font-semibold">Your listings</h2>
+          <h2 className="mb-1 font-display font-semibold text-ink">Your listings</h2>
           <p className="mb-4 text-xs text-ink-muted">Filtered by recruiter email on the job record.</p>
           {myJobs.length === 0 ? (
             <EmptyState

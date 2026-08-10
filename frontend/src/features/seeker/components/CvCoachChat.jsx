@@ -49,7 +49,7 @@ export function CvCoachChat() {
       {/* Chat header */}
       <div className="flex shrink-0 items-center justify-between border-b border-surface-border pb-4">
         <div>
-          <h2 className="font-semibold text-ink">CV Coach</h2>
+          <h2 className="font-display font-semibold text-ink">CV Coach</h2>
           <p className="mt-0.5 text-xs text-ink-muted">Chat to build your CV, then generate &amp; export</p>
         </div>
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-soft text-xl">

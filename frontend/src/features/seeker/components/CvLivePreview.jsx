@@ -17,7 +17,7 @@ export function CvLivePreview() {
   return (
     <article className={`${cardClass} flex min-h-0 flex-col overflow-hidden`}>
       <div className="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2">
-        <h2 className="font-semibold text-ink">Live CV Preview</h2>
+        <h2 className="font-display font-semibold text-ink">Live CV Preview</h2>
         <div className="flex flex-wrap items-center justify-end gap-2">
           {loading.convoCv && (
             <p className="text-xs text-brand dark:text-brand">Generation in progress — downloads paused…</p>

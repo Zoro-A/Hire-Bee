@@ -23,7 +23,7 @@ export function ManualCvBuilder() {
   return (
     <article className={`${cardClass} flex min-h-0 flex-col overflow-hidden`}>
       <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-      <h2 className="mb-3 font-semibold">Input Sections</h2>
+      <h2 className="mb-3 font-display font-semibold text-ink">Input Sections</h2>
       <div className="grid gap-3">
         <input className={inputClass} aria-label="CV title" placeholder="CV title" value={manualCv.title} onChange={(e) => setManualCv({ ...manualCv, title: e.target.value })} />
         <input className={inputClass} aria-label="Full name" placeholder="Full name" value={manualCv.full_name} onChange={(e) => setManualCv({ ...manualCv, full_name: e.target.value })} />

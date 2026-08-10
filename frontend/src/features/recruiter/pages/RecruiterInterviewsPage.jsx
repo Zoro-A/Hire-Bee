@@ -13,7 +13,7 @@ export function RecruiterInterviewsPage() {
       <PageHeader title="Interviews" />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <article className={cardClass}>
-          <h2 className="mb-1 font-semibold">Upcoming</h2>
+          <h2 className="mb-1 font-display font-semibold text-ink">Upcoming</h2>
           <p className="mb-4 text-xs text-ink-muted">Scheduled interviews for your roles.</p>
           {interviews.length === 0 ? (
             <EmptyState

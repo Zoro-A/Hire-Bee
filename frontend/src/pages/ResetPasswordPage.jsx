@@ -40,7 +40,7 @@ export function ResetPasswordPage() {
 
   return (
     <div className="rounded-2xl border border-surface-border bg-surface-raised p-8 shadow-card">
-      <h1 className="text-xl font-semibold text-ink">Set new password</h1>
+      <h1 className="font-display text-2xl font-semibold text-ink">Set new password</h1>
       <StatusBanner error={!token ? "Missing token. Open the link from your email." : ""} />
       <form onSubmit={submit} className="mt-6 space-y-4">
         <div>

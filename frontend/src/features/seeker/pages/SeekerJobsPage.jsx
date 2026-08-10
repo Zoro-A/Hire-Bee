@@ -34,8 +34,7 @@ export function SeekerJobsPage() {
       <PageHeader title="Jobs" description="AI-powered matches based on your profile." />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <article className={cardClass}>
-          <h2 className="mb-2 text-2xl font-semibold">Job Recommendations</h2>
-          <p className="mb-3 text-sm text-ink-muted">AI-powered matches based on your profile.</p>
+          <h2 className="mb-3 font-display font-semibold text-ink">Job Recommendations</h2>
           <label className="sr-only" htmlFor="job-search">
             Search by job title, company, or keywords
           </label>
@@ -72,7 +71,7 @@ export function SeekerJobsPage() {
           )}
         </article>
         <article className={cardClass}>
-          <h2 className="mb-3 text-2xl font-semibold">{selectedJob?.title || "Select a job"}</h2>
+          <h2 className="mb-3 font-display text-2xl font-semibold text-ink">{selectedJob?.title || "Select a job"}</h2>
           {selectedJob ? (
             <>
               <p className="text-sm text-ink-muted">{selectedJob.location || "Remote"} • {selectedJob.recruiter_email}</p>

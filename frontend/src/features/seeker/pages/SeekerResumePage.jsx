@@ -10,9 +10,7 @@ export function SeekerResumePage() {
       <PageHeader title="Upload Resume" description="Upload your resume for AI-powered analysis." />
       <div className="grid gap-6 lg:grid-cols-2">
         <article className={`${cardClass} lg:col-span-2`}>
-          <h2 className="mb-2 text-xl font-semibold">Upload Resume</h2>
-          <p className="text-sm text-ink-muted">Upload your resume for AI-powered analysis.</p>
-          <form onSubmit={uploadResume} className="mt-4 rounded-xl border border-dashed border-surface-border p-8 text-center">
+          <form onSubmit={uploadResume} className="rounded-xl border border-dashed border-surface-border p-8 text-center">
             <label className="sr-only" htmlFor="resume-upload-file">
               Resume file (PDF or DOCX)
             </label>
@@ -33,7 +31,7 @@ export function SeekerResumePage() {
           )}
         </article>
         <article className={cardClass}>
-          <h2 className="mb-3 font-semibold">Profile Snapshot</h2>
+          <h2 className="mb-3 font-display font-semibold text-ink">Profile Snapshot</h2>
           <div className="space-y-2 text-sm">
             <p><strong>Name:</strong> {resumeInsight?.parsed_data?.name || user.full_name}</p>
             <p><strong>Email:</strong> {resumeInsight?.parsed_data?.email || user.email}</p>
@@ -42,7 +40,7 @@ export function SeekerResumePage() {
           </div>
         </article>
         <article className={cardClass}>
-          <h2 className="mb-3 font-semibold">Extracted Content</h2>
+          <h2 className="mb-3 font-display font-semibold text-ink">Extracted Content</h2>
           {resumeInsight ? (
             <div className="space-y-3 text-sm">
               <div>

@@ -6,7 +6,7 @@ export function JobPostForm() {
 
   return (
     <article className={cardClass}>
-      <h2 className="mb-1 font-semibold">Publish new role</h2>
+      <h2 className="mb-1 font-display font-semibold text-ink">Publish new role</h2>
       <p className="mb-4 text-xs text-ink-muted">Required skills are normalized for ATS matching and Qdrant indexing.</p>
       <form onSubmit={postJob} className="grid gap-3">
         <input className={inputClass} aria-label="Job title" placeholder="Job title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />

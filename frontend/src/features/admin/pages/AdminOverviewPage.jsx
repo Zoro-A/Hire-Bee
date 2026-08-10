@@ -47,7 +47,7 @@ export function AdminOverviewPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <article className={cardClass}>
-          <h2 className="mb-3 font-semibold text-ink">Users by role</h2>
+          <h2 className="mb-3 font-display font-semibold text-ink">Users by role</h2>
           {users.length === 0 ? (
             <EmptyState title="No users yet." />
           ) : (
@@ -63,7 +63,7 @@ export function AdminOverviewPage() {
         </article>
 
         <article className={cardClass}>
-          <h2 className="mb-3 font-semibold text-ink">Recent email activity</h2>
+          <h2 className="mb-3 font-display font-semibold text-ink">Recent email activity</h2>
           {recentEmails.length === 0 ? (
             <EmptyState title="No email activity yet." />
           ) : (
