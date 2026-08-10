@@ -19,11 +19,14 @@ export function RegisterPage({ setToken, googleClientId }) {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const requestedRole = params.get("role")
   const [form, setForm] = useState({
     email: "",
     password: "",
     full_name: "",
-    role: params.get("role") ?? "job_seeker",
+    // Admin is not a self-serve role — see the Select below. Fall back to
+    // job_seeker for any unsupported/unexpected ?role= value.
+    role: requestedRole === "recruiter" ? "recruiter" : "job_seeker",
   })
 
   async function submit(e) {
@@ -100,7 +103,6 @@ export function RegisterPage({ setToken, googleClientId }) {
             <SelectContent>
               <SelectItem value="job_seeker">Job seeker</SelectItem>
               <SelectItem value="recruiter">Recruiter</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -118,6 +120,8 @@ export function RegisterPage({ setToken, googleClientId }) {
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               required
+              aria-invalid={!!error}
+              aria-describedby={error ? "register-error" : undefined}
             />
           </FieldShell>
         </div>
@@ -135,6 +139,9 @@ export function RegisterPage({ setToken, googleClientId }) {
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               required
+              minLength={8}
+              aria-invalid={!!error}
+              aria-describedby={error ? "register-error" : undefined}
             />
             <button
               type="button"
@@ -147,7 +154,7 @@ export function RegisterPage({ setToken, googleClientId }) {
             </button>
           </FieldShell>
         </div>
-        <StatusBanner error={error} />
+        <StatusBanner error={error} errorId="register-error" />
         <Button type="submit" disabled={loading} aria-busy={loading} className="w-full py-3">
           {loading ? "Creating…" : "Create account"}
         </Button>

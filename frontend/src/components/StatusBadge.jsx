@@ -9,7 +9,7 @@ import {
 const STATUS_STYLES = {
   applied:     { className: "bg-info-bg     text-info",          Icon: PiPaperPlaneTilt },
   shortlisted: { className: "bg-brand-soft  text-brand-on-soft",  Icon: PiBookmarkSimple },
-  interview:   { className: "bg-info-bg     text-info",          Icon: PiCalendarCheck },
+  interview:   { className: "bg-warn-bg     text-warn",           Icon: PiCalendarCheck },
   hired:       { className: "bg-success-bg  text-success",        Icon: PiCheckCircle },
   rejected:    { className: "bg-danger-bg   text-danger",         Icon: PiXCircle },
 }

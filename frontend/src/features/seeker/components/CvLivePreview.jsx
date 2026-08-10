@@ -22,7 +22,6 @@ export function CvLivePreview() {
           {loading.convoCv && (
             <p className="text-xs text-brand dark:text-brand">Generation in progress — downloads paused…</p>
           )}
-          <span className="rounded-full bg-success-bg px-2 py-1 text-xs font-semibold text-success">ATS Score: 94%</span>
           <button
             type="button"
             disabled={isDownloadDisabled(loading, selectedCvId, selectedCv, "pdf")}

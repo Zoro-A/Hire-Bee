@@ -1,6 +1,8 @@
+import { PiListChecks } from "react-icons/pi"
 import { Metric } from "@/components/Metric.jsx"
 import { StatusBadge } from "@/components/StatusBadge.jsx"
 import { PageHeader } from "@/components/feedback/PageHeader.jsx"
+import { EmptyState } from "@/components/feedback/EmptyState.jsx"
 import { cardClass } from "@/styles/uiClasses.js"
 import { useSeekerData } from "../SeekerDataContext.jsx"
 
@@ -22,22 +24,30 @@ export function SeekerApplicationsPage() {
 
         <article className={cardClass}>
           <h2 className="mb-3 font-semibold">Application Status Tracking</h2>
-          <div className="grid gap-2 text-sm">
-            {apps.map((app) => {
-              const jobTitle = jobs.find((job) => job.id === app.job_id)?.title ?? `Job #${app.job_id}`
-              return (
-                <div key={app.id} className="rounded-xl border border-surface-border p-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="font-semibold">{jobTitle}</p>
-                      <p className="text-xs">Application #{app.id}</p>
+          {apps.length === 0 ? (
+            <EmptyState
+              icon={<PiListChecks aria-hidden="true" />}
+              title="No applications yet"
+              description="Apply to a job from the Jobs tab to see it tracked here."
+            />
+          ) : (
+            <div className="grid gap-2 text-sm">
+              {apps.map((app) => {
+                const jobTitle = jobs.find((job) => job.id === app.job_id)?.title ?? `Job #${app.job_id}`
+                return (
+                  <div key={app.id} className="rounded-xl border border-surface-border p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="font-semibold">{jobTitle}</p>
+                        <p className="text-xs">Application #{app.id}</p>
+                      </div>
+                      <StatusBadge status={app.status} />
                     </div>
-                    <StatusBadge status={app.status} />
                   </div>
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
+          )}
         </article>
       </div>
     </section>

@@ -87,6 +87,8 @@ export function LoginPage({ setToken, googleClientId }) {
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               required
+              aria-invalid={!!error}
+              aria-describedby={error ? "login-error" : undefined}
             />
           </FieldShell>
         </div>
@@ -104,6 +106,8 @@ export function LoginPage({ setToken, googleClientId }) {
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               required
+              aria-invalid={!!error}
+              aria-describedby={error ? "login-error" : undefined}
             />
             <button
               type="button"
@@ -125,7 +129,7 @@ export function LoginPage({ setToken, googleClientId }) {
             Forgot password?
           </Link>
         </div>
-        <StatusBanner error={error} />
+        <StatusBanner error={error} errorId="login-error" />
         <Button type="submit" disabled={loading} aria-busy={loading} className="w-full py-3">
           {loading ? "Signing in…" : "Sign in"}
         </Button>
@@ -160,10 +164,7 @@ export function LoginPage({ setToken, googleClientId }) {
           Sign up
         </Link>
       </p>
-      <p className="mt-4 text-center text-xs text-ink-faint">
-        By signing in, you agree to our <span className="text-brand">Terms</span> and{" "}
-        <span className="text-brand">Privacy Policy</span>.
-      </p>
+      <p className="mt-4 text-center text-xs text-ink-faint">By signing in, you agree to our Terms and Privacy Policy.</p>
     </div>
   )
 }

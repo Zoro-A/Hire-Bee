@@ -66,7 +66,7 @@ export function SectionEditorList() {
             {!CORE_CV_SECTION_KEYS.has(key) && (
               <button
                 type="button"
-                className="press shrink-0 rounded-lg px-2 py-1 text-xs text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+                className="press shrink-0 rounded-lg px-2 py-1 text-xs text-danger hover:bg-danger-bg"
                 onClick={() => removeSectionKey(key)}
               >
                 Remove

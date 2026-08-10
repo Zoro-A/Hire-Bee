@@ -1,7 +1,9 @@
 import { useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
+import { PiMagnifyingGlass } from "react-icons/pi"
 import { cardClass, inputClass } from "@/styles/uiClasses.js"
 import { PageHeader } from "@/components/feedback/PageHeader.jsx"
+import { EmptyState } from "@/components/feedback/EmptyState.jsx"
 import { useSeekerData } from "../SeekerDataContext.jsx"
 import { JobListItem } from "../components/JobListItem.jsx"
 import { QuickApplyPanel } from "../components/QuickApplyPanel.jsx"
@@ -44,20 +46,30 @@ export function SeekerJobsPage() {
             value={jobQuery}
             onChange={(e) => setJobQuery(e.target.value)}
           />
-          <div className="mt-4 grid gap-3">
-            {filteredJobs.map((job) => (
-              <JobListItem
-                key={job.id}
-                job={job}
-                match={matchByJobId.get(job.id)}
-                isSelected={String(job.id) === String(selectedJobId)}
-                onSelect={() => {
-                  setSelectedJobId(String(job.id))
-                  setApplyForm((prev) => ({ ...prev, job_id: String(job.id) }))
-                }}
+          {filteredJobs.length === 0 ? (
+            <div className="mt-4">
+              <EmptyState
+                icon={<PiMagnifyingGlass aria-hidden="true" />}
+                title={jobQuery ? "No jobs match your search" : "No jobs available yet"}
+                description={jobQuery ? "Try a different title, company, or keyword." : "Check back soon for new listings matched to your profile."}
               />
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="mt-4 grid gap-3">
+              {filteredJobs.map((job) => (
+                <JobListItem
+                  key={job.id}
+                  job={job}
+                  match={matchByJobId.get(job.id)}
+                  isSelected={String(job.id) === String(selectedJobId)}
+                  onSelect={() => {
+                    setSelectedJobId(String(job.id))
+                    setApplyForm((prev) => ({ ...prev, job_id: String(job.id) }))
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </article>
         <article className={cardClass}>
           <h2 className="mb-3 text-2xl font-semibold">{selectedJob?.title || "Select a job"}</h2>

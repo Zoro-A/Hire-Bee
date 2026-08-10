@@ -4,7 +4,7 @@ import { PiCheckCircle, PiWarningCircle, PiX } from "react-icons/pi"
  * Always-mounted live regions for the dashboards' message/error pair.
  * `message` -> polite status, `error` -> assertive alert.
  */
-export function StatusBanner({ message, error, onDismiss }) {
+export function StatusBanner({ message, error, onDismiss, errorId }) {
   return (
     <div className="shrink-0 space-y-2 empty:hidden">
       <div role="status" aria-live="polite" className="empty:hidden">
@@ -22,7 +22,7 @@ export function StatusBanner({ message, error, onDismiss }) {
       </div>
       <div role="alert" aria-live="assertive" className="empty:hidden">
         {error ? (
-          <p className="flex items-start gap-2 rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">
+          <p id={errorId} className="flex items-start gap-2 rounded-xl border border-danger/30 bg-danger-bg px-4 py-3 text-sm text-danger">
             <PiWarningCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
             <span className="flex-1">{error}</span>
             {onDismiss && (

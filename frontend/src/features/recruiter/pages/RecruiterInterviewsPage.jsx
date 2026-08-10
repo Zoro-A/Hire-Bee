@@ -1,5 +1,7 @@
+import { PiCalendarX } from "react-icons/pi"
 import { cardClass } from "@/styles/uiClasses.js"
 import { PageHeader } from "@/components/feedback/PageHeader.jsx"
+import { EmptyState } from "@/components/feedback/EmptyState.jsx"
 import { useRecruiterData } from "../RecruiterDataContext.jsx"
 import { InterviewScheduleForm } from "../components/InterviewScheduleForm.jsx"
 
@@ -13,17 +15,24 @@ export function RecruiterInterviewsPage() {
         <article className={cardClass}>
           <h2 className="mb-1 font-semibold">Upcoming</h2>
           <p className="mb-4 text-xs text-ink-muted">Scheduled interviews for your roles.</p>
-          <div className="max-h-[24rem] space-y-2 overflow-auto text-sm">
-            {interviews.length === 0 && <p className="text-ink-muted">No interviews scheduled.</p>}
-            {interviews.map((inv) => (
-              <div key={inv.id} className="rounded-xl border border-surface-border p-3">
-                <p className="font-medium text-ink">{new Date(inv.interview_date).toLocaleString()}</p>
-                <p className="mt-1 break-all text-xs text-brand">{inv.meeting_link}</p>
-                {inv.notes && <p className="mt-1 text-xs text-ink-muted">{inv.notes}</p>}
-                <p className="mt-1 text-xs text-ink-faint">Application #{inv.application_id}</p>
-              </div>
-            ))}
-          </div>
+          {interviews.length === 0 ? (
+            <EmptyState
+              icon={<PiCalendarX aria-hidden="true" />}
+              title="No interviews scheduled"
+              description="Schedule one from the form to see it listed here."
+            />
+          ) : (
+            <div className="max-h-96 space-y-2 overflow-auto text-sm">
+              {interviews.map((inv) => (
+                <div key={inv.id} className="rounded-xl border border-surface-border p-3">
+                  <p className="font-medium text-ink">{new Date(inv.interview_date).toLocaleString()}</p>
+                  <p className="mt-1 break-all text-xs text-brand">{inv.meeting_link}</p>
+                  {inv.notes && <p className="mt-1 text-xs text-ink-muted">{inv.notes}</p>}
+                  <p className="mt-1 text-xs text-ink-faint">Application #{inv.application_id}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </article>
         <InterviewScheduleForm />
       </div>
