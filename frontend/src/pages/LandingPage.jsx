@@ -1,36 +1,34 @@
-﻿import { Link } from "react-router-dom"
+﻿import { useRef } from "react"
+import { Link } from "react-router-dom"
+import { RolePicker } from "@/components/landing/RolePicker.jsx"
+import { FeatureGrid } from "@/components/landing/FeatureGrid.jsx"
+import { HowItWorks } from "@/components/landing/HowItWorks.jsx"
+import { CapabilityShowcase } from "@/components/landing/CapabilityShowcase.jsx"
+import { Button } from "@/components/ui/button"
+import { useScrollReveal } from "@/hooks/useScrollReveal.js"
 
 const roles = [
   {
     id: "job_seeker",
-    title: "Job Seeker",
-    icon: "👤",
-    iconBg: "bg-accent-light",
-    iconColor: "text-accent-text",
+    eyebrow: "Job Seeker",
     headline: "Land your next role",
-    desc: "Build an ATS-ready CV through conversation, get matched to jobs semantically, and generate cover letters in one click.",
+    description: "Build an ATS-ready CV through conversation, get matched to jobs semantically, and generate cover letters in one click.",
     perks: ["Conversational CV Builder", "Semantic Job Matching", "Cover Letter Generator"],
     cta: "Get Started",
   },
   {
     id: "recruiter",
-    title: "Recruiter",
-    icon: "🏢",
-    iconBg: "bg-warn-bg",
-    iconColor: "text-warn",
+    eyebrow: "Recruiter",
     headline: "Hire the right people",
-    desc: "Parse resumes automatically, score candidates, and manage the full pipeline from application to offer.",
+    description: "Parse resumes automatically, score candidates, and manage the full pipeline from application to offer.",
     perks: ["Resume Parsing & Scoring", "Candidate Pipeline", "Interview Scheduling"],
     cta: "Start Hiring",
   },
   {
     id: "admin",
-    title: "Admin",
-    icon: "⚙️",
-    iconBg: "bg-surface-subtle dark:bg-surface-dark-subtle",
-    iconColor: "text-ink-muted dark:text-ink-dark-muted",
+    eyebrow: "Admin",
     headline: "Manage the platform",
-    desc: "Oversee all users, recruiters, and job listings from a unified dashboard with full analytics.",
+    description: "Oversee all users, recruiters, and job listings from a unified dashboard with full analytics.",
     perks: ["User Management", "Recruiter Oversight", "Platform Analytics"],
     cta: "Admin Access",
   },
@@ -46,73 +44,60 @@ const features = [
 ]
 
 export function LandingPage() {
+  // Scoped to this top section only (not the page root) so its default
+  // `[data-reveal]` selector can't also pick up HowItWorks/CapabilityShowcase's
+  // own `[data-reveal]` targets further down the tree — each section owns its
+  // own useScrollReveal scope, per the established pattern.
+  const scope = useRef(null)
+  useScrollReveal(scope)
+
   return (
-    <div className="space-y-8">
-      {/* Compact header */}
-      <div className="space-y-2 text-center">
-        <span className="inline-flex rounded-full border border-accent-muted bg-accent-light px-3 py-1 text-xs font-semibold tracking-wider text-accent-text">
-          AI-Powered Recruitment Platform
+    <div className="space-y-14">
+      {/* TODO(hero): deferred — see docs/superpowers/specs/2026-08-06-hirebee-ui-ux-rework-design.md §9.
+          Intentionally a plain top section, not a hero. Do not expand without a new spec. */}
+      <section ref={scope} className="border-b border-surface-border py-14 sm:py-20">
+        <span data-reveal className="inline-flex items-center gap-1.5 rounded-full border border-surface-border bg-surface-subtle px-3 py-1 text-[11px] font-medium uppercase tracking-[0.12em] text-ink-muted opacity-0">
+          <span aria-hidden="true" className="size-1.5 rounded-full bg-brand" />
+          AI-powered recruitment
         </span>
-        <h1 className="text-3xl font-bold tracking-tight text-ink dark:text-ink-dark">
+        <h1 data-reveal className="mt-5 max-w-3xl font-display text-4xl font-semibold leading-[1.08] tracking-tight text-ink opacity-0 sm:text-5xl">
           Run hiring from first resume to final offer.
         </h1>
-        <p className="text-sm text-ink-muted dark:text-ink-dark-muted">
-          Select your role below to get started
+        <p data-reveal className="mt-4 max-w-xl text-base leading-relaxed text-ink-muted opacity-0">
+          Semantic matching between candidates and roles, not keyword search. Pick how you want to start.
         </p>
-      </div>
+      </section>
 
-      {/* Role selection — all three equal */}
-      <div className="grid gap-4 md:grid-cols-3">
-        {roles.map(({ id, title, icon, iconBg, iconColor, headline, desc, perks, cta }) => (
-          <Link
-            key={id}
-            to={`/register?role=${id}`}
-            className="group flex flex-col rounded-2xl border border-surface-border bg-surface-raised p-6 transition-all duration-200 hover:-translate-y-1 hover:border-accent hover:shadow-[0_4px_24px_-4px_rgb(5_150_105_/_0.18)] dark:border-surface-dark-border dark:bg-surface-dark-raised"
-          >
-            <span className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl text-2xl ${iconBg} ${iconColor}`}>
-              {icon}
-            </span>
-            <p className="mb-0.5 text-xs font-semibold uppercase tracking-widest text-ink-faint dark:text-ink-dark-faint">
-              {title}
-            </p>
-            <h2 className="mb-2 text-lg font-bold text-ink dark:text-ink-dark">
-              {headline}
-            </h2>
-            <p className="mb-4 flex-1 text-sm leading-relaxed text-ink-muted dark:text-ink-dark-muted">
-              {desc}
-            </p>
-            <ul className="mb-5 space-y-1.5">
-              {perks.map((perk) => (
-                <li key={perk} className="flex items-center gap-2 text-xs text-ink-muted dark:text-ink-dark-muted">
-                  <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent-light text-[9px] font-bold text-accent-text">✓</span>
-                  {perk}
-                </li>
-              ))}
-            </ul>
-            <div className="rounded-xl bg-accent px-4 py-2 text-center text-sm font-semibold text-white transition-colors group-hover:bg-accent-hover">
-              {cta} →
-            </div>
-          </Link>
-        ))}
-      </div>
+      {/* Role selection — asymmetric: one featured card + two compact */}
+      <section>
+        <h2 className="mb-4 font-display text-xl font-semibold text-ink">Choose how you&apos;ll use HireBee</h2>
+        <RolePicker roles={roles} />
+      </section>
 
-      {/* Platform features — compact secondary */}
-      <div>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-faint dark:text-ink-dark-faint">
-          What&apos;s included
-        </p>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map(({ label, desc }) => (
-            <div key={label} className="flex items-start gap-2.5 rounded-xl border border-surface-border bg-surface-raised p-3 dark:border-surface-dark-border dark:bg-surface-dark-raised">
-              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-accent-light text-[9px] font-bold text-accent-text">✓</span>
-              <div>
-                <p className="text-xs font-semibold text-ink dark:text-ink-dark">{label}</p>
-                <p className="text-[11px] leading-snug text-ink-muted dark:text-ink-dark-muted">{desc}</p>
-              </div>
-            </div>
-          ))}
+      {/* Real numbered process per audience — two-column list, not a card grid */}
+      <HowItWorks />
+
+      {/* Platform features — informational, zero amber (restraint) */}
+      <section>
+        <h2 className="mb-4 font-display text-xl font-semibold text-ink">What&apos;s included</h2>
+        <FeatureGrid features={features} />
+      </section>
+
+      {/* Deeper dive on the 3 most distinctive capabilities — asymmetric bento */}
+      <CapabilityShowcase />
+
+      {/* Closing CTA — quiet, centered, reuses existing role CTAs verbatim */}
+      <section className="border-t border-surface-border py-14 text-center">
+        <h2 className="font-display text-2xl font-semibold text-ink">Ready to get started?</h2>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <Button asChild size="lg">
+            <Link to="/register?role=job_seeker">Get Started</Link>
+          </Button>
+          <Button asChild variant="outline" size="lg">
+            <Link to="/register?role=recruiter">Start Hiring</Link>
+          </Button>
         </div>
-      </div>
+      </section>
     </div>
   )
 }

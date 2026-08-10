@@ -8,21 +8,16 @@ import { ThemeProvider } from "./context/ThemeContext.jsx"
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ""
 
-function Root() {
-  const inner = (
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  )
-  return (
-    <ThemeProvider>
-      {googleClientId ? <GoogleOAuthProvider clientId={googleClientId}>{inner}</GoogleOAuthProvider> : inner}
-    </ThemeProvider>
-  )
-}
+const app = (
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+)
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <Root />
+    <ThemeProvider>
+      {googleClientId ? <GoogleOAuthProvider clientId={googleClientId}>{app}</GoogleOAuthProvider> : app}
+    </ThemeProvider>
   </StrictMode>,
 )
