@@ -5,14 +5,8 @@ import { Metric } from "@/components/Metric.jsx"
 import { Badge } from "@/components/ui/badge.jsx"
 import { EmptyState } from "@/components/feedback/EmptyState.jsx"
 import { PageHeader } from "@/components/feedback/PageHeader.jsx"
+import { emailStatusBadgeVariant } from "@/lib/email.js"
 import { useAdminData } from "../AdminDataContext.jsx"
-
-function emailStatusVariant(status) {
-  const s = (status || "").toLowerCase()
-  if (s.startsWith("sent")) return "default"
-  if (s.startsWith("failed")) return "destructive"
-  return "secondary"
-}
 
 const ROLE_LABELS = {
   job_seeker: "Job seekers",
@@ -80,7 +74,7 @@ export function AdminOverviewPage() {
                     <p className="truncate text-ink">{email.subject}</p>
                     <p className="truncate text-xs text-ink-muted">{email.recipient}</p>
                   </div>
-                  <Badge variant={emailStatusVariant(email.status)} className="shrink-0">
+                  <Badge variant={emailStatusBadgeVariant(email.status)} className="shrink-0">
                     {email.status}
                   </Badge>
                 </li>

@@ -2,15 +2,8 @@ import { cardClass } from "@/styles/uiClasses.js"
 import { Badge } from "@/components/ui/badge.jsx"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.jsx"
 import { PageHeader } from "@/components/feedback/PageHeader.jsx"
+import { emailStatusBadgeVariant } from "@/lib/email.js"
 import { useRecruiterData } from "../RecruiterDataContext.jsx"
-
-function emailStatusVariant(status) {
-  const s = (status || "").toLowerCase()
-  if (s.startsWith("sent")) return "default"
-  if (s.startsWith("failed")) return "destructive"
-  if (s.startsWith("queued")) return "secondary"
-  return "outline"
-}
 
 export function RecruiterEmailsPage() {
   const { logs } = useRecruiterData()
@@ -36,7 +29,7 @@ export function RecruiterEmailsPage() {
               {logs.slice(0, 40).map((log) => (
                 <TableRow key={log.id}>
                   <TableCell>
-                    <Badge variant={emailStatusVariant(log.status)}>{log.status}</Badge>
+                    <Badge variant={emailStatusBadgeVariant(log.status)}>{log.status}</Badge>
                   </TableCell>
                   <TableCell className="text-ink-muted">{log.recipient}</TableCell>
                   <TableCell className="whitespace-normal text-ink">{log.subject}</TableCell>

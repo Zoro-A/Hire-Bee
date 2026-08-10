@@ -7,17 +7,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog.jsx"
 import { PageHeader } from "@/components/feedback/PageHeader.jsx"
+import { emailStatusBadgeVariant } from "@/lib/email.js"
 import { DataTableShell } from "../components/DataTableShell.jsx"
 import { useAdminData } from "../AdminDataContext.jsx"
 
 const RENDER_CAP = 200
-
-function statusVariant(status) {
-  const s = (status || "").toLowerCase()
-  if (s === "sent") return "default"
-  if (s === "failed") return "destructive"
-  return "secondary"
-}
 
 const columns = [
   { key: "status", header: "Status" },
@@ -30,7 +24,7 @@ const columns = [
 function renderCell(email, key) {
   switch (key) {
     case "status":
-      return <Badge variant={statusVariant(email.status)}>{email.status}</Badge>
+      return <Badge variant={emailStatusBadgeVariant(email.status)}>{email.status}</Badge>
     case "recipient":
       return email.recipient
     case "provider":

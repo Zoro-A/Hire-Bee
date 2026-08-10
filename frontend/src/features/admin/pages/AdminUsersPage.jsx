@@ -29,7 +29,7 @@ function renderCell(user, key) {
       return <Badge variant={ROLE_VARIANTS[user.role] ?? "outline"}>{user.role}</Badge>
     case "is_active":
       return user.is_active ? (
-        <Badge variant="default">Active</Badge>
+        <Badge variant="success">Active</Badge>
       ) : (
         <Badge variant="secondary">Inactive</Badge>
       )

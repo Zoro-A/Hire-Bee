@@ -17,6 +17,11 @@ const badgeVariants = cva(
           "border-border text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         ghost: "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         link: "text-primary underline-offset-4 [a&]:hover:underline",
+        // Same semantic tokens as StatusBadge — keep the two badge
+        // components drawing from one color language instead of two.
+        success: "bg-success-bg text-success",
+        warn: "bg-warn-bg text-warn",
+        info: "bg-info-bg text-info",
       },
     },
     defaultVariants: {
